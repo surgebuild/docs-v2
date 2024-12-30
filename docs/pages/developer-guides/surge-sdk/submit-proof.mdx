@@ -5,4 +5,43 @@ description: Submit Proofs
 
 # Submit Proofs to Bitcoin
 
-## Tx Type CLI
+## Create a Surge Wallet in Keplr and request from faucet
+
+### Create a Surge Wallet in Keplr
+
+refer [Connect Keplr Wallet](/developer-guides/wallets-tokens/connect-keplr)
+
+### Request from faucet
+
+refer [Request from faucet](/developer-guides/wallets-tokens/get-tokens)
+
+### Intialize Surge SDK
+
+```bash
+npm install @surgebuild/surge-sdk
+```
+
+After installing the Surge SDK, you can initialize it with the following code:
+
+```typescript
+import { SurgeClient } from "@surgebuild/surge-sdk";
+
+const client = new SurgeClient();
+
+await client.init(
+  "a618676f8d7ed0322b98ca53f580b9c5c9d87d8a9ec1b60fe007b2b1000a2cbd" //add your private key from Keplr Wallet
+);
+```
+
+### Submit Proof
+
+```typescript
+const res = await client.submitProof(
+  "srg15428vq2uzwhm3taey9sr9x5vm6tk78ewcemlpx", //your public address
+  "./method.bin", //method.bin file path
+  "./state_verifier.proof", //state_verifier.proof file path
+  "RISCZERO", //proof type
+  "./receipt.pub" //receipt.pub file path
+);
+console.log(res);
+```

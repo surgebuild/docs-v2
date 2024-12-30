@@ -5,4 +5,30 @@ description: Verify Proofs
 
 # Verify Proofs
 
-## Query Type CLI
+### Intialize Surge SDK
+
+```bash
+npm install @surgebuild/surge-sdk
+```
+
+After installing the Surge SDK, you can initialize it with the following code:
+
+```typescript
+import { SurgeClient } from "@surgebuild/surge-sdk";
+
+const client = new SurgeClient();
+
+await client.init(
+  "a618676f8d7ed0322b98ca53f580b9c5c9d87d8a9ec1b60fe007b2b1000a2cbd" //add your private key from Keplr Wallet
+);
+```
+
+### Verify Proof
+
+```typescript
+const result = await client.verifyTransaction(
+  "5BE835A38898204E7A7AF7CD4A9BF5F5F02332A70990BACE0533EC1E204C3AFE" //hash of the submit proof tx
+);
+
+console.log("Verification result:", result);
+```
