@@ -33,15 +33,61 @@ await client.init(
 );
 ```
 
-### Submit Proof
+### Submit proof parameters
+
+```typescript
+{
+  "creator": "string",
+  "methodId": "string",
+  "proof": "string",
+  "proofSystem": "string",
+  "publicInputData": "string"
+}
+```
+
+### Submit Proofs
 
 ```typescript
 const res = await client.submitProof(
-  "srg15428vq2uzwhm3taey9sr9x5vm6tk78ewcemlpx", //your public address
-  "./method.bin", //method.bin file path
-  "./state_verifier.proof", //state_verifier.proof file path
-  "RISCZERO", //proof type
-  "./receipt.pub" //receipt.pub file path
+  "srg15428vq2uzwhm3taey9sr9x5vm6tk78ewcemlpx", //creator public address
+  "./method.bin", //methodId file path
+  "./state_verifier.proof", //proof file path
+  "RISCZERO", //proof system type "RISCZERO" or "SP1"
+  "./receipt.pub" //public input data file path
 );
 console.log(res);
 ```
+
+### Success Response
+
+```typescript
+{
+  code: 0,
+  events: [
+    { type: 'coin_spent', attributes: [{}, {}] },
+    { type: 'coin_received', attributes: [{}, {}] },
+    { type: 'transfer', attributes: [{}, {}, {}] },
+    { type: 'message', attributes: [{}] },
+    { type: 'tx', attributes: [{}, {}] },
+    { type: 'tx', attributes: [{}] },
+    { type: 'tx', attributes: [{}] },
+    { type: 'message', attributes: [{}, {}, {}, {}] },
+  ],
+  gasUsed: 11265716n,
+  gasWanted: 20000000n,
+  height: 601044,
+  msgResponses: [
+    {
+      typeUrl: '/surge.zkverify.MsgSubmitZkProofDataResponse',
+      value: new Uint8Array(2),
+    },
+  ],
+  rawLog: "",
+  transactionHash: "4FFBC70B5E4B9E112E4113CF54BD8F9058213229957FE7327BAFB46B39FCD028",
+  txIndex: 0,
+};
+```
+
+Proof file will differ based on the proof system you are using.
+
+For RISCZERO, you need to pass the `receipt.pub` file as a public input data, whereas for SP1, you can pass the public input data as an empty string.

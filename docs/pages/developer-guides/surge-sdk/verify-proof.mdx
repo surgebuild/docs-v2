@@ -5,7 +5,7 @@ description: Verify Proofs
 
 # Verify Proofs
 
-### Intialize Surge SDK
+## Intialize Surge SDK
 
 ```bash
 npm install @surgebuild/surge-sdk
@@ -23,7 +23,15 @@ await client.init(
 );
 ```
 
-### Verify Proof
+## Verify Proof parameters
+
+```typescript
+{
+  "hash": "string"
+}
+```
+
+## Verify Proof
 
 ```typescript
 const result = await client.verifyTransaction(
@@ -31,4 +39,16 @@ const result = await client.verifyTransaction(
 );
 
 console.log("Verification result:", result);
+```
+
+### Success Response
+
+```typescript
+{
+    "success": true,
+    "message": "Transaction verified successfully",
+    "error": null,
+    "details": null,
+    "bitcoin_tx_hash": "dc672330752289889b99836cfb235b20945b8022521d70eeb1b4823a92f305eb"
+}
 ```
