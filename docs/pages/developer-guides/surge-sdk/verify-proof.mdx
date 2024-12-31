@@ -5,40 +5,24 @@ description: Verify Proofs
 
 # Verify Proofs
 
-## Intialize Surge SDK
+## Prerequisites
 
-```bash
-npm install @surgebuild/surge-sdk
-```
-
-After installing the Surge SDK, you can initialize it with the following code:
-
-```typescript
-import { SurgeClient } from "@surgebuild/surge-sdk";
-
-const client = new SurgeClient();
-
-await client.init(
-  "a618676f8d7ed0322b98ca53f580b9c5c9d87d8a9ec1b60fe007b2b1000a2cbd" //add your private key from Keplr Wallet
-);
-```
+For SDK initialization steps, please refer to the [Submit Proofs](/developer-guides/surge-sdk/submit-proof#initialize-surge-bitcoin-zkp-sdk) guide first.
 
 ## Verify Proof parameters
 
 ```typescript
 {
-  "hash": "string"
+  "hash": "string" // tx hash from the submit proof of Surge Network
 }
 ```
 
 ## Verify Proof
 
 ```typescript
-const result = await client.verifyTransaction(
-  "5BE835A38898204E7A7AF7CD4A9BF5F5F02332A70990BACE0533EC1E204C3AFE" //hash of the submit proof tx
+const result = await client.verifyBitcoinSubmission(
+  "surge_network_tx_hash" // hash of the submit proof tx for Surge Network
 );
-
-console.log("Verification result:", result);
 ```
 
 ### Success Response
@@ -51,4 +35,10 @@ console.log("Verification result:", result);
     "details": null,
     "bitcoin_tx_hash": "dc672330752289889b99836cfb235b20945b8022521d70eeb1b4823a92f305eb"
 }
+```
+
+The `bitcoin_tx_hash` in the response represents the transaction hash of your proof that has been settled on the Bitcoin network. This serves as proof of settlement and can be viewed on the Surge Bitcoin Signet Explorer:
+
+```
+https://signet.surge.dev/tx/<bitcoin_tx_hash>
 ```
