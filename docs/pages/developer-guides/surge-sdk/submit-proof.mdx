@@ -14,6 +14,8 @@ To submit proofs to Bitcoin, you need a Surge wallet with sufficient balance. If
 
 ### Intialize Surge Bitcoin ZKP SDK
 
+Package link [@surgebuild/bitcoin-zkp-sdk](https://www.npmjs.com/package/@surgebuild/bitcoin-zkp-sdk)
+
 ```bash
 npm install @surgebuild/bitcoin-zkp-sdk
 ```
@@ -41,19 +43,22 @@ await client.init(
   "publicInputData": "string" // public input data file path for RISCZERO or empty string for SP1
 }
 ```
-### Note: 
+
+### Note:
+
 The file path provided in the parameters should be accessible by the node process.
 
 ### Submit Proofs
-e.g proof submission, 
+
+e.g proof submission,
 
 ```typescript
 const res = await client.submitProof(
   "srg15428vq2uzwhm3taey9sr9x5vm6tk78ewcemlpx",
   "./method.bin",
-  "./state_verifier.proof", 
+  "./state_verifier.proof",
   "RISCZERO", //proof system type "RISCZERO" or "SP1"
-  "./receipt.pub" 
+  "./receipt.pub"
 );
 ```
 
@@ -73,5 +78,6 @@ The `transactionHash` in the response represents the transaction hash on the Sur
 https://explorer-alphatestnet.surge.dev/txs/<transactionHash>
 ```
 
-### Note: 
+### Note:
+
 Proof file will differ based on the proof system you are using. For RISCZERO, you need to pass the `receipt.pub` file as a public input data, whereas for SP1, you can pass the public input data as an empty string.
