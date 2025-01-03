@@ -1,15 +1,15 @@
 const arr = [
   {
-    title: "Brand Kit",
-    url: "/resources/media-kit",
-  },
-  {
     title: "Quick Links",
     url: "/resources/quick-links",
   },
   {
     title: "Bitcoin Reports",
     url: "/bitcoin-reports/in-house-research",
+  },
+  {
+    title: "Brand Kit",
+    url: "/resources/media-kit",
   },
   {
     title: "Community Guidelines",
@@ -20,14 +20,14 @@ const arr = [
 export default function Resources() {
   return (
     <div className="size-full bg-white dark:bg-[#0d1111] pb-8 pl-7 pr-5 pt-5 shadow-lg dark:shadow-sm dark:shadow-gray-500 dark:border dark:border-gray-800 rounded-lg">
-      <div>
+      <a href="/resources/quick-links">
         <p className="gradientText text-[32px] font-bold leading-[42px] pb-2">
           Resources
         </p>
         <p className="border-b border-dashed border-[#6F7B8B] pb-4 text-base leading-5 text-[#6B7280]">
           Access our Brand and Product Logos for External Communications
         </p>
-      </div>
+      </a>
       <div className="flex flex-col gap-y-[10px] w-full mt-7">
         {arr.map((_item, ind) => (
           <a

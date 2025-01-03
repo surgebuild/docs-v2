@@ -156,6 +156,10 @@ export default defineConfig({
         text: "DEVELOPER GUIDES",
         items: [
           {
+            text: "Overview",
+            link: "/developer-guides/developer-guides",
+          },
+          {
             text: "Network Information",
             link: "/developer-guides/network-information",
           },
@@ -198,13 +202,6 @@ export default defineConfig({
           {
             text: "Testnet Explorer",
             link: "/developer-guides/testnet-explorer/explorer",
-            // collapsed: false,
-            // items: [
-            //   // {
-            //   //   text: "Bitcoin Inscription",
-            //   //   link: "/developer-guides/testnet-explorer/bitcoin-inscriptions",
-            //   // },
-            // ],
           },
           {
             text: "Wallet & Tokens",
