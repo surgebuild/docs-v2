@@ -19,6 +19,19 @@ Through recursive zk-proofs, Verifiers aggregate multiple user proofs into a sin
   className="md:w-[70%] w-[80%] mx-auto"
 />
 
+### Supported Proof Systems
+
+Surge is designed to accommodate any proving system. These are the ones we currently support:
+
+- [Groth16 by Jens Groth](https://www.zeroknowledgeblog.com/index.php/groth16)
+- [Plonk with BN254](https://github.com/dusk-network/plonk)
+- [SP1 by Succinct Labs](https://docs.succinct.xyz/)
+- [The RISC Zero zkVM](https://dev.risczero.com/api/)
+
+This foundational support enables developers to swiftly integrate these systems and fully utilize Surge's capabilities without any extra setup.
+
+We plan to support all major proving systems in the future.
+
 ### Optimized Data Availability
 
 Surge prioritizes minimal on-chain footprint by posting only commitments and aggregated signatures, eliminating the need for full transaction details on Bitcoin. This approach maximizes throughput while keeping on-chain costs low.
