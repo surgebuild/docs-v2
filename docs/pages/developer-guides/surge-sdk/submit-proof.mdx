@@ -39,10 +39,12 @@ await client.init(
   "creator": "string", // owner public address
   "methodId": "string", // method.bin file path
   "proof": "string", // proof file path
-  "proofSystem": "string", // proof system type "RISCZERO" or "SP1"
-  "publicInputData": "string" // public input data file path for RISCZERO or empty string for SP1
+  "proofSystem": "string", // proof system type"
+  "publicInputData?": "string" // public input data file path for RISCZERO
 }
 ```
+
+Visit [Supported Proof Systems](/developer-guides/developer-guides#supported-proof-systems) to learn more about the proof systems supported by Surge.
 
 ### Note:
 
