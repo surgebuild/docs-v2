@@ -9,6 +9,18 @@ import ZoomImage from "../../../components/ZoomImage";
 
 Verifiers are responsible for zk-proof validation over state transitions and transaction histories. Leveraging a **delegated Proof-of-Stake** (dPoS) model, Verifiers utilize leverage off-chain aggregation to consolidate multiple proofs into recursive SNARK proofs, reducing on-chain verification costs and enhancing scalability. This approach confines Bitcoin’s on-chain data to state commitments and aggregated signatures, optimizing data availability and enabling throughput of over 7,000+ transactions per second.
 
+### Supported Proof Systems
+
+Surge verifiers are designed to accommodate following proving systems:
+
+- ✅ [Groth16 by Jens Groth](https://www.zeroknowledgeblog.com/index.php/groth16)
+- ✅ [Plonk with BN254](https://github.com/dusk-network/plonk)
+- ✅ [SP1 by Succinct Labs](https://docs.succinct.xyz/)
+- ✅ [The RISC Zero zkVM](https://dev.risczero.com/api/)
+
+This foundational support enables developers to integrate these systems and fully utilize Surge's capabilities without any extra setup.
+
+We plan to support all other major proving systems in the future for verifiers.
 ### Off-Chain Aggregation with Recursive ZK-Proofs
 
 Through recursive zk-proofs, Verifiers aggregate multiple user proofs into a single succinct proof, cutting down on verification overhead. This enables the consolidation of extensive transaction data into minimal on-chain interactions, reducing costs and improving throughput efficiency.
@@ -18,19 +30,6 @@ Through recursive zk-proofs, Verifiers aggregate multiple user proofs into a sin
   alt="Aggregation Layer"
   className="md:w-[70%] w-[80%] mx-auto"
 />
-
-### Supported Proof Systems
-
-Surge is designed to accommodate any proving system. These are the ones we currently support:
-
-- [Groth16 by Jens Groth](https://www.zeroknowledgeblog.com/index.php/groth16)
-- [Plonk with BN254](https://github.com/dusk-network/plonk)
-- [SP1 by Succinct Labs](https://docs.succinct.xyz/)
-- [The RISC Zero zkVM](https://dev.risczero.com/api/)
-
-This foundational support enables developers to swiftly integrate these systems and fully utilize Surge's capabilities without any extra setup.
-
-We plan to support all major proving systems in the future.
 
 ### Optimized Data Availability
 

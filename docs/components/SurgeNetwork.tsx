@@ -15,10 +15,10 @@ const arr = [
     title: "UTXO Indexers",
     url: "/metalayer/architecture/indexers",
   },
-  {
-    title: "DevKit Adapters",
-    url: "/metalayer/architecture/adapters",
-  },
+  // {
+  //   title: "DevKit Adapters",
+  //   url: "/metalayer/architecture/adapters",
+  // },
 ];
 
 export default function SurgeNetwork() {

@@ -85,26 +85,26 @@ export default defineConfig({
                 text: "↳ UTXO Indexers",
                 link: "/metalayer/architecture/indexers",
               },
-              {
-                text: "↳ DevKit Adapters",
-                link: "/metalayer/architecture/adapters",
-              },
+              // {
+              //   text: "↳ DevKit Adapters",
+              //   link: "/metalayer/architecture/adapters",
+              // },
               {
                 text: "↳ Flexible VMs",
                 link: "/metalayer/architecture/altvms",
               },
             ],
           },
-          {
-            text: "Composability",
-            link: "/metalayer/composability",
-          },
+          // {
+          //   text: "Composability",
+          //   link: "/metalayer/composability",
+          // },
           {
             text: "Interoperability",
             link: "/metalayer/interoperability",
           },
           {
-            text: "Anchored on Bitcoin",
+            text: "Bitcoin like Security",
             link: "/metalayer/security",
           },
           // {
