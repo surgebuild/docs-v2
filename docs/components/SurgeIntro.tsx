@@ -15,10 +15,10 @@ const arr = [
     title: "Future of Bitcoin Scaling",
     url: "/overview/future-of-bitcoin-scaling",
   },
-  {
-    title: "Use Cases",
-    url: "/use-cases/app-specific-rollups",
-  },
+  // {
+  //   title: "Use Cases",
+  //   url: "/use-cases/app-specific-rollups",
+  // },
   // {
   //   title: "Evolution of Bitcoin Rollups",
   //   url: "/basics/journey-of-rollups-on-bitcoin",
