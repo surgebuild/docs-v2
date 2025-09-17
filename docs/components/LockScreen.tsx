@@ -11,7 +11,7 @@ export default function LockScreen({ onUnlock }: LockScreenProps) {
 
   // Valid passwords - in production, these would come from environment variables
   const validPasswords = ["surge2024", "bitcoin-scaling", "meta-layer-access"];
-
+  //rebase
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
