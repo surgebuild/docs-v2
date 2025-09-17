@@ -6,7 +6,7 @@ description: Taproot-based, MAST-committed spend programs that secure BTC
 # 🔐 dVaults: Programmable Bitcoin Vaults
 
 A **dVault** is a Bitcoin Taproot UTXO (BIP341) whose spend conditions are committed via **MAST/Tapscript** (BIP342).  
-dVaults are the **collateral engine** of Surge and BTC never leaves Bitcoin, spends are only possible under pre-committed.
+dVaults are the **collateral engine** of Surge and BTC never leaves Bitcoin; spends are only possible under pre-committed conditions.
 
 ## Core Scripting
 
@@ -17,9 +17,13 @@ dVaults are the **collateral engine** of Surge and BTC never leaves Bitcoin, spe
 ## Spend Paths
 
 - **Repayment** — BTC can be spent via the **key path** by `MuSig2(P_user, P_epoch)` after the execution environment attests that debt was repaid.  
-  _Enforced by signers + state proofs; the script enforces signatures only._
-- **Liquidation** — If CR < MinCR, signers spend via a **CSV-gated** script leaf. The spend **creates outputs**: (i) discounted sale to Stability Pool, (ii) change re-locked to a fresh dVault.  
-  _CR check is off-chain; the script enforces signer control + delay._
+
+_Enforced by signers + state proofs; the script enforces signatures only._
+- **Liquidation** — If CR < MinCR, signers spend via a **CSV-gated** script leaf. The spend creates outputs:
+   - Discounted sale to Stability Pool
+   - Change re-locked to a fresh dVault
+
+_CR check is off-chain; the script enforces signer control + delay._
 - **Signer migration** — After a cooldown, funds are re-locked to the **next signer epoch** (key rotation).
 - **Escape hatch** — After a long **CLTV**, the depositor can unilaterally recover with a dedicated recovery key.
 
@@ -46,7 +50,6 @@ AND(
     OP_CHECKSIG(mpc_aggkey_epoch),
     OP_CHECKSIG(stability_pool_key)
 )
-# Typically combined with OP_CHECKSEQUENCEVERIFY to throttle liquidation slices
 ```
 
 ## Lifecycle
@@ -63,4 +66,4 @@ AND(
 
 - **On-chain invariants (script):** Schnorr key ownership, `CSV/CLTV` timelocks, branch commitment in MAST.
 - **Off-chain invariants (signers/state):** CR evaluation, repayment attestation, SP discount schedule, and epoch rotation rules tied to the execution environment’s state root.
-- **Signer tech:** Coinbase `cb-mpc` with **MuSig2** (Schnorr) for Taproot keys; threshold **ECDSA** only where interop requires it (non Bitcoin contexts).
+- **Signer tech:** <a href="https://github.com/coinbase/cb-mpc" target="_blank" rel="noopener noreferrer" class="opacity-80 hover:opacity-100 hover:underline cursor-pointer transition-colors">Coinbase's cb-mpc</a> with **MuSig2** (Schnorr) for Taproot keys; threshold **ECDSA** only where interop requires it (non-Bitcoin contexts).

@@ -9,24 +9,24 @@ Surge is a **Bitcoin-native stablecoin access layer** built around a **two-plane
 
 ## Control Plane (Bitcoin)
 
-- BTC collateral is locked in Taproot **dVaults** (MAST based programs).
-- BTC never leaves Bitcoin and can move only via **Deterministic spend conditions**:
-  - **Repayment** requires borrower + signers signatures
+- BTC collateral is locked in Taproot **dVaults** (MAST-based programs).
+- BTC never leaves Bitcoin and can move only via **deterministic spend conditions**:
+  - **Repayment** requires borrower and signer signatures
   - **Liquidation** (if CR < threshold)
   - **Time-locked** (`OP_CHECKLOCKTIMEVERIFY`) for the loan duration
 - A BTC/USD **oracle** drives CR checks and liquidation triggers.
-- **Signer layer security**, All BTC spends require quorum approval from MPC signers using Coinbase’s cb-mpc framework.
+- **Signer layer security**, all BTC spends require quorum approval from MPC signers using <a href="https://github.com/coinbase/cb-mpc" target="_blank" rel="noopener noreferrer" class="opacity-80 hover:opacity-100 hover:underline cursor-pointer transition-colors">Coinbase’s cb-mpc</a> framework.
   - **Lin22** → Threshold Schnorr (Taproot)
   - **Hai+18** → Threshold ECDSA
 - **Non-custodial guarantees** with no unilateral control user + quorum signers or fallback timelocks.
 
-## Execution Plane (Surge Layer)
+## Execution Plane
 
 - Fully EVM compatible, built with reth and CometBFT for deterministic state
 - Surge **deploys to existing chains**, recording vault states, liabilities, stability pool balances, and signer epochs
 - State transitions on the Surge plane mirror BTC movements, ensuring 1:1 consistency between Bitcoin and stablecoin liabilities
-- Stability Pool, A single on-chain pool absorbs bad debt, receives BTC at a discount, and is funded by stablecoin lenders
-- Initial signers set is permissioned and roadmap toward **permissionless** enrollment.
+- **Stability Pool** — a single on-chain pool absorbs bad debt, receives BTC at a discount, and is funded by stablecoin lenders
+- The initial signer set is permissioned, with a roadmap toward **permissionless** enrollment.
 
 ## Cross-Chain Liquidity
 
