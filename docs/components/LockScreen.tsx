@@ -48,7 +48,7 @@ export default function LockScreen({ onUnlock }: LockScreenProps) {
               <img className="h-16 w-auto hidden dark:block" src="/logo/surge-icon-rec-dark.svg" alt="Surge Logo" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Surge Documentation</h1>
-            <p className="text-gray-600 dark:text-gray-300 text-sm">Bitcoin's ultimate scaling MetaLayer</p>
+            <p className="text-gray-600 dark:text-gray-300 text-sm">Unlocking Bitcoin's Lending Future</p>
           </div>
 
           {/* Password Form */}

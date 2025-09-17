@@ -136,7 +136,7 @@
           <img src="/logo/surge-icon-rec-dark.svg" alt="Surge Logo" style="height: 64px; width: auto; display: none;" class="logo-dark">
         </div>
         <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 8px; margin: 0;">Surge Documentation</h1>
-        <p style="color: #6b7280; font-size: 14px; margin: 0;">Bitcoin's ultimate scaling MetaLayer</p>
+        <p style="color: #6b7280; font-size: 14px; margin: 0;">Unlocking Bitcoin's Lending Future</p>
       </div>
       
       <form id="auth-form" style="margin-bottom: 32px;">
