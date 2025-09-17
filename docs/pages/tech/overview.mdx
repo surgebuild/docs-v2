@@ -11,7 +11,7 @@ import AuthWrapper from "../../components/AuthWrapper.tsx";
 
 Surge is a **Bitcoin-native stablecoin access layer**.
 
-Its architecture combines three core components:
+Its architecture combines three layers,
 
 ## Bitcoin Layer
 - BTC collateral is locked in Taproot **dVaults** (MAST based programs).  
@@ -22,14 +22,14 @@ Its architecture combines three core components:
   - **Time-locked escape hatch** (`OP_CHECKLOCKTIMEVERIFY`)
 - A BTC/USD **oracle** drives CR checks and liquidation triggers.
 
-## Signer Network
+## Signer Layer
 - All BTC spends require a quorum of MPC signers using battle tested Coinbase's **cb-mpc** open source framework.  
 - **Lin22** → Threshold Schnorr Signatures (Taproot). **Hai+18** → Threshold ECDSA Signatures.  
 - No unilateral control, signer **epochs** and **attestations** are tracked on-chain.  
 - Initial signers set are permissioned, roadmap toward **permissionless** enrollment.
 
-## Execution Environment
-- Programmable, **EVM-compatible** layer (reth) with **CometBFT** for deterministic state.  
+## Execution Layer
+- Programmable, **EVM compatible** layer (reth) with **CometBFT** for deterministic state.  
 - Surge deploys to existing chains.  
 - The ledger maintains vault state, debts, **stability pool** balances, and signer epochs
 - Deterministic state transitions ensure BTC movements align with stablecoin flows.

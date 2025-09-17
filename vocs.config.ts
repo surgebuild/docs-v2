@@ -89,7 +89,11 @@ export default defineConfig({
         text: "GUIDE",
         items: [
           {
-            text: "Surge Node Setup",
+            text: "Demo",
+            link: "/guide/demo",
+          },
+          {
+            text: "Node Setup",
             link: "/guide/surge-node-setup",
           },
         ],
@@ -122,10 +126,6 @@ export default defineConfig({
             text: "Community Guidelines",
             link: "/resources/community-guidelines",
           },
-          // {
-          //   text: "Surge FAQs",
-          //   link: "/resources/surge-faqs",
-          // },
         ],
       },
     ],
