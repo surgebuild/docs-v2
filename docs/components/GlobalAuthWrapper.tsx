@@ -14,8 +14,12 @@ export default function GlobalAuthWrapper({ children }: GlobalAuthWrapperProps) 
     // Check if user is already authenticated
     const checkAuth = () => {
       try {
-        const authStatus = localStorage.getItem("surge-docs-authenticated");
-        const authTimestamp = localStorage.getItem("surge-docs-auth-timestamp");
+        // Lock content by default until auth is confirmed
+        if (typeof document !== 'undefined') {
+          document.documentElement.setAttribute('data-auth', 'locked');
+        }
+        const authStatus = localStorage.getItem("surge-docs-authenticated-v2");
+        const authTimestamp = localStorage.getItem("surge-docs-auth-timestamp-v2");
 
         if (authStatus === "true" && authTimestamp) {
           // Check if authentication is still valid (24 hours)
@@ -28,12 +32,15 @@ export default function GlobalAuthWrapper({ children }: GlobalAuthWrapperProps) 
             setTimeout(() => {
               setIsAuthenticated(true);
               setIsLoading(false);
+              if (typeof document !== 'undefined') {
+                document.documentElement.setAttribute('data-auth', 'ok');
+              }
             }, 300); // Brief delay for smooth transition
             return;
           } else {
             // Clear expired authentication
-            localStorage.removeItem("surge-docs-authenticated");
-            localStorage.removeItem("surge-docs-auth-timestamp");
+            localStorage.removeItem("surge-docs-authenticated-v2");
+            localStorage.removeItem("surge-docs-auth-timestamp-v2");
           }
         }
 
@@ -51,6 +58,9 @@ export default function GlobalAuthWrapper({ children }: GlobalAuthWrapperProps) 
 
   const handleUnlock = () => {
     setIsAuthenticated(true);
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('data-auth', 'ok');
+    }
   };
 
   if (isLoading) {

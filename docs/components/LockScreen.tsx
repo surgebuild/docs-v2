@@ -22,8 +22,8 @@ export default function LockScreen({ onUnlock }: LockScreenProps) {
 
     if (validPasswords.includes(password.toLowerCase())) {
       // Save to localStorage
-      localStorage.setItem("surge-docs-authenticated", "true");
-      localStorage.setItem("surge-docs-auth-timestamp", Date.now().toString());
+      localStorage.setItem("surge-docs-authenticated-v2", "true");
+      localStorage.setItem("surge-docs-auth-timestamp-v2", Date.now().toString());
       onUnlock();
     } else {
       setError("Invalid password. Please try again.");

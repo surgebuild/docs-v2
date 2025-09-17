@@ -3,10 +3,6 @@ title: Technical Overview
 description: Understanding Surge's L1 chain architecture and layered security model
 ---
 
-import AuthWrapper from "../../components/AuthWrapper.tsx";
-
-<AuthWrapper>
-
 # 🔧 Technical Overview
 
 Surge is a **Bitcoin-native stablecoin access layer**.
@@ -14,30 +10,32 @@ Surge is a **Bitcoin-native stablecoin access layer**.
 Its architecture combines three layers,
 
 ## Bitcoin Layer
-- BTC collateral is locked in Taproot **dVaults** (MAST based programs).  
+
+- BTC collateral is locked in Taproot **dVaults** (MAST based programs).
 - Coins never leave Bitcoin and can move only via predefined **spend conditions**:
   - **Repayment**
   - **Liquidation** (if CR < threshold)
-  - **Signer migration** 
+  - **Signer migration**
   - **Time-locked escape hatch** (`OP_CHECKLOCKTIMEVERIFY`)
 - A BTC/USD **oracle** drives CR checks and liquidation triggers.
 
 ## Signer Layer
-- All BTC spends require a quorum of MPC signers using battle tested Coinbase's **cb-mpc** open source framework.  
-- **Lin22** → Threshold Schnorr Signatures (Taproot). **Hai+18** → Threshold ECDSA Signatures.  
-- No unilateral control, signer **epochs** and **attestations** are tracked on-chain.  
+
+- All BTC spends require a quorum of MPC signers using battle tested Coinbase's **cb-mpc** open source framework.
+- **Lin22** → Threshold Schnorr Signatures (Taproot). **Hai+18** → Threshold ECDSA Signatures.
+- No unilateral control, signer **epochs** and **attestations** are tracked on-chain.
 - Initial signers set are permissioned, roadmap toward **permissionless** enrollment.
 
 ## Execution Layer
-- Programmable, **EVM compatible** layer (reth) with **CometBFT** for deterministic state.  
-- Surge deploys to existing chains.  
+
+- Programmable, **EVM compatible** layer (reth) with **CometBFT** for deterministic state.
+- Surge deploys to existing chains.
 - The ledger maintains vault state, debts, **stability pool** balances, and signer epochs
 - Deterministic state transitions ensure BTC movements align with stablecoin flows.
 
 ## Liquidity & Cross-Chain
-- Circle **CCTP v2** moves USDC liquidity natively across chains (Ethereum first, more to follow).  
+
+- Circle **CCTP v2** moves USDC liquidity natively across chains (Ethereum first, more to follow).
 - A **canonical stability pool** on the primary chain absorbs bad debt and receives discounted BTC; funded by stablecoin lenders.
 
-**Net result:** Bitcoin-anchored security with programmability, cross-chain stablecoin connectivity, and institutional-grade auditability—**without wrapped BTC or bridges**.
-
-</AuthWrapper>
+This layered design anchors Surge in Bitcoin’s security, while offering programmability, stablecoin connectivity, and institutional-grade auditability.

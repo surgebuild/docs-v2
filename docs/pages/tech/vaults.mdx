@@ -3,10 +3,6 @@ title: dVaults
 description: Taproot-based, MAST-committed spend programs that secure BTC
 ---
 
-import AuthWrapper from "../../components/AuthWrapper.tsx";
-
-<AuthWrapper>
-
 # 🔐 dVaults: Programmable Bitcoin Vaults
 
 A **dVault** is a Bitcoin Taproot UTXO (BIP341) whose spend conditions are committed via **MAST/Tapscript** (BIP342).  
@@ -19,6 +15,7 @@ dVaults anchor Surge’s collateral: BTC never leaves Bitcoin; spends are only p
 - **Script leaves** handle exceptional paths (liquidation, signer migration, escape hatch) with timelocks.
 
 ## Spend Paths
+
 - **Repayment** — BTC can be spent via the **key path** by `MuSig2(P_user, P_epoch)` after the execution environment attests that debt was repaid.  
   _Enforced by signers + state proofs; the script enforces signatures only._
 - **Liquidation** — If CR < MinCR, signers spend via a **CSV-gated** script leaf. The spend **creates outputs**: (i) discounted sale to Stability Pool, (ii) change re-locked to a fresh dVault.  
@@ -26,10 +23,9 @@ dVaults anchor Surge’s collateral: BTC never leaves Bitcoin; spends are only p
 - **Signer migration** — After a cooldown, funds are re-locked to the **next signer epoch** (key rotation).
 - **Escape hatch** — After a long **CLTV**, the depositor can unilaterally recover with a dedicated recovery key.
 
-
 ## Example Script Structures
 
-Below are simplified pseudocode representations of how Surge dVaults enforce these conditions on Bitcoin.  
+Below are simplified pseudocode representations of how Surge dVaults enforce these conditions on Bitcoin.
 
 ### 1. Escape Hatch (User Recovery)
 
@@ -85,5 +81,3 @@ OP_CHECKSIG(new_mpc_aggkey_epoch+1)
 - **Off-chain invariants (signers/state):** CR evaluation, repayment attestation, SP discount schedule, and epoch rotation rules tied to the execution environment’s state root.
 - **Signer tech:** Coinbase `cb-mpc` with **MuSig2** (Schnorr) for Taproot keys; threshold **ECDSA** only where interop requires it (non-Bitcoin contexts).
 - **Fee safety:** **RBF/CPFP** recommended for timely confirmation on liquidation/rotation paths.
-
-</AuthWrapper>

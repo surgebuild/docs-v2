@@ -3,44 +3,44 @@ title: Execution Layer
 description: EVM compatible execution with reth + CometBFT; state-root–bound BTC spends
 ---
 
-import AuthWrapper from "../../components/AuthWrapper.tsx";
-
-<AuthWrapper>
 # ⚙️ Execution Layer
 
 Surge runs a **programmable, EVM compatible** execution environment that aligns BTC collateral on Bitcoin with stablecoin flows on host chains. The stack deploys to existing chains.
 
 ## Architecture
-- **reth (EVM execution)** — deterministic state transitions; precompile/feature set kept stable across deployments.  
-- **CometBFT (consensus)** — proposer-based BFT finality; ABCI++ for clean separation of execution and consensus.  
+
+- **reth (EVM execution)** — deterministic state transitions; precompile/feature set kept stable across deployments.
+- **CometBFT (consensus)** — proposer-based BFT finality; ABCI++ for clean separation of execution and consensus.
 - **Chain-agnostic** — the same execution logic can be instantiated on multiple host chains; a single canonical deployment governs the Stability Pool.
 
 ## Ledger Modules
-- **VaultRegistry** — tracks `vaultId → {collateral, debt, CR, epoch}`; enforces MinCR & system params.  
-- **StabilityPool** — absorbs bad debt; executes discounted BTC purchases; maintains lender balances and accounting.  
-- **SignerRegistry** — records signer **epochs**, aggregated keys (MuSig2), rotations, and enrollment metadata.  
-- **OracleModule** — accepts BTC/USD price updates with freshness/medianization; exposes price to CR checks.  
+
+- **VaultRegistry** — tracks `vaultId → {collateral, debt, CR, epoch}`; enforces MinCR & system params.
+- **StabilityPool** — absorbs bad debt; executes discounted BTC purchases; maintains lender balances and accounting.
+- **SignerRegistry** — records signer **epochs**, aggregated keys (MuSig2), rotations, and enrollment metadata.
+- **OracleModule** — accepts BTC/USD price updates with freshness/medianization; exposes price to CR checks.
 - **AttestationModule** — records spend/repay attestations linking Bitcoin actions to the current `state_root`.
 
-
 ## Events
+
 Contracts emit canonical events for every state transition:
-- `AttestedDeposit(vaultId, amount)`  
-- `DebtIssued(vaultId, amount)`  
-- `DebtRepaid(vaultId, amount)`  
-- `LiquidationTriggered(vaultId, slice)`  
-- `VaultClosed(vaultId)`  
+
+- `AttestedDeposit(vaultId, amount)`
+- `DebtIssued(vaultId, amount)`
+- `DebtRepaid(vaultId, amount)`
+- `LiquidationTriggered(vaultId, slice)`
+- `VaultClosed(vaultId)`
 
 ## State Root Binding
-- Every finalized block publishes a `state_root`.  
-- MPC signers only co-sign BTC spends if bound to `tx_digest || state_root`.  
-- Prevents divergence between Bitcoin spends and Surge’s ledger.  
+
+- Every finalized block publishes a `state_root`.
+- MPC signers only co-sign BTC spends if bound to `tx_digest || state_root`.
+- Prevents divergence between Bitcoin spends and Surge’s ledger.
 
 ## Validators
-- Propose and finalize blocks.  
-- Compute and publish state root.  
-- Verify CR thresholds and liquidation triggers.  
+
+- Propose and finalize blocks.
+- Compute and publish state root.
+- Verify CR thresholds and liquidation triggers.
 
 The execution environment is the deterministic ledger that aligns BTC collateral with stablecoin flows and signer enforcement.
-
-</AuthWrapper>
