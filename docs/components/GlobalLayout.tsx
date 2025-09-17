@@ -15,7 +15,9 @@ export default function GlobalLayout({ children }: GlobalLayoutProps) {
     const checkAuth = () => {
       try {
         const authStatus = localStorage.getItem("surge-docs-authenticated-v2");
-        const authTimestamp = localStorage.getItem("surge-docs-auth-timestamp-v2");
+        const authTimestamp = localStorage.getItem(
+          "surge-docs-auth-timestamp-v2"
+        );
 
         if (authStatus === "true" && authTimestamp) {
           // Check if authentication is still valid (24 hours)
@@ -59,7 +61,7 @@ export default function GlobalLayout({ children }: GlobalLayoutProps) {
     if (showShimmer) {
       // Show shimmer for new users
       return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-[#0d1111] via-[#1a1a1a] to-[#0d1111]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center ">
           <div className="relative z-10 w-full max-w-md mx-4">
             <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-8">
               {/* Shimmer for logo area */}
@@ -91,7 +93,7 @@ export default function GlobalLayout({ children }: GlobalLayoutProps) {
     } else {
       // Show simple loader for authenticated users
       return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-[#0d1111] via-[#1a1a1a] to-[#0d1111]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#f4431b] mx-auto"></div>
           </div>

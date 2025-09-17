@@ -31,7 +31,7 @@ export default defineConfig({
         items: [
           {
             text: "Introduction",
-            link: "/overview/introduction",
+            link: "/",
           },
           {
             text: "Bitcoin Lending Landscape",

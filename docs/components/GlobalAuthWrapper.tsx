@@ -39,12 +39,6 @@ export default function GlobalAuthWrapper({
               if (typeof document !== "undefined") {
                 document.documentElement.setAttribute("data-auth", "ok");
               }
-              if (
-                typeof window !== "undefined" &&
-                window.location.pathname === "/"
-              ) {
-                window.location.replace("/overview/introduction");
-              }
             }, 300); // Brief delay for smooth transition
             return;
           } else {
@@ -71,9 +65,6 @@ export default function GlobalAuthWrapper({
     if (typeof document !== "undefined") {
       document.documentElement.setAttribute("data-auth", "ok");
     }
-    if (typeof window !== "undefined" && window.location.pathname === "/") {
-      window.location.replace("/overview/introduction");
-    }
   };
 
   if (isLoading) {
@@ -81,7 +72,7 @@ export default function GlobalAuthWrapper({
     if (showShimmer) {
       // Show shimmer for new users
       return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-[#0d1111] via-[#1a1a1a] to-[#0d1111]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="relative z-10 w-full max-w-md mx-4">
             <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-8">
               {/* Shimmer for logo area */}
@@ -113,7 +104,7 @@ export default function GlobalAuthWrapper({
     } else {
       // Show simple loader for authenticated users
       return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-[#0d1111] via-[#1a1a1a] to-[#0d1111]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#f4431b] mx-auto"></div>
           </div>

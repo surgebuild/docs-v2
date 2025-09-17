@@ -1,37 +1,32 @@
 ---
-content:
-  width: 100%
-layout: landing
+title: "Surge | Introduction"
+description: "Unlocking Bitcoin's Lending Future"
 ---
 
-import { Button } from "vocs/components";
-import { HomePage } from "vocs/components";
-import Zoom from "react-medium-image-zoom";
-import "react-medium-image-zoom/dist/styles.css";
-import SurgeIntro from "../components/SurgeIntro.tsx";
-import Resources from "../components/Resources.tsx";
+{/* <img src="/assets/intro.png" alt="Surge Intro" /> */}
 
-<div className="w-full h-full relative test">
-  <img
-    className="w-full absolute top-0 left-0 z-[0] opacity-60 dark:hidden"
-    src="assets/docs_bg_light.png"
-  />
-  <img
-    className="w-full absolute top-0 left-0 z-[0] opacity-60 hidden dark:block"
-    src="assets/docs_bg_dark.png"
-  />
-  <div className="flex flex-col items-center justify-center relative z-[1] max-w-[1200px] mx-auto px-[24px] md:mt-[12px] md:px-0 md:mb-20">
-    <HomePage.Tagline className="!text-[40px] !font-bold mb-4">
-      Unlock Bitcoin
-    </HomePage.Tagline>
-    <HomePage.Description className="mb-10 !text-base	 dark:!text-grey-100 !text-grey-100">
-      Our guide to unlock Bitcoin's Lending Future{" "}
-    </HomePage.Description>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-      <SurgeIntro />
-      {/* <SurgeNetwork/> */}
-      {/* <BitcoinPlayground/> */}
-      <Resources />
-    </div>
-  </div>
-</div>
+{/* Optional hero image */}
+{/* <img src="/assets/intro.png" alt="Surge Intro" className="mx-auto my-8" /> */}
+
+# Introduction
+
+### Unlocking Bitcoin's Lending Future
+
+Surge is a **Bitcoin native infrastructure** that powers programmable vaults (`dVaults`) for
+stablecoin rails and decentralized lending. At the core of Surge lies the `dVault` a unique
+construct leveraging Bitcoin's `Taproot` upgrade and secure threshold signature schemes (TSS)
+to bring non-custodial, decentralized infrastructure to Bitcoin lending.
+
+Surge functions as an **app-specific infra layer**, purpose built for a transparent, open, and
+programmable Bitcoin lending market.
+
+The current BTC lending market, largely shaped by legacy platforms from past bull cycles,
+remains opaque and centralized, serving only a narrow audience typically high-net-worth
+individuals (HNWIs) and institutions. Bitcoin's limited programmability has historically
+restricted innovation, allowing CeFi dominance to flourish. But things are changing. New
+architectures using multi-signature setups, `MPC`s, and `DLC`s are advancing, and Surge is at
+the forefront of this shift with its powerful dVault framework.
+
+Whether you're a developer, investor, early adopter, or protocol researcher, if you believe
+Bitcoin can do more than just sit in cold storage, **Surge is your on-ramp** to a more expressive
+and trustless Bitcoin economy.
