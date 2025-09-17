@@ -49,15 +49,15 @@ img {
   height: 80%;
 } */
 
-.vocs_Sidebar_logo a {
+.vocs_Sidebar .vocs_Sidebar_logo a {
   display: flex; /* Make sure the logos and text are in a horizontal line */
   align-items: center; /* Vertically center the text with the logo */
 }
 
-.dark .vocs_Sidebar_logo a:after {
+.dark .vocs_Sidebar .vocs_Sidebar_logo a:after {
   color: #fff;
 }
-.vocs_Sidebar_logo a:after {
+.vocs_Sidebar .vocs_Sidebar_logo a:after {
   content: "Surge Documentation"; /* Add the text next to the logo */
   font-size: 16px;
   font-weight: 600;
@@ -95,7 +95,9 @@ img {
 .customBtn:hover {
   transform: scale(1.03);
 }
-.vocs_Sidebar_sectionTitle {
+
+.vocs_Sidebar .vocs_Sidebar_sectionTitle {
+  line-height: 1rem;
   font-weight: 600;
   font-size: 0.75rem; /* text-xs */
   padding-top: 0; /* py-0 */
@@ -104,12 +106,13 @@ img {
   padding-right: 0.5rem; /* px-2 */
 }
 
-.vocs_Sidebar_items {
+.vocs_Sidebar .vocs_Sidebar_items {
   row-gap: 0.1rem;
 }
 
-.vocs_Sidebar_item {
+.vocs_Sidebar .vocs_Sidebar_item {
   font-size: 0.875rem; /* text-sm */
+  line-height: 1.25rem;
   padding-top: 0.375rem; /* py-1.5 */
   padding-bottom: 0.375rem; /* py-1.5 */
   padding-left: 0.5rem; /* px-2 */
@@ -118,11 +121,11 @@ img {
   border-radius: 0.3rem;
 }
 
-.vocs_Sidebar_item[data-active="true"] {
+.vocs_Sidebar .vocs_Sidebar_item[data-active="true"] {
   font-weight: 600;
   transition: background-color 0.2s ease-in-out;
 }
-.vocs_Sidebar_item[data-active="true"]:hover {
+.vocs_Sidebar .vocs_Sidebar_item[data-active="true"]:hover {
   background-color: #f4431b1f;
 }
 
@@ -174,15 +177,15 @@ img {
   border-color: #e4e4e5; /* Dark hover */
 }
 
-.vocs_Sidebar_logo {
+.vocs_Sidebar .vocs_Sidebar_logo {
   display: block;
   width: 100%;
 }
 
-.vocs_Sidebar_logo {
+.vocs_Sidebar .vocs_Sidebar_logo {
   background-color: #ffffff;
 }
-.dark .vocs_Sidebar_logo {
+.dark .vocs_Sidebar .vocs_Sidebar_logo {
   background-color: #0d1111;
 }
 
@@ -332,6 +335,32 @@ img {
   height: 12px;
   border-radius: 4px;
   margin: 0 auto;
+}
+
+.auth-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background: linear-gradient(90deg, #f4431b 0%, #8e2710 100%);
+  color: #ffffff;
+  font-weight: 600;
+  padding: 0.75rem 1rem; /* py-3 px-4 */
+  border-radius: 0.5rem; /* rounded-lg */
+  transition: transform 0.2s ease, filter 0.2s ease, opacity 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.auth-btn:hover {
+  transform: scale(1.02);
+  filter: brightness(1.02);
+}
+
+.auth-btn:disabled {
+  background: #6b7280; /* gray-500 */
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.9;
 }
 
 .shimmer-loading-container {
