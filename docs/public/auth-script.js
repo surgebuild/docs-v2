@@ -3,7 +3,7 @@
   'use strict';
 
   // Valid passwords - in production, these would come from environment variables
-  const validPasswords = ['surge2024', 'bitcoin-scaling', 'meta-layer-access'];
+  const validPasswords = ["moveyourbitcoin", "putyourbitcoin2work", "btcstablerails", "surge2025", "surgenewera"];
 
   // Check authentication status
   function checkAuth() {

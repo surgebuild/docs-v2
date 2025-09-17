@@ -5,12 +5,8 @@ export default function AuthScript() {
     // Check authentication status
     const checkAuth = () => {
       // Prefer v2 keys; fallback to v1 if present to force prompt
-      const authStatus =
-        localStorage.getItem("surge-docs-authenticated-v2") ||
-        localStorage.getItem("surge-docs-authenticated");
-      const authTimestamp =
-        localStorage.getItem("surge-docs-auth-timestamp-v2") ||
-        localStorage.getItem("surge-docs-auth-timestamp");
+      const authStatus = localStorage.getItem("surge-docs-authenticated-v2") || localStorage.getItem("surge-docs-authenticated");
+      const authTimestamp = localStorage.getItem("surge-docs-auth-timestamp-v2") || localStorage.getItem("surge-docs-auth-timestamp");
 
       if (authStatus !== "true" || !authTimestamp) {
         // Show lock screen
@@ -121,31 +117,30 @@ export default function AuthScript() {
 
       // Handle form submission
       const form = document.getElementById("auth-form");
-      const passwordInput = document.getElementById(
-        "password-input"
-      ) as HTMLInputElement;
+      const passwordInput = document.getElementById("password-input") as HTMLInputElement;
       const errorMessage = document.getElementById("error-message");
-      const submitBtn = document.getElementById(
-        "submit-btn"
-      ) as HTMLButtonElement;
+      const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement;
 
-      const validPasswords = [
-        "surge2024",
-        "bitcoin-scaling",
-        "meta-layer-access",
-      ];
+      // Build-time configured passwords via env (comma-separated). Falls back to defaults.
+      const envPasswordsRaw = (process.env.VALID_PASSWORDS || "").toString();
+      const envPasswords = envPasswordsRaw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      const defaultPasswords = ["moveyourbitcoin", "putyourbitcoin2work", "btcstablerails", "surge2025", "surgenewera"];
+
+      const validPasswords = (envPasswords.length ? envPasswords : defaultPasswords).map((p) => p.toLowerCase());
 
       form?.addEventListener("submit", async (e) => {
         e.preventDefault();
 
         submitBtn.disabled = true;
-        submitBtn.innerHTML =
-          '<div style="display: flex; align-items: center; justify-content: center;"><div style="width: 20px; height: 20px; border: 2px solid white; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 8px;"></div>Verifying...</div>';
+        submitBtn.innerHTML = '<div style="display: flex; align-items: center; justify-content: center;"><div style="width: 20px; height: 20px; border: 2px solid white; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 8px;"></div>Verifying...</div>';
 
         // Add spin animation
         const style = document.createElement("style");
-        style.textContent =
-          "@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }";
+        style.textContent = "@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }";
         document.head.appendChild(style);
 
         // Simulate loading
@@ -154,10 +149,7 @@ export default function AuthScript() {
         if (validPasswords.includes(passwordInput.value.toLowerCase())) {
           // Save to localStorage
           localStorage.setItem("surge-docs-authenticated-v2", "true");
-          localStorage.setItem(
-            "surge-docs-auth-timestamp-v2",
-            Date.now().toString()
-          );
+          localStorage.setItem("surge-docs-auth-timestamp-v2", Date.now().toString());
 
           // Remove lock screen
           overlay.remove();
