@@ -23,7 +23,7 @@ export default function LockScreen({ onUnlock }: LockScreenProps) {
     if (validPasswords.includes(password.toLowerCase())) {
       // Save to localStorage
       localStorage.setItem("surge-docs-authenticated", "true");
-      localStorage.setItem("surge-docs-auth-time stamp", Date.now().toString());
+      localStorage.setItem("surge-docs-auth-timestamp", Date.now().toString());
       onUnlock();
     } else {
       setError("Invalid password. Please try again.");
@@ -33,7 +33,7 @@ export default function LockScreen({ onUnlock }: LockScreenProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-[#0d1111] via-[#1a1a1a] to-[#0d1111]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0d1111] dark:via-[#1a1a1a] dark:to-[#0d1111]">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-[#f4431b]/5 to-transparent"></div>

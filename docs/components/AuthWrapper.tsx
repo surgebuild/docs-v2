@@ -52,7 +52,7 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
   if (isLoading) {
     // Show simple loader while checking authentication
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-[#0d1111] via-[#1a1a1a] to-[#0d1111]">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0d1111] dark:via-[#1a1a1a] dark:to-[#0d1111]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#f4431b] mx-auto"></div>
         </div>

@@ -1,0 +1,45 @@
+---
+title: Execution Layer
+description: Understanding Surge's reth-based EVM implementation and state root binding
+---
+
+import AuthWrapper from "../../components/AuthWrapper.tsx";
+
+<AuthWrapper>
+
+# Execution Layer
+
+## Architecture
+Surge operates a **programmable execution environment** that is EVM-compatible.  
+Validators run:
+- **reth** as the EVM execution client.  
+- **CometBFT/Tendermint** for deterministic consensus and finality.  
+
+## Ledger Functions
+The execution environment maintains:
+- **Vault Registry** → Tracks BTC collateral, stablecoin debt, and collateral ratio.  
+- **Stability Pools** → Absorb bad debt using reserves of stables, purchasing BTC at discount.  
+- **Signer Epochs** → Manages aggregate keys and signer rotations.  
+- **Oracle Data** → Feeds BTC/USD price for CR checks.  
+
+## Events
+Contracts emit canonical events for every state transition:
+- `AttestedDeposit(vaultId, amount)`  
+- `DebtIssued(vaultId, amount)`  
+- `DebtRepaid(vaultId, amount)`  
+- `LiquidationTriggered(vaultId, slice)`  
+- `VaultClosed(vaultId)`  
+
+## State Root Binding
+- Every finalized block publishes a `state_root`.  
+- MPC signers only co-sign BTC spends if bound to `tx_digest || state_root`.  
+- Prevents divergence between Bitcoin spends and Surge’s ledger.  
+
+## Validators
+- Propose and finalize blocks.  
+- Compute and publish state root.  
+- Verify CR thresholds and liquidation triggers.  
+
+The execution environment is the deterministic ledger that aligns BTC collateral with stablecoin flows and signer enforcement.
+
+</AuthWrapper>

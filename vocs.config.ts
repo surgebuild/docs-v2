@@ -10,14 +10,14 @@ export default defineConfig({
   font: {
     google: "Inter",
   },
-  topNav: [
-    { text: "Blog", link: "https://surge.build/blog" },
-    // {
-    //   text: "Bitcoin Playground",
-    //   link: "https://surge.build/playground",
-    // },
-    { text: "Website", link: "https://www.surge.build/" },
-  ],
+  // topNav: [
+  //   { text: "Blog", link: "https://surge.build/blog" },
+  // {
+  //   text: "Bitcoin Playground",
+  //   link: "https://surge.build/playground",
+  // },
+  //   { text: "Website", link: "https://www.surge.build/" },
+  // ],
   theme: {
     // accentColor: "#f56949"
     accentColor: "#f4431b",
@@ -34,16 +34,54 @@ export default defineConfig({
             link: "/overview/introduction",
           },
           {
-            text: "🏗 Bitcoin Lending Landscape",
+            text: "Bitcoin Lending Landscape",
             link: "/overview/bitcoin-lending-landscape",
           },
           {
-            text: "BTCFi - The New Bitcoin Frontier?",
-            link: "/overview/btcFi",
+            text: "Key Challenges for Bitcoiners",
+            link: "/overview/challenges",
           },
           {
-            text: "Future of Bitcoin Scaling",
-            link: "/overview/future-of-bitcoin-scaling",
+            text: "Stablecoins - A $3 Trillion Opportunity",
+            link: "/overview/stablecoins",
+          },
+        ],
+      },
+      {
+        text: "PRODUCT & THESIS",
+        items: [
+          {
+            text: "Our Thesis & Vision",
+            link: "/product/our-thesis-vision",
+          },
+          {
+            text: "Product Overview",
+            link: "/product/overview",
+          },
+          {
+            text: "Signers & Validators",
+            link: "/product/signers-validators",
+          },
+        ],
+      },
+      {
+        text: "KNOW THE TECH",
+        items: [
+          {
+            text: "Overview",
+            link: "/tech/overview",
+          },
+          {
+            text: "dVaults",
+            link: "/tech/vaults",
+          },
+          {
+            text: "Execution Layer",
+            link: "/tech/execution-layer",
+          },
+          {
+            text: "Cross-Chain Communication",
+            link: "/tech/cross-chain-communication",
           },
         ],
       },
@@ -52,7 +90,7 @@ export default defineConfig({
         items: [
           {
             text: "Surge Node Setup",
-            link: "/collaborate/node-setup-guid",
+            link: "/guide/surge-node-setup",
           },
         ],
       },

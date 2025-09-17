@@ -1,0 +1,37 @@
+---
+title: Technical Overview
+description: Understanding Surge's L1 chain architecture and layered security model
+---
+
+import AuthWrapper from "../../components/AuthWrapper.tsx";
+
+<AuthWrapper>
+
+# 🔧 Technical Overview
+
+Surge is a Bitcoin-native stablecoin access layer.  
+Its architecture combines three core components:
+
+- **Bitcoin Layer**  
+  BTC collateral is locked in Taproot vaults (`dVaults`) with program conditions.  
+  Coins never leave Bitcoin and can only move under predefined conditions.  
+
+- **Signer Network**  
+  BTC spends require a quorum of MPC signers using Coinbase’s [cb-mpc](https://github.com/coinbase/cb-mpc) library.  
+  - **Lin22** → Threshold Schnorr signatures.  
+  - **Hai+18** → Threshold ECDSA signatures.  
+  Initial signers are permissioned, but Surge will move toward permissionless signups.  
+
+- **Execution Environment**  
+  Surge runs a **programmable execution environment** that is EVM-compatible.  
+  - Validators run **reth** with **CometBFT/Tendermint** consensus.  
+  - The ledger tracks vaults, debts, stability pools, and signer epochs.  
+  - Deterministic state transitions ensure BTC movements align with stablecoin flows.  
+
+- **Liquidity & Cross-Chain**  
+  Surge integrates Circle’s **CCTP v2** to move stablecoin liquidity natively between chains.  
+  Liquidity pools are maintained on a primary chain and extended to Ethereum first, with more chains to follow.  
+
+This layered design anchors Surge in Bitcoin’s security, while offering programmability, stablecoin connectivity, and institutional-grade auditability.
+
+</AuthWrapper>

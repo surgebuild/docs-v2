@@ -1,0 +1,38 @@
+---
+title: Cross-Chain Communication
+description: Understanding Surge's stablecoin settlement and Proof-of-Reserves architecture
+---
+
+import AuthWrapper from "../../components/AuthWrapper.tsx";
+
+<AuthWrapper>
+
+# Cross-Chain Communication
+
+## Liquidity Movement
+Surge integrates **Circle’s CCTP v2** for native stablecoin transfers.  
+- Liquidity pools are maintained on one chain.  
+- Stablecoin liquidity can move seamlessly to supported chains.  
+- Initial support targets **Ethereum**, with expansion planned to more ecosystems.  
+
+## Stablecoin Payouts
+- When a vault issues debt, the execution environment requests stablecoin payout via CCTP.  
+- BTC remains locked in its dVault; only stablecoins move cross-chain.  
+
+## Redemptions
+- When debt is repaid, execution verifies repayment and allows BTC release via repayment path.  
+- **HTLC/adaptor signatures** ensure BTC unlock only occurs if stablecoin settlement is cryptographically confirmed.  
+
+## Stability Pools
+- Reserve of stablecoins used to absorb bad debt.  
+- In liquidations, BTC is sold to Stability Pool at discount.  
+- **Micro-liquidations** ensure only the amount needed to rebalance CR is sold, preserving most of user’s position.  
+
+## Proofs & Audits
+- **Proof-of-Reserves** → BTC UTXOs tracked on Bitcoin.  
+- **Proof-of-Liabilities** → Debt registry published per block.  
+- Combined, external parties can verify solvency in real-time.  
+
+Cross-chain communication is designed to be **native, auditable, and failure-resistant**, enabling Surge to aggregate stablecoin liquidity across multiple ecosystems while keeping BTC locked on Bitcoin.
+
+</AuthWrapper>

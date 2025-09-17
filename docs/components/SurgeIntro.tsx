@@ -4,16 +4,16 @@ const arr = [
     url: "/overview/introduction",
   },
   {
-    title: "Evolution of Bitcoin Scalability",
-    url: "/overview/bitcoin-scalability",
+    title: "Bitcoin Lending Landscape",
+    url: "/overview/bitcoin-lending-landscape",
   },
   {
-    title: "BTCFi - The new Bitcoin Frontier?",
-    url: "/overview/btcFi",
+    title: "Key Challenges for Bitcoiners",
+    url: "/overview/challenges",
   },
   {
-    title: "Future of Bitcoin Scaling",
-    url: "/overview/future-of-bitcoin-scaling",
+    title: "Stablecoins: A $3 Trillion Opportunity",
+    url: "/overview/stablecoins",
   },
   // {
   //   title: "Use Cases",
@@ -33,7 +33,7 @@ export default function SurgeIntro() {
           Learn
         </p>
         <p className="border-b border-dashed border-[#6F7B8B] pb-4 text-base leading-5 text-[#6B7280]">
-          Core Principles and Bitcoin Scaling
+          Unlocking Bitcoin's Lending Future
         </p>
       </div>
       <div className="flex flex-col gap-y-[10px] w-full mt-7">

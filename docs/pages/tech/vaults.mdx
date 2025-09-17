@@ -1,0 +1,37 @@
+---
+title: dVaults
+description: 
+---
+
+import AuthWrapper from "../../components/AuthWrapper.tsx";
+
+<AuthWrapper>
+
+# 🔐 dVaults: Programmable Bitcoin Vaults
+
+A **dVault** is a Bitcoin Taproot UTXO locked under a set of **conditions**.  
+They are the foundation of Surge’s collateral system, combining Bitcoin Scripts with signer validation.
+## Core Scripting
+Each vault commits to a **MAST (Merkleized Abstract Syntax Tree)** of spend paths:
+- **Repayment path** → BTC can be released when debt is repaid.  
+- **Liquidation path** → BTC slice can be transferred to Stability Pool if collateral ratio drops.  
+- **Migration path** → BTC can be re-locked under a new signer set with cooldown.  
+- **Escape hatch** → Depositor can reclaim funds unilaterally after a timelock.  
+
+Unused branches remain hidden, preserving privacy and efficiency.
+
+## Lifecycle
+1. **Deposit**: User locks BTC into Taproot address with dVault script tree.  
+2. **Borrow**: Execution environment issues stablecoins (e.g., USDC) against collateral.  
+3. **Maintenance**: Oracles update BTC/USD price; vault health monitored continuously.  
+4. **Micro-Liquidations**: If collateral ratio falls, small BTC slices are sold to Stability Pool to rebalance, not wipe out the whole position.  
+5. **Repayment/Closure**: Debt repaid → BTC unlocked through repayment branch.  
+
+## Security
+- **Bitcoin Scripts** enforce timelocks and conditional spends.  
+- **MPC Signers (cb-mpc)** ensure BTC cannot move without ledger validation.  
+- **Escape hatch** guarantees depositor sovereignty.  
+
+dVaults turn BTC into programmable, sovereign, and auditable collateral.
+
+</AuthWrapper>

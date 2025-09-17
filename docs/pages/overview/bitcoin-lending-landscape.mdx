@@ -1,36 +1,44 @@
-import ZoomImage from "../../components/ZoomImage";
+---
+title: Bitcoin Lending Landscape
+description: Understanding the current Bitcoin lending market and its challenges
+---
+
 import AuthWrapper from "../../components/AuthWrapper.tsx";
+import ZoomImage from "../../components/ZoomImage";
 
 <AuthWrapper>
-# Market Breakdown
+
+# 🏗 Bitcoin Lending Landscape
+## Market Breakdown
 
 Bitcoin lending today is segmented into three core categories:
 
-1. **CeFi platforms**: Centralized, regulated, and focused primarily on large BTC holders. These platforms rely on custodians and often lack transparency.
-2. **DeFi models (Multisig, P2P, DLCs)**: Non-custodial and promising, but early-stage with UX and regulatory challenges.
-3. **Wrapped BTC on other chains**: Operate on Ethereum and other L1s with WBTC or similar, introducing bridge risks and custodial dependencies that Bitcoiners often avoid.
+- **CeFi platforms**: Centralized, regulated, and focused primarily on large BTC holders. These platforms rely on custodians and often lack transparency.
+- **DeFi models (Multisig, P2P, DLCs)**: Non-custodial and promising, but early-stage with UX and regulatory challenges.
+- **Wrapped BTC on other chains**: Operate on Ethereum and other L1s with WBTC or similar, introducing bridge risks and custodial dependencies that Bitcoiners often avoid.
 
 The visual breakdown below illustrates the diversity of players and tech stacks in this
 market:
 
-Emerging trends:
+<ZoomImage
+  src="/assets/cefi.png"
+  alt="Bitcoin lending landscape"
+  width="100%"
+  className="mx-auto"
+/>
+
+## Emerging Trends
+
 - CeFi platforms dominate but contribute to high borrowing costs.
 - DeFi market share is growing rapidly, supported by infrastructure and regulatory tailwinds.
 - Recent Galaxy reports confirm the rising preference for DeFi in crypto-collateralized lending.
 - Most platforms cater to a narrow slice—HNWIs or institutions—leaving retail Bitcoiners underserved.
 - As stablecoin usage accelerates, new payment and remittance channels are opening up, driving structural changes in the lending landscape.
 
-For a detailed player-by-player breakdown, refer to the comparison table here ->
-https://surgehq.notion.site/263232deac9080e3a6a3f9f040047105?v=263232deac90803bbf49000c80e4431b
+## Resources
 
-You can further read emerging trends here at MetaBitcoiner -> https://metabitcoiner.substack.com/p/bitcoin-lending-landscape
+[Detailed player by player breakdown](https://surgehq.notion.site/263232deac9080e3a6a3f9f040047105?v=263232deac90803bbf49000c80e4431b)  
+[Read more on emerging trends](https://metabitcoiner.substack.com/p/bitcoin-lending-landscape)  
 
 </AuthWrapper>
 
-
-{/* <ZoomImage
-  src="/assets/bitcoin-scaling-landscape.png"
-  alt="Bitcoin scaling landscape"
-  width="100%"
-  className="mx-auto"
-/> */}
