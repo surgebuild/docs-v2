@@ -1,6 +1,6 @@
 ---
 title: dVaults
-description: 
+description: Taproot-based, MAST-committed spend programs that secure BTC
 ---
 
 import AuthWrapper from "../../components/AuthWrapper.tsx";
@@ -9,20 +9,23 @@ import AuthWrapper from "../../components/AuthWrapper.tsx";
 
 # 🔐 dVaults: Programmable Bitcoin Vaults
 
-A **dVault** is a Bitcoin Taproot UTXO locked under a set of **conditions**.  
-They are the foundation of Surge’s collateral system, combining Bitcoin Scripts with signer validation.
+A **dVault** is a Bitcoin Taproot UTXO (BIP341) whose spend conditions are committed via **MAST/Tapscript** (BIP342).  
+dVaults anchor Surge’s collateral: BTC never leaves Bitcoin; spends are only possible under pre-committed, auditable conditions.
 
 ## Core Scripting
 
-Each vault commits to a **MAST (Merkleized Abstract Syntax Tree)** of spend paths.  
-This allows multiple fallback options to exist, but only the executed branch is revealed when the UTXO is spent.  
-Unused branches remain hidden, preserving privacy and efficiency.
+- Each vault commits a **taptree** of spend leaves (miniscript/tapscript). Only the executed leaf is revealed on spend; unused branches remain hidden.
+- The **key path** (MuSig2 aggregate of user + signer epoch) handles the common “repayment” flow cheaply.
+- **Script leaves** handle exceptional paths (liquidation, signer migration, escape hatch) with timelocks.
 
 ## Spend Paths
-- **Repayment path** → BTC can be released when debt is repaid and signer quorum validates.  
-- **Liquidation path** → BTC slice can be transferred to Stability Pool if collateral ratio drops below MinCR.  
-- **Migration path** → BTC can be re-locked under a new signer set (epoch rotation) with a cooldown.  
-- **Escape hatch** → Depositor can reclaim funds unilaterally after a timelock.  
+- **Repayment** — BTC can be spent via the **key path** by `MuSig2(P_user, P_epoch)` after the execution environment attests that debt was repaid.  
+  _Enforced by signers + state proofs; the script enforces signatures only._
+- **Liquidation** — If CR < MinCR, signers spend via a **CSV-gated** script leaf. The spend **creates outputs**: (i) discounted sale to Stability Pool, (ii) change re-locked to a fresh dVault.  
+  _CR check is off-chain; the script enforces signer control + delay._
+- **Signer migration** — After a cooldown, funds are re-locked to the **next signer epoch** (key rotation).
+- **Escape hatch** — After a long **CLTV**, the depositor can unilaterally recover with a dedicated recovery key.
+
 
 ## Example Script Structures
 
@@ -68,20 +71,21 @@ OP_CHECKSIG(new_mpc_aggkey_epoch+1)
 
 ## Lifecycle
 
-1. **Deposit**: User locks BTC into Taproot address with dVault script tree.  
-2. **Borrow**: Execution environment issues stablecoins (e.g., USDC) against collateral.  
-3. **Maintenance**: Oracles update BTC/USD price; vault health monitored continuously.  
-4. **Micro-Liquidations**: If collateral ratio falls, small BTC slices are sold to Stability Pool to rebalance, not wipe out the whole position.  
-5. **Repayment/Closure**: Debt repaid → BTC unlocked through repayment branch.  
+1. **Deposit** — User locks BTC to the Taproot address (key path = `MuSig2(P_user, P_epoch)`).
+2. **Borrow** — Execution environment issues stablecoins against the attested deposit.
+3. **Monitoring** — BTC/USD oracle updates CR; state commits record epochs, debts, and Stability Pool balances.
+4. **Incremental Liquidations** — If `CR < MinCR`, signers spend via the liquidation leaf. The spend MUST produce:
+   - **SP purchase** — discounted BTC to the Stability Pool, and
+   - **Relock** — change re-locked to a new dVault taptree for the user (fresh UTXO).
+5. **Repayment/Close** — Upon debt repayment, signers co-sign the key-path spend, moving BTC per user instructions (often to a new user-controlled output).
 
-##$ Security Anchors
+## Security Anchors
 
-- **Bitcoin Scripts** enforce timelocks and conditional spends at the UTXO level.
-- **MPC Signers (cb-mpc)** use Coinbase's cb-mpc library:
-  - Lin22 for threshold Schnorr signatures
-  - Hai+18 for threshold ECDSA generation
-- **Execution Environment** ensures repayment or liquidation conditions are only triggered if reflected in the state root
-- **Escape hatch** guarantees depositor sovereignty even in worst-case scenarios
+- **On-chain invariants (script):** Schnorr key ownership, `CSV/CLTV` timelocks, branch commitment in MAST.
+- **Off-chain invariants (signers/state):** CR evaluation, repayment attestation, SP discount schedule, and epoch rotation rules tied to the execution environment’s state root.
+- **Signer tech:** Coinbase `cb-mpc` with **MuSig2** (Schnorr) for Taproot keys; threshold **ECDSA** only where interop requires it (non-Bitcoin contexts).
+- **Fee safety:** **RBF/CPFP** recommended for timely confirmation on liquidation/rotation paths.
+
 
 
 </AuthWrapper>

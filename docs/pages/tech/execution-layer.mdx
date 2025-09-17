@@ -1,26 +1,28 @@
 ---
 title: Execution Layer
-description: Understanding Surge's reth-based EVM implementation and state root binding
+description: EVM-compatible execution with reth + CometBFT; state-root–bound BTC spends
 ---
 
 import AuthWrapper from "../../components/AuthWrapper.tsx";
 
 <AuthWrapper>
+# ⚙️ Execution Layer
 
-# Execution Layer
+Surge runs a **programmable, EVM-compatible** execution environment that aligns BTC collateral on Bitcoin with stablecoin flows on host chains.  
+**Not a new L1**—the stack deploys to existing chains.
 
 ## Architecture
-Surge operates a **programmable execution environment** that is EVM-compatible.  
-Validators run:
-- **reth** as the EVM execution client.  
-- **CometBFT/Tendermint** for deterministic consensus and finality.  
+- **reth (EVM execution)** — deterministic state transitions; precompile/feature set kept stable across deployments.  
+- **CometBFT (consensus)** — proposer-based BFT finality; ABCI++ for clean separation of execution and consensus.  
+- **Chain-agnostic** — the same execution logic can be instantiated on multiple host chains; a single canonical deployment governs the Stability Pool.
 
-## Ledger Functions
-The execution environment maintains:
-- **Vault Registry** → Tracks BTC collateral, stablecoin debt, and collateral ratio.  
-- **Stability Pools** → Absorb bad debt using reserves of stables, purchasing BTC at discount.  
-- **Signer Epochs** → Manages aggregate keys and signer rotations.  
-- **Oracle Data** → Feeds BTC/USD price for CR checks.  
+## Ledger Modules
+- **VaultRegistry** — tracks `vaultId → {collateral, debt, CR, epoch}`; enforces MinCR & system params.  
+- **StabilityPool** — absorbs bad debt; executes discounted BTC purchases; maintains lender balances and accounting.  
+- **SignerRegistry** — records signer **epochs**, aggregated keys (MuSig2), rotations, and enrollment metadata.  
+- **OracleModule** — accepts BTC/USD price updates with freshness/medianization; exposes price to CR checks.  
+- **AttestationModule** — records spend/repay attestations linking Bitcoin actions to the current `state_root`.
+
 
 ## Events
 Contracts emit canonical events for every state transition:
