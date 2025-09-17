@@ -2,17 +2,39 @@
 title: dVaults
 description: Taproot-based, MAST-committed spend programs that secure BTC
 ---
+import ZoomImage from "../../components/ZoomImage";
 
 # 🔐 dVaults: Programmable Bitcoin Vaults
 
-A **dVault** is a Bitcoin Taproot UTXO (BIP341) whose spend conditions are committed via **MAST/Tapscript** (BIP342).  
-dVaults are the **collateral engine** of Surge and BTC never leaves Bitcoin; spends are only possible under pre-committed conditions.
+A **dVault** is a Bitcoin Taproot UTXO (BIP341) whose spend conditions are committed via **<a href="https://river.com/learn/terms/m/merkelized-alternative-script-tree-mast/" target="_blank" rel="noopener noreferrer" class="opacity-80 hover:opacity-100 hover:underline cursor-pointer transition-colors">MAST</a>/Tapscript** (BIP342).  
+- **Taproot** lets us commit to multiple possible spending rules inside a single address.
+- **<a href="https://river.com/learn/terms/m/merkelized-alternative-script-tree-mast/" target="_blank" rel="noopener noreferrer" class="opacity-80 hover:opacity-100 hover:underline cursor-pointer transition-colors">MAST</a> (Merkelized Alternative Script Tree)** organizes those rules into a hidden tree: only the rule you use is revealed when spending.
+- This keeps vaults private, efficient, and flexible.
+
+Surge uses dVaults as its **collateral engine** and BTC always stays on Bitcoin, and can only move if one of the pre-committed rules is satisfied.
+
+## How a dVault Is Programmed
+
+A dVault locks BTC in a Taproot script address with multiple **exit paths**, 
+- **Key Paths** - The standard way to move BTC, co-signed by the user and Surge’s current signer set using MuSig2
+- **Script Paths** - Extra branches in the vault’s tree that only open under specific conditions:
+  - **Liquidation branch** if collateral drops too low.
+  - **Timelock branch** for long-term recovery by the depositor
+
+
+<ZoomImage
+  src="/assets/dvault_taproot.png"
+  alt="dVault Taproot UTXO"
+  width="100%"
+  className="mx-auto"
+/>
+
 
 ## Core Scripting
 
 - Each vault commits a **taptree** of spend leaves (miniscript/tapscript). Only the executed leaf is revealed on spend; unused branches remain hidden.
-- The **key path** (MuSig2 aggregate of user + signer epoch) handles the common “repayment” flow cheaply.
-- **Script leaves** handle exceptional paths (liquidation, signer rotation, timelock) with timelocks.
+- The **key path** (MuSig2 aggregate of user + signer epoch) handles the common “repayment” flow.
+- **Script leaves** handle exceptional paths (liquidation, timelock etc.,).
 
 ## Spend Paths
 
@@ -21,10 +43,9 @@ dVaults are the **collateral engine** of Surge and BTC never leaves Bitcoin; spe
 _Enforced by signers + state proofs; the script enforces signatures only._
 - **Liquidation** — If CR < MinCR, signers spend via a **CSV-gated** script leaf. The spend creates outputs:
    - Discounted sale to Stability Pool
-   - Change re-locked to a fresh dVault
+   - Change re-locked to a UTXO
 
 _CR check is off-chain; the script enforces signer control + delay._
-- **Signer rotation** — After a cooldown, funds are re-locked to the **next signer epoch** (key rotation).
 - **Timelock** — After a long **CLTV**, the depositor can unilaterally recover with a dedicated recovery key.
 
 ## Script Structures
@@ -58,12 +79,12 @@ AND(
 2. **Borrow** — Execution environment issues stablecoins against the attested deposit.
 3. **Monitoring** — BTC/USD oracle updates CR, state commits record epochs, debts, and Stability Pool balances.
 4. **Incremental Liquidations** — If `CR < MinCR`, signers spend via the liquidation leaf. The spend MUST produce:
-   - **SP purchase** — discounted BTC to the Stability Pool, and
+   - **Stability Pool purchase** — discounted BTC to the Stability Pool, and
    - **Relock** — change re-locked to a new dVault taptree for the user.
 5. **Repayment/Close** — Upon debt repayment, signers co-sign the key-path spend, moving BTC per user instructions (often to a new user-controlled output).
 
 ## Security Anchors
 
-- **On-chain invariants (script):** Schnorr key ownership, `CSV/CLTV` timelocks, branch commitment in MAST (Merkelized Abstract Syntax Tree).
+- **On-chain invariants (script):** Schnorr key ownership, `CLTV` timelocks, branch commitment in <a href="https://river.com/learn/terms/m/merkelized-alternative-script-tree-mast/" target="_blank" rel="noopener noreferrer" class="opacity-80 hover:opacity-100 hover:underline cursor-pointer transition-colors">MAST</a> (Merkelized Alternative Script Tree).
 - **Off-chain invariants (signers/state):** CR evaluation, repayment attestation, SP discount schedule, and epoch rotation rules tied to the execution environment’s state root.
 - **Signer tech:** <a href="https://github.com/coinbase/cb-mpc" target="_blank" rel="noopener noreferrer" class="opacity-80 hover:opacity-100 hover:underline cursor-pointer transition-colors">Coinbase's cb-mpc</a> with **MuSig2** (Schnorr) for Taproot keys; threshold **ECDSA** only where interop requires it (non-Bitcoin contexts).
