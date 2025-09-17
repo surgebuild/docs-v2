@@ -94,19 +94,19 @@ export default defineConfig({
           },
         ],
       },
-      {
-        text: "BITCOIN REPORTS",
-        items: [
-          {
-            text: "In-house Research",
-            link: "/bitcoin-reports/in-house-research",
-          },
-          {
-            text: "External Research",
-            link: "/bitcoin-reports/external-research",
-          },
-        ],
-      },
+      // {
+      //   text: "BITCOIN REPORTS",
+      //   items: [
+      //     {
+      //       text: "In-house Research",
+      //       link: "/bitcoin-reports/in-house-research",
+      //     },
+      //     {
+      //       text: "External Research",
+      //       link: "/bitcoin-reports/external-research",
+      //     },
+      //   ],
+      // },
       {
         text: "RESOURCES",
         items: [
