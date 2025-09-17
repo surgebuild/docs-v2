@@ -5,37 +5,35 @@ description: Understanding Surge's L1 chain architecture and layered security mo
 
 # 🔧 Technical Overview
 
-Surge is a **Bitcoin-native stablecoin access layer**.
+Surge is a **Bitcoin-native stablecoin access layer** built around a **two-plane architecture** that separates BTC custody from stablecoin programmability.
 
-Its architecture combines three layers,
-
-## Bitcoin Layer
+## Control Plane (Bitcoin)
 
 - BTC collateral is locked in Taproot **dVaults** (MAST based programs).
-- Coins never leave Bitcoin and can move only via predefined **spend conditions**:
-  - **Repayment**
+- BTC never leaves Bitcoin and can move only via **Deterministic spend conditions**:
+  - **Repayment** requires borrower + signers signatures
   - **Liquidation** (if CR < threshold)
-  - **Signer migration**
-  - **Time-locked escape hatch** (`OP_CHECKLOCKTIMEVERIFY`)
+  - **Time-locked** (`OP_CHECKLOCKTIMEVERIFY`) for the loan duration
 - A BTC/USD **oracle** drives CR checks and liquidation triggers.
+- **Signer layer security**, All BTC spends require quorum approval from MPC signers using Coinbase’s cb-mpc framework.
+  - **Lin22** → Threshold Schnorr (Taproot)
+  - **Hai+18** → Threshold ECDSA
+- **Non-custodial guarantees** with no unilateral control user + quorum signers or fallback timelocks.
 
-## Signer Layer
+## Execution Plane (Surge Layer)
 
-- All BTC spends require a quorum of MPC signers using battle tested Coinbase's **cb-mpc** open source framework.
-- **Lin22** → Threshold Schnorr Signatures (Taproot). **Hai+18** → Threshold ECDSA Signatures.
-- No unilateral control, signer **epochs** and **attestations** are tracked on-chain.
-- Initial signers set are permissioned, roadmap toward **permissionless** enrollment.
+- Fully EVM compatible, built with reth and CometBFT for deterministic state
+- Surge **deploys to existing chains**, recording vault states, liabilities, stability pool balances, and signer epochs
+- State transitions on the Surge plane mirror BTC movements, ensuring 1:1 consistency between Bitcoin and stablecoin liabilities
+- Stability Pool, A single on-chain pool absorbs bad debt, receives BTC at a discount, and is funded by stablecoin lenders
+- Initial signers set is permissioned and roadmap toward **permissionless** enrollment.
 
-## Execution Layer
+## Cross-Chain Liquidity
 
-- Programmable, **EVM compatible** layer (reth) with **CometBFT** for deterministic state.
-- Surge deploys to existing chains.
+- USDC-native flows supported via Circle’s CCTP v2 routes stablecoin liquidity across Ethereum, Arbitrum, Optimism, and others
+- BTC never bridges: Only stablecoins move cross-chain; BTC remains secured on Bitcoin.
 - The ledger maintains vault state, debts, **stability pool** balances, and signer epochs
 - Deterministic state transitions ensure BTC movements align with stablecoin flows.
-
-## Liquidity & Cross-Chain
-
-- Circle **CCTP v2** moves USDC liquidity natively across chains (Ethereum first, more to follow).
-- A **canonical stability pool** on the primary chain absorbs bad debt and receives discounted BTC; funded by stablecoin lenders.
+- Institutional-grade auditability, Canonical events provide an open and verifiable ledger.
 
 This layered design anchors Surge in Bitcoin’s security, while offering programmability, stablecoin connectivity, and institutional-grade auditability.

@@ -6,7 +6,7 @@ description: Taproot-based, MAST-committed spend programs that secure BTC
 # 🔐 dVaults: Programmable Bitcoin Vaults
 
 A **dVault** is a Bitcoin Taproot UTXO (BIP341) whose spend conditions are committed via **MAST/Tapscript** (BIP342).  
-dVaults anchor Surge’s collateral: BTC never leaves Bitcoin; spends are only possible under pre-committed, auditable conditions.
+dVaults are the **collateral engine** of Surge and BTC never leaves Bitcoin, spends are only possible under pre-committed.
 
 ## Core Scripting
 
@@ -23,19 +23,11 @@ dVaults anchor Surge’s collateral: BTC never leaves Bitcoin; spends are only p
 - **Signer migration** — After a cooldown, funds are re-locked to the **next signer epoch** (key rotation).
 - **Escape hatch** — After a long **CLTV**, the depositor can unilaterally recover with a dedicated recovery key.
 
-## Example Script Structures
+## Script Structures
 
-Below are simplified pseudocode representations of how Surge dVaults enforce these conditions on Bitcoin.
+Below are simplified representations of how dVaults enforce these conditions on Bitcoin.
 
-### 1. Escape Hatch (User Recovery)
-
-```bitcoin-script
-# User can recover BTC unilaterally after 30 days
-OP_CHECKLOCKTIMEVERIFY(30d)
-OP_CHECKSIG(user_pubkey)
-```
-
-### 2. Repayment Path (Ledger-Validated Unlock)
+### 1. Repayment Path (Ledger-Validated Unlock)
 
 ```bitcoin-script
 # Requires depositor + MPC signers (cb-mpc)
@@ -46,7 +38,7 @@ AND(
 )
 ```
 
-### 3. Liquidation Path (Micro-Liquidations)
+### 2. Liquidation Path (Micro-Liquidations)
 
 ```bitcoin-script
 # Signers + Stability Pool key can spend part of BTC if CR < MinCR
@@ -57,27 +49,18 @@ AND(
 # Typically combined with OP_CHECKSEQUENCEVERIFY to throttle liquidation slices
 ```
 
-### 4. Migration Path (Signer Epoch Rotation)
-
-```bitcoin-script
-# Allows re-locking under a new signer set key after cooldown
-OP_CHECKSEQUENCEVERIFY(cooldown_blocks)
-OP_CHECKSIG(new_mpc_aggkey_epoch+1)
-```
-
 ## Lifecycle
 
 1. **Deposit** — User locks BTC to the Taproot address (key path = `MuSig2(P_user, P_epoch)`).
 2. **Borrow** — Execution environment issues stablecoins against the attested deposit.
-3. **Monitoring** — BTC/USD oracle updates CR; state commits record epochs, debts, and Stability Pool balances.
+3. **Monitoring** — BTC/USD oracle updates CR, state commits record epochs, debts, and Stability Pool balances.
 4. **Incremental Liquidations** — If `CR < MinCR`, signers spend via the liquidation leaf. The spend MUST produce:
    - **SP purchase** — discounted BTC to the Stability Pool, and
-   - **Relock** — change re-locked to a new dVault taptree for the user (fresh UTXO).
+   - **Relock** — change re-locked to a new dVault taptree for the user.
 5. **Repayment/Close** — Upon debt repayment, signers co-sign the key-path spend, moving BTC per user instructions (often to a new user-controlled output).
 
 ## Security Anchors
 
 - **On-chain invariants (script):** Schnorr key ownership, `CSV/CLTV` timelocks, branch commitment in MAST.
 - **Off-chain invariants (signers/state):** CR evaluation, repayment attestation, SP discount schedule, and epoch rotation rules tied to the execution environment’s state root.
-- **Signer tech:** Coinbase `cb-mpc` with **MuSig2** (Schnorr) for Taproot keys; threshold **ECDSA** only where interop requires it (non-Bitcoin contexts).
-- **Fee safety:** **RBF/CPFP** recommended for timely confirmation on liquidation/rotation paths.
+- **Signer tech:** Coinbase `cb-mpc` with **MuSig2** (Schnorr) for Taproot keys; threshold **ECDSA** only where interop requires it (non Bitcoin contexts).

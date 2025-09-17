@@ -4,10 +4,9 @@ description: Native stablecoin settlement via CCTP and state
 ---
 
 
-
 # Cross-Chain Communication
 Surge aggregates stablecoin liquidity across multiple ecosystems while **BTC remains locked on Bitcoin**.  
-Surge deploys to existing chains and uses native messaging for stablecoins.
+Surge deploys to existing chains and uses native messaging like CCTP v2 for stablecoins.
 
 ## Liquidity Movement
 Surge integrates **Circle’s CCTP v2** for native stablecoin transfers.  
@@ -17,13 +16,13 @@ Surge integrates **Circle’s CCTP v2** for native stablecoin transfers.
 
 ## Stablecoin Payouts
 - When a vault issues debt, the execution environment requests stablecoin payout via CCTP.  
-- BTC remains locked in its dVault; only stablecoins move cross-chain.  
+- BTC remains locked in its dVault, only stablecoins move cross-chain.  
 
 ## Redemptions
 - When debt is repaid, execution verifies repayment and allows BTC release via repayment path.  
-- **HTLC/adaptor signatures** ensure BTC unlock only occurs if stablecoin settlement is cryptographically confirmed.  
+- **Adaptor signatures** ensure BTC unlock only occurs if stablecoin settlement is cryptographically confirmed.  
 
-## Stability Pools
+## Stability Pools in Cross-Chain Context
 - Reserve of stablecoins used to absorb bad debt.  
 - In liquidations, BTC is sold to Stability Pool at discount.  
 - **Micro-liquidations** ensure only the amount needed to rebalance CR is sold, preserving most of user’s position.  
@@ -31,6 +30,5 @@ Surge integrates **Circle’s CCTP v2** for native stablecoin transfers.
 ## Proofs & Audits
 - **Proof-of-Reserves** → BTC UTXOs tracked on Bitcoin.  
 - **Proof-of-Liabilities** → Debt registry published per block.  
-- Combined, external parties can verify solvency in real-time.  
 
-Cross-chain communication is designed to be **native, auditable, and failure-resistant**, enabling Surge to aggregate stablecoin liquidity across multiple ecosystems while keeping BTC locked on Bitcoin.
+Cross-chain communication is designed to be **native, auditable, and failure resistant**, enabling Surge to aggregate stablecoin liquidity across multiple ecosystems while keeping BTC locked on Bitcoin.
