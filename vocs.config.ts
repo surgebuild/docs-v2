@@ -59,8 +59,8 @@ export default defineConfig({
             link: "/product/overview",
           },
           {
-            text: "Signers & Validators",
-            link: "/product/signers-validators",
+            text: "Infra Providers",
+            link: "/product/providers",
           },
         ],
       },

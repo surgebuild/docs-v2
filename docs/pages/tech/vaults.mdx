@@ -12,7 +12,7 @@ dVaults are the **collateral engine** of Surge and BTC never leaves Bitcoin; spe
 
 - Each vault commits a **taptree** of spend leaves (miniscript/tapscript). Only the executed leaf is revealed on spend; unused branches remain hidden.
 - The **key path** (MuSig2 aggregate of user + signer epoch) handles the common “repayment” flow cheaply.
-- **Script leaves** handle exceptional paths (liquidation, signer migration, escape hatch) with timelocks.
+- **Script leaves** handle exceptional paths (liquidation, signer rotation, timelock) with timelocks.
 
 ## Spend Paths
 
@@ -24,8 +24,8 @@ _Enforced by signers + state proofs; the script enforces signatures only._
    - Change re-locked to a fresh dVault
 
 _CR check is off-chain; the script enforces signer control + delay._
-- **Signer migration** — After a cooldown, funds are re-locked to the **next signer epoch** (key rotation).
-- **Escape hatch** — After a long **CLTV**, the depositor can unilaterally recover with a dedicated recovery key.
+- **Signer rotation** — After a cooldown, funds are re-locked to the **next signer epoch** (key rotation).
+- **Timelock** — After a long **CLTV**, the depositor can unilaterally recover with a dedicated recovery key.
 
 ## Script Structures
 
@@ -64,6 +64,6 @@ AND(
 
 ## Security Anchors
 
-- **On-chain invariants (script):** Schnorr key ownership, `CSV/CLTV` timelocks, branch commitment in MAST.
+- **On-chain invariants (script):** Schnorr key ownership, `CSV/CLTV` timelocks, branch commitment in MAST (Merkelized Abstract Syntax Tree).
 - **Off-chain invariants (signers/state):** CR evaluation, repayment attestation, SP discount schedule, and epoch rotation rules tied to the execution environment’s state root.
 - **Signer tech:** <a href="https://github.com/coinbase/cb-mpc" target="_blank" rel="noopener noreferrer" class="opacity-80 hover:opacity-100 hover:underline cursor-pointer transition-colors">Coinbase's cb-mpc</a> with **MuSig2** (Schnorr) for Taproot keys; threshold **ECDSA** only where interop requires it (non-Bitcoin contexts).
