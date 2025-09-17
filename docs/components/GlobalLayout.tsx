@@ -14,8 +14,8 @@ export default function GlobalLayout({ children }: GlobalLayoutProps) {
     // Check if user is already authenticated
     const checkAuth = () => {
       try {
-        const authStatus = localStorage.getItem("surge-docs-authenticated");
-        const authTimestamp = localStorage.getItem("surge-docs-auth-timestamp");
+        const authStatus = localStorage.getItem("surge-docs-authenticated-v2");
+        const authTimestamp = localStorage.getItem("surge-docs-auth-timestamp-v2");
 
         if (authStatus === "true" && authTimestamp) {
           // Check if authentication is still valid (24 hours)
@@ -32,8 +32,8 @@ export default function GlobalLayout({ children }: GlobalLayoutProps) {
             return;
           } else {
             // Clear expired authentication
-            localStorage.removeItem("surge-docs-authenticated");
-            localStorage.removeItem("surge-docs-auth-timestamp");
+            localStorage.removeItem("surge-docs-authenticated-v2");
+            localStorage.removeItem("surge-docs-auth-timestamp-v2");
           }
         }
 
