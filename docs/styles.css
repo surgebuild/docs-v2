@@ -340,6 +340,16 @@ img {
   align-items: center;
 }
 
+.dark .logo-light {
+  display: none !important;
+}
+.dark .logo-dark {
+  display: inline !important;
+}
+.logo-dark {
+  display: none;
+}
+
 @keyframes shimmer {
   0% {
     background-position: -200% 0;

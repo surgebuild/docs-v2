@@ -1,6 +1,7 @@
 import React from "react";
 import GlobalAuthWrapper from "./components/GlobalAuthWrapper";
 import AuthScript from "./components/AuthScript";
+import "./styles.css";
 
 type LayoutProps = {
   children: React.ReactNode;
