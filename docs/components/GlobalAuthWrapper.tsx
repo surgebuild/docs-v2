@@ -5,7 +5,9 @@ interface GlobalAuthWrapperProps {
   children: React.ReactNode;
 }
 
-export default function GlobalAuthWrapper({ children }: GlobalAuthWrapperProps) {
+export default function GlobalAuthWrapper({
+  children,
+}: GlobalAuthWrapperProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showShimmer, setShowShimmer] = useState(false);
@@ -15,11 +17,13 @@ export default function GlobalAuthWrapper({ children }: GlobalAuthWrapperProps) 
     const checkAuth = () => {
       try {
         // Lock content by default until auth is confirmed
-        if (typeof document !== 'undefined') {
-          document.documentElement.setAttribute('data-auth', 'locked');
+        if (typeof document !== "undefined") {
+          document.documentElement.setAttribute("data-auth", "locked");
         }
         const authStatus = localStorage.getItem("surge-docs-authenticated-v2");
-        const authTimestamp = localStorage.getItem("surge-docs-auth-timestamp-v2");
+        const authTimestamp = localStorage.getItem(
+          "surge-docs-auth-timestamp-v2"
+        );
 
         if (authStatus === "true" && authTimestamp) {
           // Check if authentication is still valid (24 hours)
@@ -32,8 +36,14 @@ export default function GlobalAuthWrapper({ children }: GlobalAuthWrapperProps) 
             setTimeout(() => {
               setIsAuthenticated(true);
               setIsLoading(false);
-              if (typeof document !== 'undefined') {
-                document.documentElement.setAttribute('data-auth', 'ok');
+              if (typeof document !== "undefined") {
+                document.documentElement.setAttribute("data-auth", "ok");
+              }
+              if (
+                typeof window !== "undefined" &&
+                window.location.pathname === "/"
+              ) {
+                window.location.replace("/overview/introduction");
               }
             }, 300); // Brief delay for smooth transition
             return;
@@ -58,8 +68,11 @@ export default function GlobalAuthWrapper({ children }: GlobalAuthWrapperProps) 
 
   const handleUnlock = () => {
     setIsAuthenticated(true);
-    if (typeof document !== 'undefined') {
-      document.documentElement.setAttribute('data-auth', 'ok');
+    if (typeof document !== "undefined") {
+      document.documentElement.setAttribute("data-auth", "ok");
+    }
+    if (typeof window !== "undefined" && window.location.pathname === "/") {
+      window.location.replace("/overview/introduction");
     }
   };
 
