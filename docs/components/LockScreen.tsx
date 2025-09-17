@@ -98,7 +98,7 @@ export default function LockScreen({ onUnlock }: LockScreenProps) {
             <button
               type="submit"
               disabled={isLoading || !password.trim()}
-              className="w-full bg-gradient-to-r from-[#f4431b] to-[#8e2710] hover:from-[#e03a17] hover:to-[#7a220d] disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed"
+              className="auth-btn"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">

@@ -337,6 +337,32 @@ img {
   margin: 0 auto;
 }
 
+.auth-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background: linear-gradient(90deg, #f4431b 0%, #8e2710 100%);
+  color: #ffffff;
+  font-weight: 600;
+  padding: 0.75rem 1rem; /* py-3 px-4 */
+  border-radius: 0.5rem; /* rounded-lg */
+  transition: transform 0.2s ease, filter 0.2s ease, opacity 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.auth-btn:hover {
+  transform: scale(1.02);
+  filter: brightness(1.02);
+}
+
+.auth-btn:disabled {
+  background: #6b7280; /* gray-500 */
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.9;
+}
+
 .shimmer-loading-container {
   display: flex;
   justify-content: center;
