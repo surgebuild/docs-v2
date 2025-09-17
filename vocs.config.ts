@@ -72,11 +72,11 @@ export default defineConfig({
             link: "/tech/overview",
           },
           {
-            text: "dVaults",
+            text: "dVault Script Tree",
             link: "/tech/vaults",
           },
           {
-            text: "Execution Layer",
+            text: "Execution State Machine",
             link: "/tech/execution-layer",
           },
           {
@@ -110,10 +110,10 @@ export default defineConfig({
       {
         text: "RESOURCES",
         items: [
-          {
-            text: "Quick Links",
-            link: "/resources/quick-links",
-          },
+          // {
+          //   text: "Quick Links",
+          //   link: "/resources/quick-links",
+          // },
           {
             text: "Media Kit",
             link: "/resources/media-kit",

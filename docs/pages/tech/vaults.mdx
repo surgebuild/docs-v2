@@ -11,27 +11,77 @@ import AuthWrapper from "../../components/AuthWrapper.tsx";
 
 A **dVault** is a Bitcoin Taproot UTXO locked under a set of **conditions**.  
 They are the foundation of Surge’s collateral system, combining Bitcoin Scripts with signer validation.
-## Core Scripting
-Each vault commits to a **MAST (Merkleized Abstract Syntax Tree)** of spend paths:
-- **Repayment path** → BTC can be released when debt is repaid.  
-- **Liquidation path** → BTC slice can be transferred to Stability Pool if collateral ratio drops.  
-- **Migration path** → BTC can be re-locked under a new signer set with cooldown.  
-- **Escape hatch** → Depositor can reclaim funds unilaterally after a timelock.  
 
+## Core Scripting
+
+Each vault commits to a **MAST (Merkleized Abstract Syntax Tree)** of spend paths.  
+This allows multiple fallback options to exist, but only the executed branch is revealed when the UTXO is spent.  
 Unused branches remain hidden, preserving privacy and efficiency.
 
+## Spend Paths
+- **Repayment path** → BTC can be released when debt is repaid and signer quorum validates.  
+- **Liquidation path** → BTC slice can be transferred to Stability Pool if collateral ratio drops below MinCR.  
+- **Migration path** → BTC can be re-locked under a new signer set (epoch rotation) with a cooldown.  
+- **Escape hatch** → Depositor can reclaim funds unilaterally after a timelock.  
+
+## Example Script Structures
+
+Below are simplified pseudocode representations of how Surge dVaults enforce these conditions on Bitcoin.  
+
+### 1. Escape Hatch (User Recovery)
+
+```bitcoin-script
+# User can recover BTC unilaterally after 30 days
+OP_CHECKLOCKTIMEVERIFY(30d)
+OP_CHECKSIG(user_pubkey)
+```
+
+### 2. Repayment Path (Ledger-Validated Unlock)
+
+```bitcoin-script
+# Requires depositor + MPC signers (cb-mpc)
+# Only valid if repayment event is confirmed in execution environment
+AND(
+    OP_CHECKSIG(user_pubkey),
+    OP_CHECKSIG(mpc_aggkey_epoch)
+)
+```
+
+### 3. Liquidation Path (Micro-Liquidations)
+
+```bitcoin-script
+# Signers + Stability Pool key can spend part of BTC if CR < MinCR
+AND(
+    OP_CHECKSIG(mpc_aggkey_epoch),
+    OP_CHECKSIG(stability_pool_key)
+)
+# Typically combined with OP_CHECKSEQUENCEVERIFY to throttle liquidation slices
+```
+
+### 4. Migration Path (Signer Epoch Rotation)
+
+```bitcoin-script
+# Allows re-locking under a new signer set key after cooldown
+OP_CHECKSEQUENCEVERIFY(cooldown_blocks)
+OP_CHECKSIG(new_mpc_aggkey_epoch+1)
+```
+
 ## Lifecycle
+
 1. **Deposit**: User locks BTC into Taproot address with dVault script tree.  
 2. **Borrow**: Execution environment issues stablecoins (e.g., USDC) against collateral.  
 3. **Maintenance**: Oracles update BTC/USD price; vault health monitored continuously.  
 4. **Micro-Liquidations**: If collateral ratio falls, small BTC slices are sold to Stability Pool to rebalance, not wipe out the whole position.  
 5. **Repayment/Closure**: Debt repaid → BTC unlocked through repayment branch.  
 
-## Security
-- **Bitcoin Scripts** enforce timelocks and conditional spends.  
-- **MPC Signers (cb-mpc)** ensure BTC cannot move without ledger validation.  
-- **Escape hatch** guarantees depositor sovereignty.  
+##$ Security Anchors
 
-dVaults turn BTC into programmable, sovereign, and auditable collateral.
+- **Bitcoin Scripts** enforce timelocks and conditional spends at the UTXO level.
+- **MPC Signers (cb-mpc)** use Coinbase's cb-mpc library:
+  - Lin22 for threshold Schnorr signatures
+  - Hai+18 for threshold ECDSA generation
+- **Execution Environment** ensures repayment or liquidation conditions are only triggered if reflected in the state root
+- **Escape hatch** guarantees depositor sovereignty even in worst-case scenarios
+
 
 </AuthWrapper>
