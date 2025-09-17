@@ -48,7 +48,12 @@ img {
 /* .vocs_NavLogo_logoImage {
   height: 80%;
 } */
-
+.vocs_DocsLayout_sidebar {
+  width: 23.75rem !important;
+}
+.dark .vocs_DocsLayout_sidebar {
+  width: 23.75rem !important;
+}
 .vocs_Sidebar .vocs_Sidebar_logo a {
   display: flex; /* Make sure the logos and text are in a horizontal line */
   align-items: center; /* Vertically center the text with the logo */
@@ -246,6 +251,10 @@ img {
 .vocs_H1 {
   font-weight: 700;
   font-size: 2.25rem;
+}
+
+.vocs_H2 {
+  margin-top: 2rem !important;
 }
 
 .vocs_Outline_link {
