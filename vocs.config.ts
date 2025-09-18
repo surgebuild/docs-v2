@@ -1,7 +1,12 @@
 import { defineConfig } from "vocs";
+import dotenv from "dotenv";
+
+// Load environment variables
+dotenv.config();
 
 export default defineConfig({
-  description: "Unlock Bitcoin's lending future with Surge's programmable dVaults. Secure Bitcoin collateral system with Taproot UTXOs, MPC signers, and decentralized lending infrastructure.",
+  description:
+    "Unlock Bitcoin's lending future with Surge's programmable dVaults. Secure Bitcoin collateral system with Taproot UTXOs, MPC signers, and decentralized lending infrastructure.",
   logoUrl: {
     light: "/logo/surge-icon-rec-light.svg",
     dark: "/logo/surge-icon-rec-dark.svg",

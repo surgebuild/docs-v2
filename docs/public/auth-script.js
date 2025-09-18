@@ -2,8 +2,26 @@
 (function () {
   'use strict';
 
-  // Valid passwords - in production, these would come from environment variables
-  const validPasswords = ["moveyourbitcoin", "putyourbitcoin2work", "btcstablerails", "surge2025", "surgenewera"];
+  // Valid passwords - get from environment variables or use fallback
+  function getValidPasswords() {
+    // Try to get passwords from meta tag (set by layout.tsx)
+    const meta = document.querySelector('meta[name="surge-valid-passwords"]');
+    if (meta && meta.content) {
+      const envPasswords = meta.content
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+      if (envPasswords.length > 0) {
+        return envPasswords.map(p => p.toLowerCase());
+      }
+    }
+    
+    // Fallback passwords
+    const fallbackPasswords = ["moveyourbitcoin", "putyourbitcoin2work", "btcstablerails", "surge2025", "surgenewera"];
+    return fallbackPasswords.map(p => p.toLowerCase());
+  }
+  
+  const validPasswords = getValidPasswords();
 
   // Check authentication status
   function checkAuth() {
@@ -15,8 +33,8 @@
     // Debug log
     console.log('Surge Auth: Checking authentication on', window.location.pathname);
 
-    const authStatus = localStorage.getItem('surge-docs-authenticated');
-    const authTimestamp = localStorage.getItem('surge-docs-auth-timestamp');
+    const authStatus = localStorage.getItem('surge-docs-authenticated-v2');
+    const authTimestamp = localStorage.getItem('surge-docs-auth-timestamp-v2');
 
     if (authStatus !== 'true' || !authTimestamp) {
       console.log('Surge Auth: No valid authentication found, showing lock screen');
@@ -32,8 +50,8 @@
     if (now - authTime >= twentyFourHours) {
       // Clear expired authentication
       console.log('Surge Auth: Authentication expired, clearing and showing lock screen');
-      localStorage.removeItem('surge-docs-authenticated');
-      localStorage.removeItem('surge-docs-auth-timestamp');
+      localStorage.removeItem('surge-docs-authenticated-v2');
+      localStorage.removeItem('surge-docs-auth-timestamp-v2');
       showLockScreen();
     } else {
       // User is already authenticated, show simple loader briefly
@@ -217,8 +235,8 @@
 
       if (validPasswords.includes(passwordInput.value.toLowerCase())) {
         // Save to localStorage
-        localStorage.setItem('surge-docs-authenticated', 'true');
-        localStorage.setItem('surge-docs-auth-timestamp', Date.now().toString());
+        localStorage.setItem('surge-docs-authenticated-v2', 'true');
+        localStorage.setItem('surge-docs-auth-timestamp-v2', Date.now().toString());
 
         // Remove lock screen
         overlay.remove();
