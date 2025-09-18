@@ -18,7 +18,7 @@ function loadConfig(): AuthConfig {
   const envLockEnabled = import.meta.env?.VITE_LOCK_SCREEN_ENABLED;
 
   // Parse passwords from env or use defaults
-  let validPasswords = ["surge2024", "bitcoin-lending", "btc-stable"];
+  let validPasswords = [] as string[];
   if (envPasswords && typeof envPasswords === "string") {
     validPasswords = envPasswords
       .split(",")

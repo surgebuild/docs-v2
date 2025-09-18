@@ -12,9 +12,6 @@ export default function LockScreen({ onUnlock }: LockScreenProps) {
 
   // Valid passwords from config
   const validPasswords = authConfig.validPasswords.map((p) => p.toLowerCase());
-
-  console.log("LockScreen - authConfig:", authConfig);
-  console.log("LockScreen - validPasswords:", validPasswords);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
