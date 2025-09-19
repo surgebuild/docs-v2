@@ -77,7 +77,7 @@ export default defineConfig({
             link: "/tech/overview",
           },
           {
-            text: "dVault Script Tree",
+            text: "dVault Scripts",
             link: "/tech/vaults",
           },
           {

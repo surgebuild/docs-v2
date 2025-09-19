@@ -4,6 +4,7 @@
 
   // Valid passwords - get from environment variables or use fallback
   function getValidPasswords() {
+    console.log("auth script")
     // Try to get passwords from meta tag (set by layout.tsx)
     const meta = document.querySelector('meta[name="surge-valid-passwords"]');
     if (meta && meta.content) {
@@ -12,6 +13,7 @@
         .map((s) => s.trim())
         .filter(Boolean);
       if (envPasswords.length > 0) {
+        console.log("env passwords ", envPasswords)
         return envPasswords.map((p) => p.toLowerCase());
       }
     }
