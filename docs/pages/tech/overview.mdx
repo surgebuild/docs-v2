@@ -6,7 +6,7 @@ import ZoomImage from "../../components/ZoomImage";
 
 # 🔧 Technical Overview
 
-Surge is a **Bitcoin-native stablecoin access layer** built around a **two-plane architecture** that separates BTC custody from stablecoin programmability.
+Surge is a Bitcoin‑native stablecoin access layer with a two‑plane design: the control plane on Bitcoin holds BTC; the execution plane on an EVM chain manages positions and settlement.
 
 <ZoomImage
   src="/assets/arch_overview.png"
@@ -15,33 +15,30 @@ Surge is a **Bitcoin-native stablecoin access layer** built around a **two-plane
   className="mx-auto"
 />
 
-## Control Plane (Bitcoin)
+## Bitcoin
 
-- BTC collateral is locked in Taproot **dVaults** (Merkelized Alternative Script Tree / <a href="https://river.com/learn/terms/m/merkelized-alternative-script-tree-mast/" target="_blank" rel="noopener noreferrer" class="opacity-80 hover:opacity-100 hover:underline cursor-pointer transition-colors">MAST</a> - based programs).
-- BTC never leaves Bitcoin and can move only via **deterministic spend conditions**:
-  - **Repayment** requires borrower and signer signatures
-  - **Liquidation** (if CR < threshold)
-  - **Time-locked** (`OP_CHECKLOCKTIMEVERIFY`) for the loan duration
-- A BTC/USD **oracle** drives CR checks and liquidation triggers.
-- **Signer layer security**, all BTC spends require quorum approval from MPC signers using <a href="https://github.com/coinbase/cb-mpc" target="_blank" rel="noopener noreferrer" class="opacity-80 hover:opacity-100 hover:underline cursor-pointer transition-colors">Coinbase’s cb-mpc</a> framework.
-  - **Lin22** → Threshold Schnorr (Taproot)
-  - **Hai+18** → Threshold ECDSA
-- **Non-custodial guarantees** with no unilateral control user + quorum signers or fallback timelocks.
+- BTC collateral is held in Taproot dVaults (MAST) — see <a href="https://river.com/learn/terms/m/merkelized-alternative-script-tree-mast/" target="_blank" rel="noopener noreferrer" class="opacity-80 hover:opacity-100 hover:underline cursor-pointer transition-colors">MAST</a>.
+- Funds move only via preset spend paths:
+  - Repay: borrower + signer quorum signatures
+  - Liquidate: when collateral ratio falls below threshold
+  - Expiry: time‑lock via `OP_CHECKLOCKTIMEVERIFY` after the loan term
+- BTC/USD price oracle drives CR checks and liquidation triggers.
+- Signer quorum uses MPC threshold signatures via <a href="https://github.com/coinbase/cb-mpc" target="_blank" rel="noopener noreferrer" class="opacity-80 hover:opacity-100 hover:underline cursor-pointer transition-colors">cb‑mpc</a> (Schnorr on Taproot; ECDSA where needed).
+- Non‑custodial: no single party can move funds; either borrower + quorum, or timelock after expiry.
 
-## Execution Plane
+## Execution
 
-- Fully EVM compatible, built with reth and CometBFT for deterministic state
-- Surge **deploys to existing chains**, recording vault states, liabilities, stability pool balances, and signer epochs
-- State transitions on the Surge plane mirror BTC movements, ensuring 1:1 consistency between Bitcoin and stablecoin liabilities
-- **Stability Pool** — a single on-chain pool absorbs bad debt, receives BTC at a discount, and is funded by stablecoin lenders
-- The initial signer set is permissioned, with a roadmap toward **permissionless** enrollment.
+- EVM‑compatible chain. We use reth for EVM execution and CometBFT for consensus/finality.
+- Deployed to existing chains; contracts record vaults, debts, stability‑pool balances, and signer epochs.
+- On‑chain state mirrors Bitcoin spends/events; transitions are reconciled 1:1 with BTC movements.
+- Stability Pool: one pool covers shortfalls, acquires liquidated BTC at a discount, funded by stablecoin depositors.
+- Signer set starts permissioned with a roadmap to permissionless enrollment.
 
-## Cross-Chain Liquidity
+## Cross‑Chain Liquidity
 
-- USDC-native flows supported via Circle’s CCTP v2 routes stablecoin liquidity across Ethereum, Arbitrum, Optimism, and others
-- BTC never bridges: Only stablecoins move cross-chain; BTC remains secured on Bitcoin.
-- The ledger maintains vault state, debts, **stability pool** balances, and signer epochs
-- Deterministic state transitions ensure BTC movements align with stablecoin flows.
-- Institutional-grade auditability, Canonical events provide an open and verifiable ledger.
+- USDC flows via Circle CCTP v2 across Ethereum, Arbitrum, Optimism, and others.
+- BTC never bridges. Only stablecoins move between chains; BTC stays on Bitcoin.
+- Canonical events provide an auditable ledger of vault state, debt, stability‑pool balances, and signer epochs.
+- Deterministic reconciliation ensures on‑chain stablecoin flows match underlying BTC movements.
 
-This layered design anchors Surge in Bitcoin’s security, while offering programmability, stablecoin connectivity, and institutional-grade auditability.
+This split keeps BTC on Bitcoin while enabling programmable settlement on EVM, with end‑to‑end auditability.
