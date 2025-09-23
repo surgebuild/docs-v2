@@ -39,15 +39,15 @@ export default defineConfig({
             link: "/",
           },
           {
-            text: "Bitcoin Lending Landscape",
+            text: "Market Landscape",
             link: "/overview/bitcoin-lending-landscape",
           },
           {
-            text: "Key Challenges for Bitcoiners",
+            text: "Underserved Bitcoin Majority",
             link: "/overview/challenges",
           },
           {
-            text: "Stablecoins - A $3 Trillion Opportunity",
+            text: "Stablecoins adoption",
             link: "/overview/stablecoins",
           },
         ],
@@ -56,12 +56,20 @@ export default defineConfig({
         text: "PRODUCT & THESIS",
         items: [
           {
-            text: "Our Thesis & Vision",
-            link: "/product/our-thesis-vision",
+            text: "Our Thesis",
+            link: "/product/our-thesis",
           },
           {
             text: "Product Overview",
             link: "/product/overview",
+          },
+          {
+            text: "For Bitcoiners",
+            link: "/product/for-bitcoiners",
+          },
+          {
+            text: "For Stablecoin holders",
+            link: "/product/for-stablecoiners",
           },
           {
             text: "Infra Providers",

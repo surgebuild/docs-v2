@@ -1,19 +1,40 @@
 ---
-title: Bitcoin Lending Landscape
-description: Understanding the current Bitcoin lending market and its challenges
+title: Market Landscape
+description: Understanding the current Bitcoin lending market and insights
 ---
 
 import ZoomImage from "../../components/ZoomImage";
 
 
-# 🏗 Bitcoin Lending Landscape
-## Market Breakdown
+# 🗺️ Market Landscape
+## Market Context
 
-Bitcoin lending today is segmented into three core categories:
+It’s difficult to estimate the true size of the Bitcoin-backed lending market due to its centralized nature. Most platforms are opaque—lacking public proof-of-reserve disclosures or any on-chain verification mechanisms. 
+That’s part of the problem. However, this is a large and growing market. The first product in this space dates back to 2014 and still operates today.
 
-- **CeFi platforms**: Centralized, regulated, and focused primarily on large BTC holders. These platforms rely on custodians and often lack transparency.
-- **DeFi models (Multisig, P2P, DLCs)**: Non-custodial and promising, but early-stage with UX and regulatory challenges.
-- **Wrapped BTC on other chains**: Operate on Ethereum and other L1s with WBTC or similar, introducing bridge risks and custodial dependencies that Bitcoiners often avoid.
+We conducted a comprehensive analysis of over twenty players in this space. The summary below captures the structure and insights we uncovered. 
+You’ll find the full dataset in the resources section.
+
+## Market Categorization
+
+The Bitcoin-backed lending market can be divided into three main categories—based on who holds custody of your Bitcoin. 
+Like with all lending products, the difference in DeFi comes down to on-chain transparency—the ability to verify the existence and movement of collateral.
+
+Due to Bitcoin’s limited programmability, custody has remained centralized for the most part. 
+So we classify players primarily based on how they manage Bitcoin custody:
+
+### CeFi Platforms
+These platforms take full custody of your Bitcoin—either directly or via a group of trusted institutions using multi-institution custody (MIC) models. 
+This category dominates the market and includes regulated entities. However, most of these platforms are still black boxes, offering little or no transparency. 
+Users are expected to trust the regulators and custodians.
+
+### Bitcoin DeFi Models (Multisig, P2P, DLCs)
+Emerging platforms in this space leverage Bitcoin-native scripting: multisigs, Discreet Log Contracts (DLCs), and now Tapscript. These models appeal to Bitcoiners with smaller holdings (often below ten BTC). 
+While adoption is growing, their programmability and UX are still limited compared to EVM-based ecosystems.
+
+### Wrapped BTC on other chains
+This market is sizable, with WBTC being the dominant wrapped asset, followed by cbBTC, tBTC, and others. These models use custodians like BitGo to lock BTC and mint wrapped versions for use in ecosystems like Ethereum or Stacks. 
+While the smart contracts live on these chains, the BTC itself is held by third parties, making it difficult to classify as true DeFi from a Bitcoin perspective.
 
 _The visual breakdown below illustrates the diversity of players and tech stacks in this market_:
 
@@ -24,16 +45,16 @@ _The visual breakdown below illustrates the diversity of players and tech stacks
   className="mx-auto"
 />
 
-## Emerging Trends
+## Key Insights from the Market Analysis
 
-- **CeFi dominance** keeps borrowing costs high.  
-- **DeFi market share is growing**, supported by infrastructure and regulatory tailwinds.  
-- Galaxy reports confirm the rising preference for DeFi in crypto-collateralized lending.  
-- Most platforms cater to HNWIs or institutions, leaving **retail Bitcoiners underserved**.  
-- As stablecoin usage accelerates, **new payment and remittance channels** are opening up, driving structural changes in the lending landscape.  
+- **Lending product emergence follows market cycles:** New players and usage spikes occur every bull market, signaling genuine demand.
+- **CeFi still dominates:** With unclear regulation, custodians like BitGo and Anchorage have become infrastructure backbones, contributing to CeFi’s continued hold.
+- **Transparency remains lacking:** While a few platforms have started offering proof-of-reserve reports, most shy away from disclosing custody details—despite managing digital, on-chain assets.
+- **Borrowing costs are high:** CeFi-led models come with higher rates, predatory liquidations, and opaque loan terms
+- **Access is limited:** Many platforms cater to HNWIs or institutions, sidelining everyday Bitcoiners (less than ten BTC) who face higher borrowing costs and fewer options.
+- **Decentralized platforms are gaining ground:** A wave of new entrants is adopting trust-minimized infrastructure and on-chain verification. While still early, this category is poised to disrupt the current centralized players.
 
 ## Resources
-
-[Detailed player by player breakdown](https://surgehq.notion.site/263232deac9080e3a6a3f9f040047105?v=263232deac90803bbf49000c80e4431b)  
-[Read more on emerging trends](https://metabitcoiner.substack.com/p/bitcoin-lending-landscape)  
+[Bitcoin Lending Platforms Comparison Table](https://surgehq.notion.site/263232deac9080e3a6a3f9f040047105?v=263232deac90803bbf49000c80e4431b)  
+[In-depth Breakdown: Bitcoin-backed Lending Market](https://metabitcoiner.substack.com/p/bitcoin-lending-landscape)  
 
