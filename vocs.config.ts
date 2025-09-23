@@ -5,8 +5,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export default defineConfig({
-  description:
-    "Unlock Bitcoin's lending future with Surge's programmable dVaults. Secure Bitcoin collateral system with Taproot UTXOs, MPC signers, and decentralized lending infrastructure.",
+  description: "Unlock Bitcoin's lending future with Surge's programmable dVaults. Secure Bitcoin collateral system with Taproot UTXOs, MPC signers, and decentralized lending infrastructure.",
   logoUrl: {
     light: "/logo/surge-icon-rec-light.svg",
     dark: "/logo/surge-icon-rec-dark.svg",
@@ -15,14 +14,6 @@ export default defineConfig({
   font: {
     google: "Inter",
   },
-  // topNav: [
-  //   { text: "Blog", link: "https://surge.build/blog" },
-  // {
-  //   text: "Bitcoin Playground",
-  //   link: "https://surge.build/playground",
-  // },
-  //   { text: "Website", link: "https://www.surge.build/" },
-  // ],
   theme: {
     // accentColor: "#f56949"
     accentColor: "#f4431b",
@@ -62,18 +53,21 @@ export default defineConfig({
           {
             text: "Product Overview",
             link: "/product/overview",
-          },
-          {
-            text: "For Bitcoiners",
-            link: "/product/for-bitcoiners",
-          },
-          {
-            text: "For Stablecoin holders",
-            link: "/product/for-stablecoiners",
-          },
-          {
-            text: "Infra Providers",
-            link: "/product/providers",
+            collapsed: false,
+            items: [
+              {
+                text: "For Bitcoiners",
+                link: "/product/for-bitcoiners",
+              },
+              {
+                text: "For Stablecoin Holders",
+                link: "/product/for-stablecoiners",
+              },
+              {
+                text: "For Infra Providers",
+                link: "/product/providers",
+              },
+            ],
           },
         ],
       },
@@ -85,16 +79,24 @@ export default defineConfig({
             link: "/tech/overview",
           },
           {
-            text: "dVault Scripts",
+            text: "dVault & Tapscript",
             link: "/tech/vaults",
           },
           {
-            text: "Execution State Machine",
-            link: "/tech/execution-layer",
+            text: "Threshold Signatures (TSS)",
+            link: "/tech/tss",
           },
           {
-            text: "Cross-Chain Communication",
-            link: "/tech/cross-chain-communication",
+            text: "Execution State Machine",
+            link: "/tech/execution",
+          },
+          {
+            text: "Escape Hatch / Unilateral Exit",
+            link: "/tech/exit",
+          },
+          {
+            text: "Cross-Chain Settlement & LPs",
+            link: "/tech/cross-chain-settlement",
           },
         ],
       },

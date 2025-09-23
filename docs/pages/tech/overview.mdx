@@ -15,30 +15,48 @@ Surge is a Bitcoin‑native stablecoin access layer with a two‑plane design: t
   className="mx-auto"
 />
 
-## Bitcoin
+## Bitcoin Layer — Taproot dVaults
 
-- BTC collateral is held in Taproot dVaults (MAST) — see <a href="https://river.com/learn/terms/m/merkelized-alternative-script-tree-mast/" target="_blank" rel="noopener noreferrer" class="opacity-80 hover:opacity-100 hover:underline cursor-pointer transition-colors">MAST</a>.
-- Funds move only via preset spend paths:
-  - Repay: borrower + signer quorum signatures
-  - Liquidate: when collateral ratio falls below threshold
-  - Expiry: time‑lock via `OP_CHECKLOCKTIMEVERIFY` after the loan term
-- BTC/USD price oracle drives CR checks and liquidation triggers.
-- Signer quorum uses MPC threshold signatures via <a href="https://github.com/coinbase/cb-mpc" target="_blank" rel="noopener noreferrer" class="opacity-80 hover:opacity-100 hover:underline cursor-pointer transition-colors">cb‑mpc</a> (Schnorr on Taproot; ECDSA where needed).
-- Non‑custodial: no single party can move funds; either borrower + quorum, or timelock after expiry.
+At the core of Surge are **dVaults**: Taproot outputs programmed with multiple authorized spend paths using **MAST (Merklized Alternative Script Trees)**. Only the executed branch is revealed, preserving privacy and efficiency.
 
-## Execution
+### Spend Conditions
+- **Repayment** — borrower + signer quorum co-sign repayment and unlock BTC.
+- **Liquidation** — signer quorum executes liquidation if collateral ratio < threshold.
+- **Migration** — reassigns signer set under new epoch.
+- **Unilateral Exit** — borrower recovers BTC unilaterally after `OP_CHECKLOCKTIMEVERIFY` timelock expiry.
 
-- EVM‑compatible chain. We use reth for EVM execution and CometBFT for consensus/finality.
-- Deployed to existing chains; contracts record vaults, debts, stability‑pool balances, and signer epochs.
-- On‑chain state mirrors Bitcoin spends/events; transitions are reconciled 1:1 with BTC movements.
-- Stability Pool: one pool covers shortfalls, acquires liquidated BTC at a discount, funded by stablecoin depositors.
-- Signer set starts permissioned with a roadmap to permissionless enrollment.
+### Security Properties
+- **Bitcoin-native** — collateral never bridges; BTC never leaves Bitcoin.
+- **Non-custodial** — no individual signer controls funds.
+- **Threshold Signatures** — Lin22 Schnorr TSS (via [cb-mpc](https://github.com/coinbase/cb-mpc)) ensures robustness against aborts and malicious signers.
+- **Oracle-driven** — BTC/USD feed determines collateral ratios and liquidation triggers.
 
-## Cross‑Chain Liquidity
+## Execution and Reconciliation
 
-- USDC flows via Circle CCTP v2 across Ethereum, Arbitrum, Optimism, and others.
-- BTC never bridges. Only stablecoins move between chains; BTC stays on Bitcoin.
-- Canonical events provide an auditable ledger of vault state, debt, stability‑pool balances, and signer epochs.
-- Deterministic reconciliation ensures on‑chain stablecoin flows match underlying BTC movements.
+External execution environments exist only to **reflect and coordinate Bitcoin vault state**. They do not custody BTC.
 
-This split keeps BTC on Bitcoin while enabling programmable settlement on EVM, with end‑to‑end auditability.
+- **State Mirroring** — records deposits, debt issuance, repayments, and liquidations as canonical events, mapped 1:1 to Bitcoin spends.
+- **Signer Epochs** — tracks signer rotations and ensures signatures align with the active set.
+- **Collateral Ratios** — monitors CR from oracle feeds; liquidation triggers are reconciled against actual Bitcoin conditions.
+- **Stability Pool** — stablecoin depositors absorb undercollateralized debt and receive discounted BTC through liquidation flows.
+
+---
+
+These execution environments run on existing EVM-compatible chains (Ethereum, Arbitrum, Optimism, etc.), using deterministic consensus (`reth` + CometBFT) to maintain consistent state across validators.
+
+## Cross-Chain Liquidity
+
+Stablecoin liquidity moves across ecosystems while BTC remains locked on Bitcoin:
+
+- **Circle CCTP v2** — bridges stablecoin liquidity across Ethereum, Arbitrum, Optimism, and others.
+- **Canonical Events** — standardized events (`AttestedDeposit`, `DebtIssued`, `DebtRepaid`, `LiquidationTriggered`) serve as the auditable ledger.
+- **Deterministic Reconciliation** — ensures stablecoin supply across chains always maps exactly to BTC collateral locked in dVaults.
+---
+
+## End-to-End Model
+- BTC is always the source of truth, locked in Taproot contracts.
+- External chains execute state machines that mirror Bitcoin vault conditions.
+- Users retain sovereignty: cooperative signer flows or unilateral exit guarantee recoverability.
+
+
+This architecture enables **sovereign Bitcoin capital markets**: BTC secured by Taproot contracts, with programmable stablecoin liquidity and settlement across multiple chains.

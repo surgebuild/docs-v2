@@ -1,0 +1,84 @@
+---
+title: Threshold Schnorr Signatures (TSS)
+description: 
+---
+
+# 👥 Threshold Schnorr Signatures (TSS)
+
+Surge leverages **Threshold Schnorr Signatures (TSS)** for securing Bitcoin Taproot vaults (dVaults). TSS ensures that vault funds cannot be moved without quorum agreement among a distributed set of signers, preventing unilateral control or custody risk.
+
+---
+
+## Why Schnorr TSS Matters for dVaults
+
+- **Taproot Compatibility** – Bitcoin’s Taproot (BIP340) mandates Schnorr signatures. TSS outputs must be indistinguishable from single-party Schnorr signatures to maintain privacy and efficiency.
+- **Non-Custodial Guarantee** – No individual signer can move BTC; only a threshold of signers can jointly authorize a transaction.
+- **Byzantine Robustness** – Vaults must remain operable even if some signers are malicious or offline. Abort conditions must be avoided to prevent capital lock-up.
+
+---
+
+## Lin22 vs. FROST
+
+Two leading Schnorr TSS protocols were evaluated:
+
+- **FROST (RFC 9591)** – Optimized for speed (2 signing rounds).
+- **Lindell 2022 (Lin22)** – Optimized for robustness, with 3 signing rounds and full security proofs.
+
+#### Comparison Table
+
+| Property | **FROST** | **Lin22 (2022)** |
+|----------|-----------|------------------|
+| **Signing Rounds** | 2 | 3 |
+| **Security Proof** | **UC secure** (Universally Composable), but aborts if signers fail | **Full simulatability** with Fischlin ZKPs |
+| **Abort Handling** | Protocol halts if any signer withholds | Identifies cheaters; reconstructs missing shares |
+| **DKG Setup** | ~2 rounds (Pedersen VSS) | 5+ rounds (Feldman VSS, more secure) |
+| **Best Case** | Highly efficient when all honest | Robust to faults |
+| **Output** | BIP340 Schnorr | BIP340 Schnorr |
+
+---
+
+## Why Surge Chooses Lin22
+
+Surge prioritizes **liveness and accountability** over lowest latency:
+
+- **Abort = Dead Capital** – With FROST, one unresponsive or malicious signer can permanently lock a vault. Lin22 avoids this by enabling recovery.
+- **Identifiable Misbehavior** – Zero-Knowledge Proofs (ZKPs) provide cryptographic evidence of cheating, enabling automated slashing and signer rotation.
+- **Reconstruction** – Honest signers can rebuild missing shares using Feldman Verifiable Secret Sharing (VSS) from the DKG phase.
+- **Privacy Preserving** – Outputs remain indistinguishable from native Schnorr signatures, ensuring Taproot spends look standard.
+
+---
+
+## Lin22 Signing Flow in Surge
+
+#### 1. Distributed Key Generation (DKG)
+- Key shares are generated using **Feldman’s VSS**.
+- Public commitments allow verification that shares are consistent.
+- Result: A single Taproot public key with private shares held by signers.
+
+#### 2. Signing Rounds
+
+**Round 1 – Commitment**  
+- Each signer selects a fresh random nonce and broadcasts a *hash commitment* to it.  
+- Inclusion in this round is mandatory.
+
+**Round 2 – Decommitment & Proof**  
+- Signers reveal their nonces and provide **Fischlin Zero-Knowledge Proofs (ZKPs)**.  
+- Invalid or missing proofs immediately flag the signer as malicious.
+
+**Round 3 – Signature Shares**  
+- Honest signers compute signature shares using their secret key share and nonce.  
+- Coordinator verifies ZKPs and aggregates valid shares.  
+- Final output: A single **BIP340 Schnorr signature**, valid for Taproot.
+
+---
+
+## Example: 3-of-4 Signing
+
+- **FROST** → If one signer withholds a share, the protocol aborts. No valid signature can be produced.
+- **Lin22** → The malicious signer is exposed by ZKP failure. Honest signers reconstruct the missing share via VSS and complete the signature.
+
+Result: **dVault remains operable even under Byzantine conditions.**
+
+---
+
+**Surge adopts Lin22 for Schnorr TSS because resilience matters more than speed when securing Bitcoin collateral at scale.**

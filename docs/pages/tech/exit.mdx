@@ -1,0 +1,61 @@
+---
+title: Escape Hatch / Unilateral Exit
+description: 
+---
+
+# ⏳ Escape Hatch / Unilateral Exit
+
+Surge dVaults are designed to be **non-custodial by construction**. While signers facilitate cooperative vault operations (repayments, migrations, liquidations), users must always retain an **escape hatch** to unilaterally reclaim their BTC. This prevents collusion, censorship, or liveness failures from permanently locking funds.
+
+---
+
+## Core Concept
+
+Every dVault Taproot output commits to multiple possible spend paths via **MAST (Merklized Alternative Script Trees)**. Among these branches is the **Unilateral Exit path**, which uses a **timelocked script**:
+
+```
+IF <user key + CLTV timelock>
+THEN spendable unilaterally by user
+```
+
+This ensures that if signers fail to cooperate, the depositor can still withdraw after a predetermined number of Bitcoin blocks.
+
+---
+
+## How It Works
+
+1. **Vault Creation**  
+   - A dVault is funded to a Taproot address committing to multiple conditions: repayment, liquidation, migration, and **Unilateral Exit**.
+
+2. **Normal Operation**  
+   - Under cooperative conditions, user + signer quorum authorizes spends (repayment or migration).  
+   - These paths have priority, allowing efficient borrowing/lending flows.
+
+3. **Timelock Activation**  
+   - If signers refuse to sign or become unresponsive, the user waits for `X` blocks.  
+   - The exact duration (`X`) is parameterized (e.g., 1,008 blocks ≈ 1 week).
+
+4. **Unilateral Spend**  
+   - After the timelock expires, the user can spend directly with **only their key**, bypassing signers entirely.  
+   - The spend is a valid Taproot signature path, indistinguishable from standard spends.
+
+---
+
+## Design Tradeoffs
+
+| Aspect | Choice | Rationale |
+|--------|--------|-----------|
+| **Timelock Length** | Fixed per vault template (e.g., 1 week) | Balance between user safety and system stability |
+| **Security** | User always guaranteed recovery | Eliminates risk of hostage scenarios by malicious signers |
+| **Liveness** | BTC can never be bricked | Ensures vaults remain operable under any network conditions |
+| **Privacy** | Spend reveals exit branch | Only the executed branch is revealed; other policies remain hidden by MAST |
+
+---
+
+## Example Flow
+
+- **Block 0**: User funds a dVault with BTC. Signer set is active.
+- **Block 300**: User requests repayment, but signers are unresponsive.
+- **Block 1,308**: Timelock (`1,008 blocks`) expires.
+- **Block 1,309**: User broadcasts a spend from the **Unilateral Exit branch**, using only their key.
+- **Result**: BTC is released to the user without any signer participation.
