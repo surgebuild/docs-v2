@@ -4,18 +4,18 @@ description: EVM compatible execution with reth + CometBFT, state-root–bound B
 ---
 
 # ⚙️ Execution Layer
-The **Execution Layer** acts as Surge’s universal ledger for Bitcoin-backed liabilities. It connects Bitcoin vaults, signer rules, and stablecoin issuance into a deterministic state machine, ensuring that BTC collateral can only move when programmatic conditions are satisfied.
+The **Execution Layer** acts as Surge’s universal ledger for Bitcoin backed liabilities. It connects Bitcoin vaults, signer rules, and stablecoin issuance into a deterministic state machine, ensuring that BTC collateral can only move when programmatic conditions are satisfied.
 
 ## Universal Ledger for BTC-Backed Liabilities
 The Execution Layer maintains the **single source of truth** for:
 - dVault collateral ratios.
-- Active liabilities (stablecoin-denominated debt).
+- Active liabilities (stablecoin denominated debt).
 - Signer sets and epoch rotations.
 
-It prevents rehypothecation by ensuring every Bitcoin UTXO is represented exactly once in system state, binding liabilities directly to on-chain BTC collateral.
+It **prevents rehypothecation** by ensuring every Bitcoin UTXO is represented exactly once in system state, binding liabilities directly to on-chain BTC collateral.
 
 ## Implementation Details
-- **Execution Engine**: `reth` provides an Ethereum-compatible state machine for programmability.
+- **Execution Engine**: `reth` provides an EVM-compatible state machine for programmability.
 - **Consensus**: `CometBFT` delivers deterministic ordering and block finality across validators.
 - **State Objects**:
   - `VaultState { collateral, debt, CR, signerSet }`
@@ -54,6 +54,6 @@ These events form a deterministic log that validators replicate, ensuring consis
 Signer participation is tightly controlled:
 - **Lin22 Schnorr Signing**: Coinbase cb-mpc coordinates threshold Schnorr rounds for Taproot keys.
 - **Contract-Gated Authorization**: Signers may only sign if the Execution Layer has emitted a valid event.
-- **No Rogue Signing**: Signers do not decide when BTC can move — the ledger enforces it.
+- **No Rogue Signing**: Signers do not decide when BTC can move - the ledger enforces it.
 
 This guarantees **programmatic enforcement of BTC custody**, not human discretion.

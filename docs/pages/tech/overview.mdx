@@ -24,36 +24,35 @@ Surge is a Bitcoin-native lending platform that's transparent, programmable, and
 
 ## Bitcoin Custody - dVaults
 
-At the core of Surge are **dVaults**: Taproot outputs encoded with multiple spend paths using **MAST (Merklized Alternative Script Trees)**. Only the executed branch is revealed, preserving privacy and efficiency.
+At the core of Surge are **dVaults**: Taproot outputs encoded with multiple spend paths using **MAST (Merklized Alternative Script Trees)**. Only the executed branch is revealed, preserving privacy.
 
 ### Spend Conditions
 - **Repayment** - borrower + signer quorum co-sign repayment to unlock BTC.
 - **Liquidation** - signer quorum executes liquidation if collateral ratio < threshold.
-- **Migration** - reassigns signer set under a new epoch.
 - **Unilateral Exit** - borrower can reclaim BTC after `OP_CHECKLOCKTIMEVERIFY` expiry.
 
 ### Security Properties
-- **Bitcoin-native** - collateral never bridges; BTC never leaves Bitcoin.
-- **Non-custodial** - no individual signer controls funds.
+- **Bitcoin Native** - collateral never bridges. BTC never leaves Bitcoin.
+- **Non-Custodial** - no individual signer controls funds.
 - **Threshold Signatures** - Lin22 Schnorr TSS (via [cb-mpc](https://github.com/coinbase/cb-mpc)) resists collusion or aborts.
-- **Oracle-driven** - BTC/USD feed governs collateral ratios and liquidation triggers.
+- **Oracle Driven** - BTC/USD feed governs collateral ratios and liquidation triggers.
 
 ## Execution Environment
 
-External chains **do not custody BTC** - they only mirror vault conditions and enforce protocol logic.
+Execution state **do not custody BTC** - they only mirror vault conditions and enforce protocol logic.
 
 - **Event Mirroring** - deposits, debt issuance, repayments, and liquidations map 1:1 to Bitcoin spends.
-- **Signer Epochs** - track signer rotations, validate signatures against the active set.
-- **Collateral Ratios** - monitor vault health via oracles; liquidation events reconcile against Bitcoin.
+- **Signer Epochs** - track signers, validate signatures against the active set.
+- **Collateral Ratios** - monitor vault health via oracles. Liquidation events reconcile against Bitcoin.
 - **Stability Pool** - depositors absorb undercollateralized debt and receive discounted BTC.
 
-Execution runs on existing EVM-compatible chains with deterministic consensus (`reth` + CometBFT) for consistent state replication.
+Execution runs on existing EVM-compatible chains with deterministic consensus (`reth` + `CometBFT`) for consistent state replication.
 
 ## Cross-Chain Liquidity
 
 Stablecoin supply moves across ecosystems while BTC remains locked:
 
-- **Circle CCTP v2** - routes liquidity across Ethereum, Arbitrum, Optimism, and more.
+- **Circle CCTP v2** - routes liquidity across Ethereum, Base, Arbitrum and more.
 - **Canonical Events** - standardized signals (`AttestedDeposit`, `DebtIssued`, `DebtRepaid`, `LiquidationTriggered`) form the audit log.
 - **Deterministic Reconciliation** - ensures stablecoin supply always matches BTC collateral locked in dVaults.
 

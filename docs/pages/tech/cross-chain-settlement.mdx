@@ -6,21 +6,21 @@ description: Deterministic USDC routing with CCTP and canonical liquidation mark
 # 📡 Cross-Chain Settlement & Liquidity
 
 ## Stablecoin Routing via CCTP v2
-Surge integrates **Circle’s Cross-Chain Transfer Protocol (CCTP v2)** as the backbone for stablecoin settlement. CCTP uses **burn-and-mint semantics** to move USDC across chains:
+Surge integrates **Circle’s Cross-Chain Transfer Protocol [(CCTP v2)](https://www.circle.com/cross-chain-transfer-protocol)** for stablecoin settlement. CCTP uses **burn and mint semantics** to move USDC across chains:
 
-- **Canonical Supply** — no wrapped or synthetic USDC is ever created.
-- **Deterministic Routing** — stablecoins are burned on the source chain and minted on the destination.
-- **Settlement Finality** — transfers secured by Circle’s attestation network.
+- **Canonical Supply** - no wrapped or synthetic USDC is ever created.
+- **Deterministic Routing** - stablecoins are burned on the source chain and minted on the destination.
+- **Settlement Finality** - transfers secured by Circle’s attestation network.
 
-This design ensures liquidity is **fungible, auditable, and settlement-grade** — essential for institutional adoption.
+This design ensures liquidity is **fungible, auditable, and settlement-grade** - essential for institutional adoption.
 
 ## Canonical Stability Pool
 The **Stability Pool** is Surge’s liquidation clearinghouse. While stablecoin activity spans multiple chains, all liquidation flows resolve in the **single canonical pool**.
 
-- **Implementation** — a stateful contract deployed on a chosen execution chain (e.g., Ethereum).
-- **Inputs** — stablecoins deposited by liquidity providers.
-- **Outputs** — discounted BTC distributed to pool participants during liquidations.
-- **Market Integrity** — consolidates bad debt resolution into one venue, preventing fragmented pricing or MEV-driven arbitrage.
+- **Implementation** - a stateful contract deployed on a chosen execution chain (e.g., Ethereum).
+- **Inputs** - stablecoins deposited by liquidity providers.
+- **Outputs** - discounted BTC distributed to pool participants during liquidations.
+- **Market Integrity** - consolidates bad debt resolution into one venue, preventing fragmented pricing or MEV-driven arbitrage.
 
 | Component | Function |
 |------------|---------------------------------------------------------------------------|

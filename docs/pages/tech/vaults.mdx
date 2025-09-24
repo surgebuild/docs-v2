@@ -16,7 +16,7 @@ Surge uses dVaults as its **collateral engine** and BTC always stays on Bitcoin,
 ## How dVaults are Programmed?
 
 A dVault locks BTC in a Taproot script address with multiple **exit paths**:
-- **Key Path** - The repayment/close path, co-signed by the user and Surge’s signer set using **Lin22 (threshold Schnorr)** via Coinbase cb-mpc.
+- **Key Path** - The repayment/close path, co-signed by the user and decentralized signer set using **Lin22 (threshold Schnorr)** via Coinbase [cb-mpc](https://github.com/coinbase/cb-mpc).
 - **Script Paths** - Extra branches in the vault’s taptree that open under special conditions:
   - **Liquidation branch** if collateral drops below minimum ratio.
   - **Timelock branch** for long-term recovery by the depositor.
@@ -32,12 +32,12 @@ A dVault locks BTC in a Taproot script address with multiple **exit paths**:
 
 - Each vault commits a **taptree** of spend leaves (tapscript). Only the executed leaf is revealed on spend; unused branches remain hidden.
 - The **key path** uses an **aggregate Lin22 Schnorr key** (`cb-mpc(P_user, P_signer_epoch)`) to handle the common repayment flow.
-- **Script leaves** enforce exceptional paths (liquidation, timelock, migration).
+- **Script leaves** enforce exceptional paths (liquidation, timelock, etc.,).
 
 ## Spend Paths
 
 - **Repayment** - BTC can be spent via the **key path** by `Lin22(P_user, P_epoch)` after the execution environment attests that debt was repaid.  
-_Enforced by signers + state proofs; the script enforces signatures only._
+_Enforced by signers + state proofs, the script enforces signatures only._
 
 - **Liquidation** - If CR < MinCR, signers spend via a **CSV gated** script leaf. The spend creates outputs:
    - Discounted sale to Stability Pool.
@@ -49,7 +49,7 @@ _CR check is off-chain; the script enforces signer control + delay._
 
 ## Script Structures
 
-### 1. Repayment Path (Ledger-Validated Unlock)
+### 1. Repayment Path (Ledger Validated Unlock)
 
 ```bitcoin-script
 # Requires depositor + cb-mpc aggregated Lin22 Schnorr key
@@ -60,7 +60,7 @@ AND(
 )
 ```
 
-### 2. Liquidation Path (Micro-Liquidations)
+### 2. Liquidation Path (Micro Liquidations)
 
 ```bitcoin-script
 # Signers + Stability Pool key can spend BTC if CR < MinCR
@@ -85,14 +85,14 @@ AND(
 
 1. **Deposit** - User locks BTC to the Taproot address (key path = `Lin22(P_user, P_epoch)`).
 2. **Borrow** - Execution environment issues stablecoins against the attested deposit.
-3. **Monitoring** - BTC/USD oracle updates CR; state commits record epochs, debts, and Stability Pool balances.
+3. **Monitoring** - BTC/USD oracle updates CR, state commits, debts, and Stability Pool balances.
 4. **Incremental Liquidations** - If `CR < MinCR`, signers spend via the liquidation leaf. The spend MUST produce:
    - **Stability Pool purchase** - discounted BTC to the Stability Pool.
    - **Relock** - change re-locked to a new dVault taptree for the user.
-5. **Repayment/Close** - Upon debt repayment, signers co-sign the key-path spend, moving BTC per user instructions.
+5. **Repayment/Close** - Upon debt repayment, signers co-sign the key-path spend, moving BTC as per user instructions.
 
 ## Security Anchors
 
 - **On-chain invariants (script):** Schnorr key verification, `CLTV` timelocks, and MAST-committed branches.
 - **Off-chain invariants (state):** CR evaluation, repayment attestations, SP discount schedules, and epoch rotation tied to the execution environment’s state root.
-- **Signer tech:** Coinbase **cb-mpc** coordinating **Lin22 (threshold Schnorr)** for Taproot keys. **Hai18 (threshold ECDSA)** only where non-Bitcoin interoperability requires it.
+- **Signer tech:** Coinbase **cb-mpc** coordinating **Lin22 (threshold Schnorr)** for Taproot keys. **Hai18 (threshold ECDSA)** only where non Bitcoin interoperability requires it.

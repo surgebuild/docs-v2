@@ -5,19 +5,18 @@ description:
 
 # ⏳ Escape Hatch / Unilateral Exit
 
-### Programmable Spend Paths via Taproot + MAST
-Each dVault defines **four independent spend paths**, encoded using MAST. This ensures Bitcoin-native programmability while keeping the on-chain footprint minimal.
+## Programmable Spend Paths via Taproot + MAST
+Each dVault defines **three independent spend paths**, encoded using MAST. This ensures Bitcoin-native programmability while keeping the on-chain footprint minimal.
 
 
 | Path | Condition | Example Script |
 |-----------------|---------------------------------------------------------------------------|----------------|
 | **Repayment** | User + Signer co-sign repayment when liabilities cleared. | `OP_CHECKSIGADD OP_EQUALVERIFY` |
 | **Liquidation** | Triggered when CR < threshold; executed via Stability Pool. | `IF <oracle_CR_check> ELSE <liquidation_branch> ENDIF` |
-| **Migration** | Reassigns control to a new signer set at epoch rotation. | `OP_IF <new_signer_pubkey> OP_CHECKSIG OP_ENDIF` |
 | **Escape Hatch**| Time-locked unilateral exit by user, used if signers fail. | `OP_CHECKLOCKTIMEVERIFY OP_DROP <user_pubkey> OP_CHECKSIG` |
+{/* | **Migration** | Reassigns control to a new signer set at epoch rotation. | `OP_IF <new_signer_pubkey> OP_CHECKSIG OP_ENDIF` | */}
 
-
-### Failure Modes & Recovery
+## Failure Modes & Recovery
 - **Signer Downtime**: Escape hatch allows users to unilaterally reclaim BTC after timelock expiry.
 - **Oracle Failure**: Default conservative CR assumptions are enforced until feeds recover.
 - **Execution Layer Halt**: Even if off-chain execution fails, BTC remains secure under Taproot conditions
