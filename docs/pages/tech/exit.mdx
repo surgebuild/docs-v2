@@ -20,14 +20,6 @@ Each dVault defines **four independent spend paths**, encoded using MAST. This e
 ### Failure Modes & Recovery
 - **Signer Downtime**: Escape hatch allows users to unilaterally reclaim BTC after timelock expiry.
 - **Oracle Failure**: Default conservative CR assumptions are enforced until feeds recover.
-- **Execution Layer Halt**: Even if off-chain execution fails, BTC remains secure under Taproot conditions.
-
-
-### Example Lifecycle
-1. User borrows against BTC collateral.
-2. Market downturn reduces CR below threshold.
-3. Stability Pool absorbs bad debt via liquidation path.
-4. If signers fail, user can invoke **escape hatch** after `n` blocks.
-
+- **Execution Layer Halt**: Even if off-chain execution fails, BTC remains secure under Taproot conditions
 
 This ensures BTC is **always retrievable**, regardless of protocol failures.
