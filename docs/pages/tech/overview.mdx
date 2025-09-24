@@ -31,6 +31,13 @@ At the core of Surge are **dVaults**: Taproot outputs programmed with multiple a
 - **Threshold Signatures** — Lin22 Schnorr TSS (via [cb-mpc](https://github.com/coinbase/cb-mpc)) ensures robustness against aborts and malicious signers.
 - **Oracle-driven** — BTC/USD feed determines collateral ratios and liquidation triggers.
 
+| Layer | Role |
+|----------------------|----------------------------------------------------------------------|
+| **Bitcoin Layer** | Native BTC custody under Taproot + MAST conditions. |
+| **Execution Layer** | Universal ledger (reth + CometBFT) for liabilities and signer rules. |
+| **Stability Pool** | Canonical single-chain pool resolving liquidations. |
+| **Cross-Chain Layer**| Stablecoin routing via CCTP v2 across multiple execution chains. |
+
 ## Execution and Reconciliation
 
 External execution environments exist only to **reflect and coordinate Bitcoin vault state**. They do not custody BTC.

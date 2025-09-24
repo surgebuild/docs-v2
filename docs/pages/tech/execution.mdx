@@ -5,189 +5,40 @@ description: EVM compatible execution with reth + CometBFT, state-root–bound B
 
 # ⚙️ Execution Layer
 
-Surge’s execution layer provides **programmable settlement** on existing EVM chains while **deriving truth from Bitcoin**. It exposes contracts for loan management, liquidity, and the stability pool, and stays synchronized with Taproot dVaults via attested Bitcoin events. BTC never leaves Bitcoin; external chains reflect dVault state.
 
----
+### Universal Ledger for BTC-Backed Liabilities
+The execution layer is the **single ledger** for:
+- dVault collateral ratios.
+- Active liabilities (stablecoin-denominated).
+- Signer sets and epochs.
 
-## 1) Design Goals
 
-- **Bitcoin as source of truth** — State transitions on EVM must correspond to proven Bitcoin events (deposits, spends, timelock exits).
-- **Deterministic reconciliation** — Every `DebtIssued` maps to a locked UTXO; every `DebtRepaid` or `LiquidationExecuted` maps to a spend.
-- **Composability** — Standard ERC interfaces and explicit events allow integrators to build wallets, indexers, and risk dashboards.
-- **Upgradability discipline** — Critical components separated by minimal, audited proxies; parameter changes gated by signer-epoch governance.
+It prevents rehypothecation by ensuring every BTC UTXO is accounted for exactly once in Surge.
 
----
 
-## 2) Components
+### Implementation Details
+- **Execution Engine**: `reth` provides an Ethereum-compatible state machine.
+- **Consensus**: `CometBFT` ensures deterministic ordering and finality of vault state transitions.
+- **State Objects**:
+- `VaultState { collateral, debt, CR, signerSet }`
+- `StabilityPoolState { deposits, liquidationEvents }`
+- `CrossChainState { CCTP_transfers, attestations }`
 
-### 2.1 Bitcoin Attestation Gateway (BAG)
-A minimal on-chain verifier that **accepts proofs or quorum-signed attestations** of Bitcoin events:
 
-- **Event types**: `DepositUTXO`, `SpendUTXO` (repay, liquidation, migration, unilateral exit).
-- **Verification modes** (deploy-time choice per chain):
-  - **SPV Mode**: Submit block header + Merkle branch + transaction serialization; contract verifies tx inclusion, output script, amount, and locktime. Reorg mitigation via `minConfirmations`.
-  - **Quorum-Attested Mode**: Submit a digest (txid, output script path, spend-type, blockheight, amount) signed by the active **Lin22 signer epoch**. Contract verifies aggregated signature(s) against the epoch public key(s). Cheaper gas, similar trust as spend quorum.
+### Bitcoin-Aware State
+The execution layer is tightly coupled to Bitcoin:
+- **Oracle Feeds**: Medianized BTC/USD prices from trusted providers.
+- **Bitcoin Attestations**: Proof-of-inclusion (UTXOs, Taproot spends) submitted by attestators.
 
-**Key interfaces**
-```solidity
-interface IBitcoinAttestationGateway {
-  event AttestedDeposit(bytes32 utxoId, bytes32 vaultId, uint256 satoshis, bytes32 scriptCommit);
-  event AttestedSpend(bytes32 utxoId, bytes32 vaultId, bytes32 spendType, bytes32 txid);
 
-  function attestDeposit(Attestation calldata a) external;
-  function attestSpend(Attestation calldata a) external;
-}
-```
+These components guarantee that the execution environment reflects **real Bitcoin collateral**, not abstractions.
 
-### 2.2 Vault Registry
-Canonical mapping between **Bitcoin dVaults** and **EVM-side positions**.
 
-- Tracks: `vaultId`, Taproot output commitment, owner, signer epoch id, `minCR`, debt ceiling, and current debt.
-- Emits canonical events and guards issuance so that all debt aligns to proven collateral.
+### Signer Conditions
+Contracts encode rules for MPC signers:
+- **Repayment Path**: Only executable when debt = 0.
+- **Liquidation Path**: Triggered when CR < threshold.
+- **Migration Path**: Valid only during epoch transitions.
 
-```solidity
-interface IVaultRegistry {
-  event VaultCreated(bytes32 indexed vaultId, address indexed owner, bytes32 scriptCommit, uint256 minCR);
-  event DebtIssued(bytes32 indexed vaultId, address indexed to, uint256 amount);
-  event DebtRepaid(bytes32 indexed vaultId, address indexed from, uint256 amount);
-  event LiquidationTriggered(bytes32 indexed vaultId, uint256 debt, uint256 collateralSats);
 
-  function createVault(VaultInit calldata cfg) external;             // via AttestedDeposit
-  function issue(bytes32 vaultId, address to, uint256 amount) external; // requires CR >= minCR
-  function repay(bytes32 vaultId, uint256 amount) external;           // reconciles on AttestedSpend(repay)
-}
-```
-
-### 2.3 Loan Manager
-Implements borrowing constraints and pricing programs.
-
-- Computes `CR = (btcPrice * sats) / debt` using oracle medianizers.
-- Enforces **issuance conditions** (per-vault `minCR`, global ceilings) and **repayment conditions**.
-- Exposes hooks for liquidation to pull positions that breach thresholds.
-
-```solidity
-interface ILoanManager {
-  function collateralRatioOf(bytes32 vaultId) external view returns (uint256 bps);
-  function canIssue(bytes32 vaultId, uint256 amount) external view returns (bool);
-  function onAttestedSpend(bytes32 vaultId, bytes32 spendType, bytes data) external; // updates state on repay/liquidation
-}
-```
-
-### 2.4 Stability Pool
-A single canonical pool that absorbs bad debt and acquires BTC at a discount when a vault is liquidated on Bitcoin.
-
-- **Inputs**: stablecoin deposits from lenders.
-- **Outputs**: proportional claims on liquidated BTC (represented as rights to specified UTXOs or programmatic redemption flows).
-- **Accounting** is performed in the execution layer; settlement references the `AttestedSpend(liquidation)` from BAG.
-
-```solidity
-interface IStabilityPool {
-  event Deposit(address indexed user, uint256 amount);
-  event Withdrawal(address indexed user, uint256 amount);
-  event LiquidationPayout(bytes32 indexed vaultId, uint256 debtCovered, uint256 satsReceived);
-
-  function deposit(uint256 amount) external;
-  function withdraw(uint256 amount) external;
-}
-```
-
-### 2.5 Liquidity Modules (Optional)
-Interfaces for market operations (AMMs, auctions, RFQ) to convert between stablecoins and external assets during settlement or rebalancing. These modules are **pluggable** and do not hold collateral.
-
----
-
-## 3) Synchronization with Taproot Scripts
-
-### 3.1 Event Lifecycle
-1. **Bitcoin** — A dVault is funded or spent via one of its MAST branches (repay, liquidation, migration, exit). The spend is signed using **Lin22 TSS** and committed on-chain.
-2. **Observation** — Watchers detect the transaction (mempool + confirmed blocks) and construct either:
-   - an **SPV proof**, or
-   - a **quorum attestation** signed by the active signer epoch.
-3. **Submission** — Proof/attestation is submitted to **BAG**. On success, `AttestedDeposit`/`AttestedSpend` is emitted.
-4. **Reconciliation** — `VaultRegistry` + `LoanManager` consume the BAG events to:
-   - create or update the vault position,
-   - issue or burn stablecoin debt,
-   - execute liquidation accounting and Stability Pool payouts.
-
-### 3.2 Reorg Handling
-- **SPV Mode** — BAG stores block heights; events are tentative until `minConfirmations` are reached. Reorgs roll back tentative mappings.
-- **Quorum-Attested Mode** — Attestations include block height and header hash; signer-epoch policy forbids attesting blocks < `k` confirmations. Disputed attestations can be slashed via misbehavior proofs.
-
-### 3.3 Oracle Integration
-- BTC/USD is sourced from **medianized feeds** (e.g., multiple oracles). The oracle tick triggers:
-  - CR recomputation,
-  - liquidation eligibility checks,
-  - rate program updates (if applicable).
-
----
-
-## 4) State Machines
-
-### 4.1 Issuance
-```
-AttestedDeposit(utxoId, vaultId, sats) ->
-  Registry.createVault(...)
-  LoanManager.canIssue(vaultId, amount) -> true
-  Registry.issue(vaultId, to, amount)
-```
-
-### 4.2 Repayment
-```
-User repays stablecoin on EVM -> burn ->
-Bitcoin spend on Repayment branch -> AttestedSpend(repay) ->
-  LoanManager.onAttestedSpend -> Registry.DebtRepaid
-```
-
-### 4.3 Liquidation
-```
-Oracle tick lowers CR below minCR -> Liquidation intent emitted ->
-Signer quorum executes Liquidation branch on Bitcoin ->
-AttestedSpend(liquidation, txid, satsOut) ->
-  StabilityPool.cover(debt) -> distribute satsOut (claims)
-```
-
-### 4.4 Migration / Epoch Rotation
-```
-Governance rotates signer epoch -> Migration branch spend updates Taproot script tree ->
-AttestedSpend(migration) -> Registry updates epochId for vaultId
-```
-
-### 4.5 Unilateral Exit
-```
-CLTV expiry reached -> User spends Exit branch on Bitcoin ->
-AttestedSpend(exit) -> Registry marks vault closed; any residual debt is settled via Stability Pool
-```
-
----
-
-## 5) Contract Layout & Minimal Interfaces
-
-- `BitcoinAttestationGateway` — proof/attestation verification, emits canonical events.
-- `VaultRegistry` — authoritative position ledger.
-- `LoanManager` — CR math, issuance rules, liquidation hooks.
-- `StabilityPool` — lender deposits, liquidation absorption.
-- `OracleHub` — medianized price feeds.
-- `EpochManager` — active signer public keys, slashing, and rotation windows.
-
-Each module is intentionally **narrow**. Cross-module calls are batched via coordinators to minimize re-entrancy surface.
-
----
-
-## 6) Security Considerations
-
-- **No custody on EVM** — Execution layer holds accounting only; BTC remains on Bitcoin.
-- **Epoch binding** — Every attestation includes `epochId`; mismatches are rejected.
-- **Replay protection** — `nonce`/`blockheight` domains bound into attestation digests.
-- **Slashing** — Mis-signed attestations can be proven on-chain leading to stake slash and epoch invalidation.
-- **Rate limiting** — Per-vault issuance ceilings and global debt ceilings.
-- **Upgrades** — Pausable modules with explicit timelock; exits always remain available on Bitcoin.
-
----
-
-## 7) Developer Notes
-
-- **Indexing** — Subscribe to `AttestedDeposit`, `AttestedSpend`, `DebtIssued`, `DebtRepaid`, `LiquidationTriggered`, `LiquidationPayout`.
-- **Integration** — Wallets can show BTC collateral and EVM debt in one view by joining on `vaultId` and `utxoId`.
-- **Testing** — Use local chains with mocked BAG in SPV and Attested modes to verify reconciliation and reorg semantics.
-
-This execution design adds programmability and liquidity **without compromising Bitcoin sovereignty**. External chains coordinate accounting and settlement, while Taproot dVaults and Lin22 TSS enforce the only moves that matter: the Bitcoin spends.
+This guarantees **programmatic enforcement of BTC custody**.

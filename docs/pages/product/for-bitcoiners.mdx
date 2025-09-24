@@ -6,10 +6,27 @@ description: How surge makes it easier for Bitcoiner
 
 
 # ✊ For Bitcoiners
+Surge makes it possible to **borrow stablecoins against BTC** in a trust-minimized way:
 
-- Connect your existing self-custodial wallet (e.g., Unisat) or create a new vault-linked wallet via social credentials.  
-- Spin up a dVault that is governed by your signature, a threshold signer set, and custom policy rules.  
-- Choose a lending pool to borrow stablecoins under your preferred terms.  
-- Receive stablecoins on the chain of your choice (e.g., Ethereum initially).  
-- Liquidation is **non-destructive** executed in micro steps.  
-- **Full visibility** verify your BTC remains untouched and on-chain.  
+1. **Connect a Wallet**
+- Use your existing self-custodial wallet (e.g., Unisat) or create a new vault-linked wallet with social login.
+
+
+2. **Create a dVault**
+- Governed by **your signature + a threshold signer set**, with programmable policy rules encoded in Taproot scripts.
+
+
+3. **Choose Lending Terms**
+- Access default lending pools or negotiate custom terms for stablecoin loans.
+
+
+4. **Receive Stablecoins**
+- Borrow USDC delivered via CCTP to the chain of your choice (starting with Ethereum).
+
+
+5. **Liquidation Safety**
+- Non-destructive liquidations executed in **micro-steps** through the Stability Pool, avoiding mass sell-offs.
+
+
+6. **Full Visibility**
+- On-chain proofs guarantee that your BTC remains untouched inside your dVault at all times.

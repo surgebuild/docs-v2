@@ -5,30 +5,40 @@ description: Native stablecoin settlement via CCTP and state
 
 
 # 📡 Cross-Chain Settlement & Liquidity
-Surge aggregates stablecoin liquidity across multiple ecosystems while **BTC remains locked on Bitcoin**.  
-Surge deploys to existing chains and uses native messaging like CCTP v2 for stablecoins.
 
-## Liquidity Movement
-Surge integrates **Circle’s CCTP v2** for native stablecoin transfers.  
-- Liquidity pools are maintained on one chain.  
-- Stablecoin liquidity can move seamlessly to supported chains.  
-- Initial support targets **Ethereum**, with expansion planned to more ecosystems.  
+### Stablecoin Routing with CCTP v2
+Surge integrates **Circle’s Cross-Chain Transfer Protocol (CCTP v2)** as the backbone for stablecoin routing. This system enables **burn-and-mint semantics** for USDC across supported chains, guaranteeing:
+- **Canonical USDC Supply**: No wrapped or synthetic USDC is introduced.
+- **Deterministic Routing**: User requests stablecoin on Chain A, burns it, and receives a mint on Chain B.
+- **Settlement Finality**: Transfers are secured by Circle’s attestation network.
 
-## Stablecoin Payouts
-- When a vault issues debt, the execution environment requests stablecoin payout via CCTP.  
-- BTC remains locked in its dVault, only stablecoins move cross-chain.  
 
-## Redemptions
-- When debt is repaid, execution verifies repayment and allows BTC release via repayment path.  
-- **Adaptor signatures** ensure BTC unlock only occurs if stablecoin settlement is cryptographically confirmed.  
+This ensures liquidity is always **fungible and settlement-grade**, a critical requirement for institutions.
 
-## Stability Pools in Cross-Chain Context
-- Reserve of stablecoins used to absorb bad debt.  
-- In liquidations, BTC is sold to Stability Pool at discount.  
-- **Micro-liquidations** ensure only the amount needed to rebalance CR is sold, preserving most of user’s position.  
 
-## Proofs & Audits
-- **Proof-of-Reserves** → BTC UTXOs tracked on Bitcoin.  
-- **Proof-of-Liabilities** → Debt registry published per block.  
+### Canonical Stability Pool
+The **Stability Pool** acts as the single liquidation clearinghouse for Surge. Even though user-facing transactions can occur on any connected chain, **all liquidation settlements resolve in the canonical Stability Pool**.
 
-Cross-chain settlement layer is designed to be **native, auditable, and failure resistant**, enabling Surge to aggregate stablecoin liquidity across multiple ecosystems while keeping BTC locked on Bitcoin.
+
+- **Design**: Implemented as a stateful contract on a chosen execution chain (e.g., Ethereum).
+- **Inputs**: Stablecoins deposited by liquidity providers.
+- **Outputs**: Discounted BTC distributed upon liquidation events.
+- **Arbitrage Safety**: Prevents fragmented pricing by consolidating bad debt resolution.
+
+
+| Component | Function |
+|----------------------|---------------------------------------------------------------------------|
+| CCTP v2 | Moves stablecoin liquidity across chains |
+| Stability Pool | Canonical clearinghouse for liquidation settlements |
+| Liquidation Trigger | Initiated on any chain, validated against BTC state + CR threshold |
+| BTC Distribution | Discounted BTC flows to Stability Pool providers |
+
+
+### Liquidation Lifecycle
+1. dVault collateral ratio drops below minimum.
+2. Execution layer emits a `LiquidationTriggered` event.
+3. Stablecoins from the canonical Stability Pool absorb the bad debt.
+4. BTC collateral released to Stability Pool depositors at a discount.
+
+
+This process ensures **predictable liquidation markets** without predatory MEV-driven liquidators.

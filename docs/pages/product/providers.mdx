@@ -4,24 +4,32 @@ description: Understanding Surge's network participants and their roles
 ---
 
 # 👷 Infra Providers  
-
-Infra Providers securing Bitcoin collateral and powering the execution layer.
-
-## Signers  
-
-- Manage dVault keys via secure **TSS mechanisms**  
-- Enforce custom vault policies  
-- Participate in liquidation triggers and recovery processes  
-
-## Validators  
-
-- Run Surge’s **EVM compatible execution layer**  
-- Participate in block production and instant finality  
-- Validate smart contract logic and cross-chain execution  
+Infra providers secure Bitcoin collateral and power Surge’s execution layer. They enable the trust-minimized operation of dVaults and maintain system integrity.
 
 
-## Bootstrapping Network  
+### Signers
+- Manage dVault keys using **secure TSS protocols**.
+- Enforce custom vault rules (repayment, liquidation, migration, escape hatch).
+- Participate in liquidation triggers and recovery mechanisms.
 
-- Launching with a **permissioned cohort of 50+ infra providers**  
-- Gradual rollout of **permissionless participation** via staking + reputation  
-- Rewards distributed in **BTC and stablecoins** 
+
+### Validators
+- Run Surge’s **EVM-compatible execution layer** (reth + CometBFT).
+- Participate in block production, ensuring deterministic finality.
+- Validate vault state transitions, liquidation events, and cross-chain execution.
+
+
+### Bootstrapping the Network
+- Surge launches with a **permissioned set of 50+ infra providers**.
+- Gradual rollout towards **permissionless participation** via staking + reputation.
+- Rewards distributed in **BTC and stablecoins**, aligning incentives across stakeholders.
+
+## 🌐 Why Surge?
+
+
+- **For Bitcoiners**: Access stablecoin liquidity without rehypothecation or wrapped BTC.
+- **For Stablecoin Holders**: Earn yield through transparent, BTC-backed lending markets.
+- **For Infra Providers**: Secure the first non-custodial, cross-chain Bitcoin lending protocol and earn rewards.
+
+
+Surge bridges the gap between Bitcoin’s security and stablecoin utility, creating a new class of **sovereign Bitcoin capital markets**.
