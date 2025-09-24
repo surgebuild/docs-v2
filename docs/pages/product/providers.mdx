@@ -6,18 +6,17 @@ description: Understanding Surge's network participants and their roles
 # 👷 Infra Providers  
 Infra providers secure Bitcoin collateral and power Surge’s execution layer. They enable the trust-minimized operation of dVaults and maintain system integrity.
 
----
-### Signers
+## Signers
 - Manage dVault keys using **secure TSS protocols**.
 - Enforce custom vault rules (repayment, liquidation, migration, escape hatch).
 - Participate in liquidation triggers and recovery mechanisms.
----
-### Validators
-- Run Surge’s **EVM-compatible execution layer** (reth + CometBFT).
+
+## Validators
+- Run Surge’s **EVM-compatible execution layer** (`reth` + `CometBFT`).
 - Participate in block production, ensuring deterministic finality.
 - Validate vault state transitions, liquidation events, and cross-chain execution.
----
-### Bootstrapping the Network
+
+## Bootstrapping the Network
 - Surge launches with a **permissioned set of 50+ infra providers**.
 - Gradual rollout towards **permissionless participation** via staking + reputation.
 - Rewards distributed in **BTC and stablecoins**, aligning incentives across stakeholders.
@@ -25,7 +24,7 @@ Infra providers secure Bitcoin collateral and power Surge’s execution layer. T
 ## 🌐 Why Surge?
 
 
-- **For Bitcoiners**: Access stablecoin liquidity without rehypothecation or wrapped BTC.
+- **For Bitcoiners**: Access stablecoin liquidity **without rehypothecation** or wrapped BTC.
 - **For Stablecoin Holders**: Earn yield through transparent, BTC-backed lending markets.
 - **For Infra Providers**: Secure the first non-custodial, cross-chain Bitcoin lending protocol and earn rewards.
 
