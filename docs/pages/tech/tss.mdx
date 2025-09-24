@@ -9,16 +9,16 @@ Surge leverages **Threshold Schnorr Signatures (TSS)** for securing Bitcoin Tapr
 
 ## Why Schnorr TSS Matters for dVaults
 
-- **Taproot Compatibility** – Bitcoin’s Taproot (BIP340) mandates Schnorr signatures. TSS outputs must be indistinguishable from single-party Schnorr signatures to maintain privacy and efficiency.
-- **Non-Custodial Guarantee** – No individual signer can move BTC; only a threshold of signers can jointly authorize a transaction.
-- **Byzantine-Resilient security** – Vaults must remain operable even if some signers are malicious or offline. Abort conditions must be avoided to prevent capital lock-up.
+- **Taproot Compatibility** - Bitcoin’s Taproot (BIP340) mandates Schnorr signatures. TSS outputs must be indistinguishable from single-party Schnorr signatures to maintain privacy and efficiency.
+- **Non-Custodial Guarantee** - No individual signer can move BTC; only a threshold of signers can jointly authorize a transaction.
+- **Byzantine-Resilient security** - Vaults must remain operable even if some signers are malicious or offline. Abort conditions must be avoided to prevent capital lock-up.
 
 ## Lin22 vs. FROST
 
 Two leading Schnorr TSS protocols were evaluated:
 
-- **FROST (RFC 9591)** – Optimized for speed (2 signing rounds).
-- **Lindell 2022 (Lin22)** – Optimized for robustness, with 3 signing rounds and full security proofs.
+- **FROST (RFC 9591)** - Optimized for speed (2 signing rounds).
+- **Lindell 2022 (Lin22)** - Optimized for robustness, with 3 signing rounds and full security proofs.
 
 #### Comparison Table
 
@@ -35,9 +35,9 @@ Two leading Schnorr TSS protocols were evaluated:
 
 Surge prioritizes **liveness and accountability** over lowest latency:
 
-- **Abort = Dead Capital** – With FROST, one unresponsive or malicious signer can permanently lock a vault. Lin22 avoids this by enabling recovery.
-- **Identifiable Misbehavior** – Zero-Knowledge Proofs (ZKPs) provide cryptographic evidence of cheating, enabling automated slashing and signature share rotation.
-- **Privacy Preserving** – Outputs remain indistinguishable from native Schnorr signatures, ensuring Taproot spends look standard.
+- **Abort = Dead Capital** - With FROST, one unresponsive or malicious signer can permanently lock a vault. Lin22 avoids this by enabling recovery.
+- **Identifiable Misbehavior** - Zero-Knowledge Proofs (ZKPs) provide cryptographic evidence of cheating, enabling automated slashing and signature share rotation.
+- **Privacy Preserving** - Outputs remain indistinguishable from native Schnorr signatures, ensuring Taproot spends look standard.
 
 ## Lin22 Signing Flow in Surge
 
@@ -48,15 +48,15 @@ Surge prioritizes **liveness and accountability** over lowest latency:
 
 #### 2. Signing Rounds
 
-**Round 1 – Commitment**  
+**Round 1 - Commitment**  
 - Each signer selects a fresh random nonce and broadcasts a *hash commitment* to it.  
 - Inclusion in this round is mandatory.
 
-**Round 2 – Decommitment & Proof**  
+**Round 2 - Decommitment & Proof**  
 - Signers reveal their nonces and provide **Fischlin Zero-Knowledge Proofs (ZKPs)**.  
 - Invalid or missing proofs immediately flag the signer as malicious.
 
-**Round 3 – Signature Shares**  
+**Round 3 - Signature Shares**  
 - Honest signers compute signature shares using their secret key share and nonce.  
 - Coordinator verifies ZKPs and aggregates valid shares.  
 - Final output: A single **BIP340 Schnorr signature**, valid for Taproot.
