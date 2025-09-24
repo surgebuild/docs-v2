@@ -20,9 +20,9 @@ It prevents rehypothecation by ensuring every BTC UTXO is accounted for exactly 
 - **Execution Engine**: `reth` provides an Ethereum-compatible state machine.
 - **Consensus**: `CometBFT` ensures deterministic ordering and finality of vault state transitions.
 - **State Objects**:
-- `VaultState { collateral, debt, CR, signerSet }`
-- `StabilityPoolState { deposits, liquidationEvents }`
-- `CrossChainState { CCTP_transfers, attestations }`
+  - `VaultState { collateral, debt, CR, signerSet }`
+  - `StabilityPoolState { deposits, liquidationEvents }`
+  - `CrossChainState { CCTP_transfers, attestations }`
 
 
 ### Bitcoin-Aware State
