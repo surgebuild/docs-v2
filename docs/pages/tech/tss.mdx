@@ -30,7 +30,7 @@ Two leading Schnorr TSS protocols were evaluated:
 |----------|-----------|------------------|
 | **Signing Rounds** | 2 | 3 |
 | **Security Proof** | **UC secure** (Universally Composable), but aborts if signers fail | **Full simulatability** with Fischlin ZKPs |
-| **Abort Handling** | Protocol halts if any signer withholds | Identifies cheaters; reconstructs missing shares |
+| **Abort Handling** | Protocol halts if any signer malicious, need to trust coordinator | Identifies cheaters with proof; removes signer for next set of request |
 | **DKG Setup** | ~2 rounds (Pedersen VSS) | 5+ rounds (Feldman VSS, more secure) |
 | **Best Case** | Highly efficient when all honest | Robust to faults |
 | **Output** | BIP340 Schnorr | BIP340 Schnorr |
@@ -42,8 +42,7 @@ Two leading Schnorr TSS protocols were evaluated:
 Surge prioritizes **liveness and accountability** over lowest latency:
 
 - **Abort = Dead Capital** – With FROST, one unresponsive or malicious signer can permanently lock a vault. Lin22 avoids this by enabling recovery.
-- **Identifiable Misbehavior** – Zero-Knowledge Proofs (ZKPs) provide cryptographic evidence of cheating, enabling automated slashing and signer rotation.
-- **Reconstruction** – Honest signers can rebuild missing shares using Feldman Verifiable Secret Sharing (VSS) from the DKG phase.
+- **Identifiable Misbehavior** – Zero-Knowledge Proofs (ZKPs) provide cryptographic evidence of cheating, enabling automated slashing and signature share rotation.
 - **Privacy Preserving** – Outputs remain indistinguishable from native Schnorr signatures, ensuring Taproot spends look standard.
 
 ---
@@ -74,8 +73,8 @@ Surge prioritizes **liveness and accountability** over lowest latency:
 
 ## Example: 3-of-4 Signing
 
-- **FROST** → If one signer withholds a share, the protocol aborts. No valid signature can be produced.
-- **Lin22** → The malicious signer is exposed by ZKP failure. Honest signers reconstruct the missing share via VSS and complete the signature.
+- **FROST** → If a signer submits invalid data (e.g., a bad signature share), the entire signing protocol aborts. The honest participants cannot complete the signature. Need to trust coordinator to remove malicious signer.
+- **Lin22** → If a signer misbehaves, their ZK proof (included in the protocol) reveals them as malicious to the network. The session aborts, but with publicly verifiable evidence of who misbehaved. this will help for slashing and signature share rotation.
 
 Result: **dVault remains operable even under Byzantine conditions.**
 
