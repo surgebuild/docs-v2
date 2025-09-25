@@ -41,19 +41,11 @@ Every block finalizes a **state root** that encodes:
 BTC spends from a dVault are only valid if the signer set co-signs under the **aggregate Lin22 Schnorr key** bound to this state root. This creates a cryptographic anchor: collateral cannot move unless the Execution Layer authorizes it.
 
 ## Oracle Integration
-The Execution Layer embeds a native oracle service to track BTC/USD prices and enforce collateralization logic. Unlike external plug-ins, this oracle is treated as a core module of the Surge state machine.
-- **Protocol-Native** - Oracle updates are produced and validated inside the Execution Layer, ensuring they are subject to the same consensus rules as all other state transitions.
-- **Medianization Logic** - Each block finalizes a price point derived from multiple signed submissions, aggregated deterministically.
-- **Validator Replication** - All validators replay the same oracle logic, guaranteeing consistent collateral ratio updates across the network.
+The Execution Layer depends on a protocol-native Oracle System to monitor BTC/USD prices and enforce collateralization rules.  
+- Oracle updates are finalized inside consensus, ensuring deterministic CR enforcement.  
+- Liquidation events are emitted when CR < MinCR, binding signer permissions to liquidation spends.  
 
-### Oracle Role
-- **Collateral Monitoring** - Updates VaultState with fresh BTC/USD ratios.
-- **Liquidation Enforcement** - Emits LiquidationTriggered when CR < MinCR, binding signer permissions for liquidation spends.
-- **System Integrity** - Ensures liabilities remain anchored to verifiable BTC market value, without relying on off-chain actors.
-
-### Failure Safety
-- **Deterministic Fallbacks** - If insufficient updates arrive, the system falls back to the last confirmed state until new values finalize.
-- **Consensus Enforcement** - Price data becomes valid only once included in a finalized block, preventing manipulation or divergence across validators.
+See the [Oracle System](/oracles) for more.
 
 ## Signer Enforcement
 Signer participation is tightly controlled:

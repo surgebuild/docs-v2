@@ -89,6 +89,13 @@ export default defineConfig({
           {
             text: "Execution State Machine",
             link: "/tech/execution",
+            collapsed: true,
+            items: [
+              {
+                text: "Oracle System",
+                link: "/tech/oracles",
+              },
+            ],
           },
           {
             text: "Escape Hatch / Unilateral Exit",
