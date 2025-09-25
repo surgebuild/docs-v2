@@ -40,16 +40,6 @@ Every block finalizes a **state root** that encodes:
 
 BTC spends from a dVault are only valid if the signer set co-signs under the **aggregate Lin22 Schnorr key** bound to this state root. This creates a cryptographic anchor: collateral cannot move unless the Execution Layer authorizes it.
 
-## Event Lifecycle
-Canonical events drive all state transitions:
-
-1. **AttestedDeposit** - A Bitcoin UTXO is confirmed and linked to a new VaultState.
-2. **DebtIssued** - Stablecoins minted against collateral. liability recorded.
-3. **DebtRepaid** - Stablecoins burned. VaultState updated, repayment spend unlocked.
-4. **LiquidationTriggered** - CR < MinCR. StabilityPoolState updates. liquidation spend authorized.
-
-These events form a deterministic log that validators replicate, ensuring consistency across the network.
-
 ## Signer Enforcement
 Signer participation is tightly controlled:
 - **Lin22 Schnorr Signing**: Coinbase cb-mpc coordinates threshold Schnorr rounds for Taproot keys.
