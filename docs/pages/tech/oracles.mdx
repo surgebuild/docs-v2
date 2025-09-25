@@ -4,13 +4,12 @@ description: Protocol-native BTC/USD oracle integrated directly into the Executi
 ---
 
 # 🔮 Oracle System
-The **Oracle System** is Surge’s native BTC/USD price feed mechanism. Unlike external oracle plug-ins, Surge treats price discovery as a **core module of the state machine**, ensuring collateralization logic is deterministic, auditable, and consensus-driven.
+The **Oracle System** is Surge’s native BTC/USD price feed mechanism. Unlike external oracle plug-ins, Surge treats price discovery as a **core module of the state machine**, ensuring collateralization logic is deterministic, and consensus-driven.
 
-## Role in Surge
 The Oracle System powers:
-- **Collateral Monitoring** — updating each dVault’s live Collateral Ratio (CR).
-- **Liquidation Enforcement** — triggering liquidation conditions when CR < MinCR.
-- **System Integrity** — anchoring liabilities to verifiable BTC/USD market prices without relying on off-chain actors.
+- **Collateral Monitoring** - updating each dVault’s live Collateral Ratio (CR).
+- **Liquidation Enforcement** - triggering liquidation conditions when CR < MinCR.
+- **System Integrity** - anchoring liabilities to verifiable BTC/USD market prices without relying on off-chain actors.
 
 By embedding price feeds directly into consensus, Surge eliminates discretionary trust and guarantees **programmatic, protocol-native valuation of Bitcoin collateral**.
 
@@ -28,23 +27,6 @@ By embedding price feeds directly into consensus, Surge eliminates discretionary
    - Prices only become valid once included in a finalized block.  
    - Prevents validator divergence and eliminates latency arbitrage.
 
-## Data Flow
-1. **Sources Submit**  
-   - Trusted providers sign BTC/USD price reports.  
-   - Reports are gossiped across validators.
-
-2. **Aggregation & Medianization**  
-   - Each validator executes identical logic to medianize inputs.  
-   - Outlier detection filters anomalous values.
-
-3. **State Update**  
-   - `VaultState` objects update CR values.  
-   - If CR < MinCR, a `LiquidationTriggered` event is emitted.
-
-4. **Signer Enforcement**  
-   - Liquidation events gate signer permissions.  
-   - MPC signers may only authorize liquidation spends when Execution Layer consensus confirms the trigger.
-
 ## Failure Safety
 - **Deterministic Fallbacks**  
   If insufficient updates are available, the system reuses the last confirmed state until new data finalizes.
@@ -55,13 +37,6 @@ By embedding price feeds directly into consensus, Surge eliminates discretionary
 - **Manipulation Resistance**  
   Medianization + consensus replication prevent single-source manipulation.  
   Validators rejecting invalid submissions ensures Byzantine resilience.
-
-
-## Why Native Oracles?
-External oracles (Chainlink, Pyth, etc.) are off-chain dependencies. Surge’s model makes the oracle:  
-- **First-class consensus logic** — part of the state root.  
-- **Trust-minimized** — no external committees or bridge risk.  
-- **Bitcoin-native** — valuations enforced against real BTC UTXOs, not synthetic abstractions.
 
 ## Oracle Events
 The Oracle System emits canonical events:

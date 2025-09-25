@@ -41,11 +41,11 @@ Every block finalizes a **state root** that encodes:
 BTC spends from a dVault are only valid if the signer set co-signs under the **aggregate Lin22 Schnorr key** bound to this state root. This creates a cryptographic anchor: collateral cannot move unless the Execution Layer authorizes it.
 
 ## Oracle Integration
-The Execution Layer depends on a protocol-native Oracle System to monitor BTC/USD prices and enforce collateralization rules.  
+The Execution Layer depends on a Native Oracle System to monitor BTC/USD prices and enforce collateralization rules.  
 - Oracle updates are finalized inside consensus, ensuring deterministic CR enforcement.  
 - Liquidation events are emitted when CR < MinCR, binding signer permissions to liquidation spends.  
 
-See the [Oracle System](/oracles) for more.
+See the [Oracle System](/tech/oracles) for more details.
 
 ## Signer Enforcement
 Signer participation is tightly controlled:
