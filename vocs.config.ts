@@ -44,7 +44,7 @@ export default defineConfig({
         ],
       },
       {
-        text: "PRODUCT & THESIS",
+        text: "KNOW THE PRODUCT",
         items: [
           {
             text: "Our Thesis",

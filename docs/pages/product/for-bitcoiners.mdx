@@ -6,16 +6,51 @@ description: How surge makes it easier for Bitcoiner
 
 
 # ✊ For Bitcoiners
-Surge makes it possible to **borrow stablecoins against BTC** in a trust-minimized way:
 
-1. **Connect a Wallet:** Use your existing self-custodial wallet (e.g., Unisat) or create a new vault-linked wallet with social login.
+## Borrow Interface
+The Borrow Interface is where Bitcoiners interact directly with Surge to access stablecoin liquidity. 
+It is designed with a trust-minimized, user-centric approach, powered by dVaults and the Bitcoin-aware programmable execution layer.
 
-2. **Create a dVault:** Governed by **your signature + a threshold signer set**, with programmable policy rules encoded in Taproot scripts.
+### 🔐 Authentication
+Users can access the interface via self-custodial Bitcoin wallets like Unisat, Xverse, and others. 
+Alternatively, users can sign up using social login methods, in which case the authenticated identity manages access to the borrow interface. 
+Both methods preserve user custody and transparency.
 
-3. **Choose Lending Terms:** Access default lending pools or negotiate custom terms for stablecoin loans.
+### 🏗️ Loan Initiation
+Every loan begins with the creation of a dVault—a unique, Taproot-based vault secured collaboratively by the user and the decentralized signer network (TSS).
+- A Taproot address is generated specifically for the loan.
+- The user deposits BTC into this address.
+- After standard Bitcoin block confirmations (~10 minutes), the BTC becomes collateral.
 
-4. **Receive Stablecoins:** Borrow USDC delivered via CCTP to the chain of your choice (starting with Ethereum).
+All BTC remains verifiable on-chain, and any movement requires:
+- The user’s signature, and
+- Authorization from the TSS signer network governed by programmed loan logic.
 
-5. **Liquidation Safety:** Non-destructive liquidations executed in **micro-steps** through the Stability Pool, avoiding mass sell-offs.
+If a borrower defaults, only the program can execute transfer/liquidation logic—no centralized intervention is possible.
 
-6. **Full Visibility:** On-chain proofs guarantee that your BTC remains untouched inside your dVault at all times.
+### 💱 Request to Borrow Stablecoins
+Bitcoiners can then browse available liquidity pools, which vary by:
+
+- Stablecoin offered (e.g., USDC, USDT, etc.)
+- Rates, terms, and liquidity depth
+- Destination chain (Ethereum first, others later)
+
+These pools are provided by LPs and market makers. All terms are visible and market-driven.
+
+### 📊 Loan Management
+Once stablecoins are disbursed, the loan is active and managed via Surge’s Bitcoin-aware execution layer.
+
+- Loan status, collateral health, and repayment history are visible on-chain.
+- BTC remains verifiably locked in the dVault throughout the loan lifecycle.
+- Users monitor their position health score, influenced by BTC volatility, repayment behavior, and loan-to-value ratios.
+- Users can configure alerts via email (and more channels soon) to stay informed.
+
+### 🔻 Collateral Liquidation Scenarios
+Surge introduces micro-liquidation, a gradual, rule-based process that avoids full-position wipeouts. 
+Liquidation occurs through stability pools, and may be triggered by:
+
+- Extreme BTC price volatility breaching collateral thresholds
+- Failure to maintain minimum repayment and health score
+- Complete loan default, in which case the dVault is absorbed by the protocol as bad debt
+
+This approach ensures fairness, minimizes losses, and aligns incentives between lenders, borrowers, and network participants.
