@@ -100,19 +100,19 @@ export default defineConfig({
           },
         ],
       },
-      {
-        text: "GUIDE",
-        items: [
-          {
-            text: "Demo",
-            link: "/guide/demo",
-          },
-          {
-            text: "Node Setup",
-            link: "/guide/surge-node-setup",
-          },
-        ],
-      },
+      // {
+      //   text: "GUIDE",
+      //   items: [
+      //     {
+      //       text: "Demo",
+      //       link: "/guide/demo",
+      //     },
+      //     {
+      //       text: "Node Setup",
+      //       link: "/guide/surge-node-setup",
+      //     },
+      //   ],
+      // },
       // {
       //   text: "BITCOIN REPORTS",
       //   items: [
