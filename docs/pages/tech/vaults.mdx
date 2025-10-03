@@ -18,6 +18,7 @@ Surge uses dVaults as its **collateral engine** and BTC always stays on Bitcoin,
 A dVault locks BTC in a Taproot script address with multiple **exit paths**:
 - **Key Path** - The repayment/close path, co-signed by the user and decentralized signer set using **Lin22 (threshold Schnorr)** via Coinbase [cb-mpc](https://github.com/coinbase/cb-mpc).
 - **Script Paths** - Extra branches in the vault’s taptree that open under special conditions:
+  - **Repayment branch** (default close path) when borrower & signers sign after the repayment.
   - **Liquidation branch** if collateral drops below minimum ratio.
   - **Timelock branch** for long-term recovery by the depositor.
 
