@@ -10,7 +10,7 @@ export default defineConfig({
     light: "/logo/surge-icon-rec-light.svg",
     dark: "/logo/surge-icon-rec-dark.svg",
   },
-  ogImageUrl: "https://docs.surge.build/assets/meta_new.png",
+  ogImageUrl: "/assets/meta_new.png",
   font: {
     google: "Inter",
   },
