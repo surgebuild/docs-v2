@@ -1,0 +1,46 @@
+---
+title: Deterministic Liquidation
+description: Taproot-based Bitcoin vaults that enforce deterministic liquidation and non-custodial collateral management
+---
+
+# 🎯 Deterministic Liquidation for Locked Bitcoin
+
+*dVaults* are Taproot-based Bitcoin vaults that enforce deterministic liquidation and non-custodial collateral management. Which encodes three spend paths:
+1. **Repay** - borrower + signer authorization.  
+2. **Liquidate** - signer-only authorization when collateral falls below the minimum ratio.  
+3. **Escape** - borrower-only fallback after a time-based lock (censorship safety).
+
+Each path references a pre-committed PSBT template stored at vault creation.
+
+## Coordination Layer
+A deterministic coordination program (middleware) runs on EVM-compatible infrastructure.
+- Tracks vault collateral, debt, and oracle state.  
+- Emits deterministic liquidation instructions (“liquidate 0.02 BTC lot”).  
+- Cannot move BTC, it only instructs the TSS (Threshold Signature Scheme) network.  
+- Every state change is verifiable and reproducible by signers.
+This middleware acts as an *execution oracle* that coordinates signer actions without custodial control.
+
+## Signer Verification 
+Each signer validates before co-signing:
+- The PSBT matches a committed deterministic template.  
+- Inputs correspond to the correct dVault UTXO and MAST leaf.  
+- Destination not controlled by signers.  
+- Input parameters align with pre-committed rules.  
+- Oracle data is within deviation limits.  
+- Escape timelock has not expired.
+If any rule fails, **no signature is produced** preventing arbitrary spending.
+
+## Liquidation Flow
+When collateral ratio < MCR (Minimum Collateral Ratio):
+1. Coordination layer publishes a liquidation instruction.
+2. Signers reconstruct the PSBT based on committed vault parameters.
+3. Signers co-sign and broadcast the transaction to Bitcoin.
+4. Liquidated BTC is sent to the **Stability Pool**.
+5. Remaining BTC is re-locked into a new dVault UTXO (incremented nonce).
+This process enables **micro-lot liquidation**, minimizing borrower loss and avoiding cascade events.
+
+## Key Guarantees
+- **Non-Custodial:** BTC never leaves Bitcoin, only user + TSS consensus or timelock can move funds.  
+- **Deterministic:** All state transitions and PSBTs are reproducible and verifiable across signers.  
+- **Censorship-Safe:** Borrowers can always reclaim funds through the Escape path after timelock expiry.  
+- **Stablecoin ready:** Liquidation proceeds automatically flow into the Stability Pool, powering BTC-backed stablecoin liquidity.

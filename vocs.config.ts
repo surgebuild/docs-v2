@@ -98,6 +98,10 @@ export default defineConfig({
             ],
           },
           {
+            text: "Deterministic dVault Liquidation",
+            link: "/tech/dvaults-liquidation",
+          },
+          {
             text: "Escape Hatch / Unilateral Exit",
             link: "/tech/exit",
           },

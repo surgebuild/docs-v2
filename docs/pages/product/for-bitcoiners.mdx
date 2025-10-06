@@ -4,7 +4,6 @@ description: How surge makes it easier for Bitcoiner
 ---
 
 
-
 # ✊ For Bitcoiners
 
 ## Borrow Interface
@@ -26,7 +25,8 @@ All BTC remains verifiable on-chain, and any movement requires:
 - The user’s signature, and
 - Authorization from the TSS signer network governed by programmed loan logic.
 
-If a borrower defaults, only the program can execute transfer/liquidation logic - no centralized intervention is possible.
+If a borrower defaults, only the program can execute transfer/liquidation logic - no centralized intervention is possible. This program is defined by a [deterministic liquidation framework](/tech/dvaults-liquidation), where every vault encodes pre-committed spend paths on Bitcoin.
+
 
 ### 💱 Request to Borrow Stablecoins
 Bitcoiners can then browse available liquidity pools, which vary by:
@@ -54,3 +54,8 @@ Liquidation occurs through stability pools, and may be triggered by:
 - Complete loan default, in which case the dVault is absorbed by the protocol as bad debt
 
 This approach ensures fairness, minimizes losses, and aligns incentives between lenders, borrowers, and network participants.
+
+:::info[Deterministic Liquidation]
+Every liquidation follows a deterministic PSBT template stored at vault creation. This ensures liquidation can only execute if pre-defined conditions are met.  
+[Learn more →](/tech/dvaults-liquidation#liquidation-flow)
+:::
