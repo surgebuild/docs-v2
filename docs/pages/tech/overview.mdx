@@ -11,7 +11,7 @@ Surge is a Bitcoin native lending platform that's transparent, programmable, and
 | Domain | Role |
 |----------------------|----------------------------------------------------------------------|
 | **Bitcoin Custody** | BTC secured under Taproot + MAST conditions via dVaults. |
-| **Execution Environment** | Mirrors vault state, enforces collateral ratios, and manages signer sets. |
+| **Execution State** | Mirrors vault state, enforces collateral ratios, and manages signer sets. |
 | **Stability Pool** | Absorbs liquidations and redistributes BTC to stablecoin depositors. |
 | **Cross-Chain Liquidity** | Routes stablecoin supply trustlessly via Circle CCTP v2. |
 
@@ -37,7 +37,7 @@ At the core of Surge are **dVaults**: Taproot outputs encoded with multiple spen
 - **Threshold Signatures** - Lin22 Schnorr TSS (via [cb-mpc](https://github.com/coinbase/cb-mpc)) resists collusion or aborts.
 - **Oracle Driven** - BTC/USD feed governs collateral ratios and liquidation triggers.
 
-## Execution Environment
+## Execution State
 
 Execution state **do not custody BTC** - they only mirror vault conditions and enforce protocol logic.
 
