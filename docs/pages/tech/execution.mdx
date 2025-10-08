@@ -32,10 +32,9 @@ BTC spends from a dVault are only valid if the signer set co-signs under the **a
 
 ## Oracle Integration
 The Execution State depends on a Native Oracle System to monitor BTC/USD prices and enforce collateralization rules.  
-- Oracle updates are finalized inside consensus, ensuring deterministic CR enforcement.  
+- Oracle's medianized price point from multiple sources in execution state is used for CR enforcement.  
 - Liquidation events are emitted when CR < MinCR, binding signer permissions to liquidation spends.  
 
-See the [Oracle System](/tech/oracles) for more details.
 
 ## Signer Enforcement
 Signer participation is tightly controlled:
