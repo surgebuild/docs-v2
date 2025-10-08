@@ -7,11 +7,11 @@ description:
 
 Surge leverages **Threshold Schnorr Signatures (TSS)** for securing Bitcoin Taproot vaults (dVaults). TSS ensures that vault funds cannot be moved without quorum agreement among a distributed set of signers, preventing unilateral control or custody risk.
 
-## Why Schnorr TSS Matters for dVaults
+## Why Threshold Schnorr Signatures Are Essential for dVaults
 
 - **Taproot Compatibility** - Bitcoin’s Taproot (BIP340) mandates Schnorr signatures. TSS outputs must be indistinguishable from single-party Schnorr signatures to maintain privacy and efficiency.
-- **Non-Custodial Guarantee** - No individual signer can move BTC; only a threshold of signers can jointly authorize a transaction.
-- **Byzantine-Resilient security** - Vaults must remain operable even if some signers are malicious or offline. Abort conditions must be avoided to prevent capital lock-up.
+- **Non-Custodial Guarantee** - No individual signer can move BTC, only a threshold of signers can jointly authorize a transaction.
+- **Byzantine Resilient security** - Signers must remain operable even if some signers are malicious or offline. Abort conditions must be avoided to prevent capital lock-up.
 
 ## Lin22 vs. FROST
 
@@ -63,7 +63,7 @@ Surge prioritizes **liveness and accountability** over lowest latency:
 
 ## Example: 3 of 4 Signing
 
-- **FROST** → If a signer submits invalid data (e.g., a bad signature share), the entire signing protocol aborts. The honest participants cannot complete the signature. Need to trust coordinator to remove malicious signer.
+- **FROST** → If a signer submits invalid data (e.g., a bad signature share), the session aborts. The honest participants cannot complete the signature. Need to trust coordinator to remove malicious signer.
 - **Lin22** → If a signer misbehaves, their ZK proof (included in the protocol) reveals them as malicious to the network. The session aborts, but with publicly verifiable evidence of who misbehaved. this will help for slashing and signature share rotation.
 
 **dVault remains operable even under Byzantine conditions.**
