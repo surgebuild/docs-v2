@@ -35,8 +35,8 @@ Two leading Schnorr TSS protocols were evaluated:
 
 Surge prioritizes **liveness and accountability** over lowest latency:
 
-- **Abort = Dead Capital** - With FROST, one unresponsive or malicious signer can permanently lock a vault. Lin22 avoids this by enabling recovery.
-- **Identifiable Misbehavior** - Zero-Knowledge Proofs (ZKPs) provide cryptographic evidence of cheating, enabling automated slashing and signature share rotation.
+- **Trustless Coordinator Model** - Unlike protocols that require trust assumptions on the coordinator or rely on non-standard assumptions like one-more discrete log or algebraic group models, Lin22 achieves security.
+- **Identifiable Misbehavior** - Lin22 With Commitments and Zero-Knowledge Proofs (ZKPs) provide cryptographic evidence of cheating, enabling automated slashing and signature share rotation.
 - **Privacy Preserving** - Outputs remain indistinguishable from native Schnorr signatures, ensuring Taproot spends look standard.
 
 ## Signing Flow in Surge (Lin22)
@@ -54,11 +54,12 @@ Surge prioritizes **liveness and accountability** over lowest latency:
 
 **Round 2 - Decommitment & Proof**  
 - Signers reveal their nonces and provide **Fischlin Zero-Knowledge Proofs (ZKPs)**.  
-- Invalid or missing proofs immediately flag the signer as malicious.
+- Invalid commitments, failed ZK proofs, or missing responses flag misbehavior.
 
 **Round 3 - Signature Shares**  
 - Honest signers compute signature shares using their secret key share and nonce.  
-- Coordinator verifies ZKPs and aggregates valid shares.  
+- Coordinator aggregates valid shares. 
+- Verifies that (e, s) is a valid signature.
 - Final output: A single **BIP340 Schnorr signature**, valid for Taproot.
 
 ## Example: 3 of 4 Signing
