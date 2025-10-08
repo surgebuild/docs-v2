@@ -32,7 +32,7 @@ The **Stability Pool** is Surge’s liquidation clearinghouse. While stablecoin 
 ## Micro Liquidation Lifecycle
 When a dVault’s collateral ratio (CR) falls below the minimum threshold:
 1. CR Validation → Medianized BTC/USD prices from trusted oracles confirm the breach.
-2. Trigger → The Execution Layer emits a LiquidationTriggered event.
+2. Trigger → The Execution State emits a LiquidationTriggered event.
 3. Debt Absorption → The Stability Pool automatically covers the undercollateralized debt using pooled stablecoins.
 4. Collateral Distribution → A proportional slice of BTC collateral is released at a discount to Stability Pool providers.
 

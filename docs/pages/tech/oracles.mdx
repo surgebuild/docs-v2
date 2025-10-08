@@ -1,6 +1,6 @@
 ---
 title: Oracle System
-description: Protocol-native BTC/USD oracle integrated directly into the Execution Layer consensus.
+description: Protocol-native BTC/USD oracle integrated directly into the Execution State.
 ---
 
 # 🔮 Oracle System
@@ -11,21 +11,17 @@ The Oracle System powers:
 - **Liquidation Enforcement** - triggering liquidation conditions when CR < MinCR.
 - **System Integrity** - anchoring liabilities to verifiable BTC/USD market prices without relying on off-chain actors.
 
-By embedding price feeds directly into consensus, Surge eliminates discretionary trust and guarantees **programmatic, protocol-native valuation of Bitcoin collateral**.
+By embedding price feeds directly into execution state, Surge eliminates discretionary trust and guarantees **programmatic, protocol-native valuation of Bitcoin collateral**.
 
 ## Importance
 1. **Protocol-Native**  
-   - Oracle updates are finalized inside the Execution Layer itself.  
+   - Oracle updates are finalized inside the Execution State itself.  
    - Validators replicate the same aggregation logic, guaranteeing a single source of truth.
 
 2. **Deterministic Medianization**  
    - Multiple signed submissions per block.  
    - Aggregated into a medianized price point, finalized with the block.  
    - Ensures liveness and robustness against outliers or malicious feeds.
-
-3. **Consensus Enforcement**  
-   - Prices only become valid once included in a finalized block.  
-   - Prevents validator divergence and eliminates latency arbitrage.
 
 ## Failure Safety
 - **Deterministic Fallbacks**  
@@ -35,7 +31,7 @@ By embedding price feeds directly into consensus, Surge eliminates discretionary
   Execution halts collateral ratio updates temporarily, but state remains coherent and auditable.
 
 - **Manipulation Resistance**  
-  Medianization + consensus replication prevent single-source manipulation.  
+  Medianization from mulitple source prevents single-source manipulation.  
   Validators rejecting invalid submissions ensures Byzantine resilience.
 
 ## Oracle Events

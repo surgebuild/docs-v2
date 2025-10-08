@@ -1,31 +1,21 @@
 ---
-title: Execution Layer
-description: EVM compatible execution with reth + CometBFT, state-root–bound BTC spends
+title: Execution State Machine
+description: EVM compatible execution state.
 ---
 
-# ⚙️ Execution Layer
-The **Execution Layer** acts as Surge’s universal ledger for Bitcoin backed liabilities. It connects Bitcoin vaults, signer rules, and stablecoin issuance into a deterministic state machine, ensuring that BTC collateral can only move when programmatic conditions are satisfied.
+# ⚙️ Execution State Machine
+The **Execution State** acts as Surge’s universal ledger for Bitcoin backed liabilities. It connects Bitcoin vaults, signer rules, and stablecoin issuance into a deterministic state machine, ensuring that BTC collateral can only move when programmatic conditions are satisfied.
 
 ## Universal Ledger for BTC-Backed Liabilities
-The Execution Layer maintains the **single source of truth** for:
+The State maintains the **single source of truth** for:
 - dVault collateral ratios.
 - Active liabilities (stablecoin denominated debt).
 - Signer sets and epoch rotations.
 
 It **prevents rehypothecation** by ensuring every Bitcoin UTXO is represented exactly once in system state, binding liabilities directly to on-chain BTC collateral.
 
-## Implementation Details
-- **Execution Engine**: `reth` provides an EVM-compatible state machine for programmability.
-- **Consensus**: `CometBFT` delivers deterministic ordering and block finality across validators.
-- **State Objects**:
-  - `VaultState { collateral, debt, CR, signerSet }`
-  - `StabilityPoolState { deposits, liquidationEvents }`
-  - `CrossChainState { CCTP_transfers, attestations }`
-
-Each finalized block produces a **state root**, which becomes the binding reference for signer permissions and BTC spend conditions.
-
 ## Bitcoin Aware State
-The Execution Layer is deeply coupled to Bitcoin:
+The Execution State is deeply coupled to Bitcoin:
 - **Oracle Feeds**: Medianized BTC/USD prices from trusted providers update collateral ratios.
 - **Bitcoin Attestations**: Proof-of-inclusion for UTXOs and Taproot spends are submitted to validators, ensuring the ledger mirrors real Bitcoin state.
 
@@ -38,10 +28,10 @@ Every block finalizes a **state root** that encodes:
 - Stability Pool balances.
 - Cross-chain stablecoin flows.
 
-BTC spends from a dVault are only valid if the signer set co-signs under the **aggregate Lin22 Schnorr key** bound to this state root. This creates a cryptographic anchor: collateral cannot move unless the Execution Layer authorizes it.
+BTC spends from a dVault are only valid if the signer set co-signs under the **aggregate Lin22 Schnorr key** bound to this state root. This creates a cryptographic anchor: collateral cannot move unless the Execution State authorizes it.
 
 ## Oracle Integration
-The Execution Layer depends on a Native Oracle System to monitor BTC/USD prices and enforce collateralization rules.  
+The Execution State depends on a Native Oracle System to monitor BTC/USD prices and enforce collateralization rules.  
 - Oracle updates are finalized inside consensus, ensuring deterministic CR enforcement.  
 - Liquidation events are emitted when CR < MinCR, binding signer permissions to liquidation spends.  
 
@@ -50,7 +40,7 @@ See the [Oracle System](/tech/oracles) for more details.
 ## Signer Enforcement
 Signer participation is tightly controlled:
 - **Lin22 Schnorr Signing**: Coinbase cb-mpc coordinates threshold Schnorr rounds for Taproot keys.
-- **Contract-Gated Authorization**: Signers may only sign if the Execution Layer has emitted a valid event.
+- **Contract-Gated Authorization**: Signers may only sign if the Execution State has emitted a valid event.
 - **No Rogue Signing**: Signers do not decide when BTC can move - the ledger enforces it.
 
 This guarantees **programmatic enforcement of BTC custody**, not human discretion.
