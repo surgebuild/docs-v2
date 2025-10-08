@@ -32,7 +32,7 @@ At the core of Surge are **dVaults**: Taproot outputs encoded with multiple spen
 - **Unilateral Exit** - borrower can reclaim BTC after `OP_CHECKLOCKTIMEVERIFY` expiry.
 
 ### Security Properties
-- **Bitcoin Native** - BTC Collateral is always locked in Taproot outputs. Collateral never bridges or never wraps.
+- **Bitcoin Native** - BTC Collateral is always locked in Taproot outputs. Collateral never wraps or bridges.
 - **Non Custodial** - no individual signer controls funds.
 - **Threshold Signatures** - Lin22 Schnorr TSS (via [cb-mpc](https://github.com/coinbase/cb-mpc)) resists collusion or aborts.
 - **Oracle Driven** - BTC/USD feed governs collateral ratios and liquidation triggers.
