@@ -25,7 +25,7 @@ Two leading Schnorr TSS protocols were evaluated:
 | Property | **FROST** | **Lin22 (2022)** |
 |----------|-----------|------------------|
 | **Signing Rounds** | 2 | 3 |
-| **Security Proof** | **UC secure** (Universally Composable), but aborts if signers fail | **Full simulatability** with Fischlin ZKPs |
+| **Security Proof** | **UC secure** (Universally Composable), but aborts if signers fail | **Full simulatability** with UC secure (Fischlin ZKPs) |
 | **Abort Handling** | Protocol halts if any signer malicious, need to trust coordinator | Identifies cheaters with proof; removes signer for next set of request |
 | **DKG Setup** | ~2 rounds (Pedersen VSS) | 5+ rounds (Feldman VSS, more secure) |
 | **Best Case** | Highly efficient when all honest | Robust to faults |
