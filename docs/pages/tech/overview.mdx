@@ -6,7 +6,7 @@ import ZoomImage from "../../components/ZoomImage";
 
 # 🔧 Technical Overview
 
-Surge is a Bitcoin-native lending platform that's transparent, programmable, and designed to serve everyday Bitcoiners. BTC is always locked in Bitcoin contracts, while external execution environments mirror vault conditions and coordinate stablecoin liquidity across chains.
+Surge is a Bitcoin-native lending platform that's transparent, programmable, and designed to serve everyday Bitcoiners. BTC is always locked in Taproot outputs with MAST based spend conditions, while execution environments mirror vault conditions and coordinate stablecoin liquidity across chains.
 
 | Domain | Role |
 |----------------------|----------------------------------------------------------------------|
@@ -32,8 +32,8 @@ At the core of Surge are **dVaults**: Taproot outputs encoded with multiple spen
 - **Unilateral Exit** - borrower can reclaim BTC after `OP_CHECKLOCKTIMEVERIFY` expiry.
 
 ### Security Properties
-- **Bitcoin Native** - collateral never bridges. BTC never leaves Bitcoin.
-- **Non-Custodial** - no individual signer controls funds.
+- **Bitcoin Native** - Collateral remains natively on Bitcoin, BTC is always locked in Taproot outputs. Collateral never bridges or never wraps.
+- **Non Custodial** - no individual signer controls funds.
 - **Threshold Signatures** - Lin22 Schnorr TSS (via [cb-mpc](https://github.com/coinbase/cb-mpc)) resists collusion or aborts.
 - **Oracle Driven** - BTC/USD feed governs collateral ratios and liquidation triggers.
 
@@ -57,8 +57,8 @@ Stablecoin supply moves across ecosystems while BTC remains locked:
 - **Deterministic Reconciliation** - ensures stablecoin supply always matches BTC collateral locked in dVaults.
 
 
-## End-to-End Model
-- BTC is the **source of truth**, locked in Taproot contracts.
+## End to End Model
+- BTC is the **source of truth**, locked in Taproot outputs (using MAST scripts).
 - Execution chains act as **state mirrors**, coordinating signer rules and debt balances.
 - Users retain **sovereignty**: cooperative signer flows or unilateral exits guarantee recoverability.
 

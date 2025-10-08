@@ -6,9 +6,9 @@ import ZoomImage from "../../components/ZoomImage";
 
 # 🔐 dVaults: Programmable Bitcoin Vaults
 
-A **dVault** is a Bitcoin Taproot UTXO (BIP341) whose spend conditions are committed via **<a href="https://river.com/learn/terms/m/merkelized-alternative-script-tree-mast/" target="_blank" rel="noopener noreferrer" class="opacity-80 hover:opacity-100 hover:underline cursor-pointer transition-colors">MAST</a>/Tapscript** (BIP342).  
+A **dVault** is a Bitcoin Taproot UTXO (BIP341) whose spend conditions are committed via **<a href="https://en.bitcoin.it/wiki/Taproot" target="_blank" rel="noopener noreferrer" class="opacity-80 hover:opacity-100 hover:underline cursor-pointer transition-colors">MAST</a>/Tapscript** (BIP342).  
 - **Taproot** lets us commit to multiple possible spending rules inside a single address.
-- **<a href="https://river.com/learn/terms/m/merkelized-alternative-script-tree-mast/" target="_blank" rel="noopener noreferrer" class="opacity-80 hover:opacity-100 hover:underline cursor-pointer transition-colors">MAST</a> (Merkelized Alternative Script Tree)** organizes those rules into a hidden tree: only the rule you use is revealed when spending.
+- **<a href="https://en.bitcoin.it/wiki/Taproot" target="_blank" rel="noopener noreferrer" class="opacity-80 hover:opacity-100 hover:underline cursor-pointer transition-colors">MAST</a> (Merkelized Alternative Script Tree)** organizes those rules into a hidden tree: only the rule you use is revealed when spending.
 - This keeps vaults private, efficient, and flexible.
 
 Surge uses dVaults as its **collateral engine** and BTC always stays on Bitcoin, only moving if one of the pre-committed rules is satisfied.
