@@ -7,7 +7,7 @@ description: EVM compatible execution state.
 The **Execution State** acts as Surge’s universal ledger for Bitcoin backed liabilities. It connects Bitcoin vaults, signer rules, and stablecoin issuance into a deterministic state machine, ensuring that BTC collateral can only move when programmatic conditions are satisfied.
 
 ## Universal Ledger for BTC-Backed Liabilities
-The State maintains the **single source of truth** for:
+The onchain State maintains the **single source of truth** on EVM for:
 - dVault collateral ratios.
 - Active liabilities (stablecoin denominated debt).
 - Signer sets and epoch rotations.
@@ -17,7 +17,7 @@ It **prevents rehypothecation** by ensuring every Bitcoin UTXO is represented ex
 ## Bitcoin Aware State
 The Execution State is deeply coupled to Bitcoin:
 - **Oracle Feeds**: Medianized BTC/USD prices from trusted providers update collateral ratios.
-- **Bitcoin Attestations**: Proof-of-inclusion for UTXOs and Taproot spends are submitted to validators, ensuring the ledger mirrors real Bitcoin state.
+- **Bitcoin Attestations**: Proof-of-inclusion for UTXOs and Taproot spends are submitted to execution state, ensuring the ledger mirrors real Bitcoin state.
 
 This guarantees that liabilities in Surge are always tied to **native Bitcoin collateral**, never synthetic abstractions.
 
