@@ -1,6 +1,6 @@
 ---
 title: Technical Overview
-description: Understanding Surge's Bitcoin custody, execution environment, and liquidity flows
+description: Understanding Surge's Bitcoin custody, and liquidity flows
 ---
 import ZoomImage from "../../components/ZoomImage";
 
@@ -11,7 +11,6 @@ Surge is a Bitcoin-native lending platform that's transparent, programmable, and
 | Domain | Role |
 |----------------------|----------------------------------------------------------------------|
 | **Bitcoin Custody** | BTC secured under Taproot + MAST conditions via dVaults. |
-| **Execution Environment** | Mirrors vault state, enforces collateral ratios, and manages signer sets. |
 | **Stability Pool** | Absorbs liquidations and redistributes BTC to stablecoin depositors. |
 | **Cross-Chain Liquidity** | Routes stablecoin supply trustlessly via Circle CCTP v2. |
 
@@ -36,17 +35,6 @@ At the core of Surge are **dVaults**: Taproot outputs encoded with multiple spen
 - **Non-Custodial** - no individual signer controls funds.
 - **Threshold Signatures** - Lin22 Schnorr TSS (via [cb-mpc](https://github.com/coinbase/cb-mpc)) resists collusion or aborts.
 - **Oracle Driven** - BTC/USD feed governs collateral ratios and liquidation triggers.
-
-## Execution Environment
-
-Execution state **do not custody BTC** - they only mirror vault conditions and enforce protocol logic.
-
-- **Event Mirroring** - deposits, debt issuance, repayments, and liquidations map 1:1 to Bitcoin spends.
-- **Signer Epochs** - track signers, validate signatures against the active set.
-- **Collateral Ratios** - monitor vault health via oracles. Liquidation events reconcile against Bitcoin.
-- **Stability Pool** - depositors absorb undercollateralized debt and receive discounted BTC.
-
-Execution runs on existing EVM-compatible chains with deterministic consensus (`reth` + `CometBFT`) for consistent state replication.
 
 ## Cross-Chain Liquidity
 
