@@ -79,12 +79,19 @@ export default defineConfig({
             link: "/tech/overview",
           },
           {
-            text: "dVault & Tapscript",
+            text: "dVaults & Tapscript",
             link: "/tech/vaults",
+            collapsed: true,
+            items: [
+              {
+                text: "Escape Hatch / Unilateral Exit",
+                link: "/tech/exit",
+              },
+            ],
           },
           {
-            text: "Threshold Signatures (TSS)",
-            link: "/tech/tss",
+            text: "Threshold Schnorr Signatures (Lin22)",
+            link: "/tech/schnorr",
           },
           {
             text: "Execution State Machine",
@@ -100,10 +107,6 @@ export default defineConfig({
           {
             text: "Deterministic dVault Liquidation",
             link: "/tech/dvaults-liquidation",
-          },
-          {
-            text: "Escape Hatch / Unilateral Exit",
-            link: "/tech/exit",
           },
           {
             text: "Cross-Chain Settlement & LPs",
