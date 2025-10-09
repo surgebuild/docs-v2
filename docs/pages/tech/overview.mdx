@@ -6,7 +6,7 @@ import ZoomImage from "../../components/ZoomImage";
 
 # 🔧 Technical Overview
 
-Surge is a Bitcoin native lending platform that's transparent, programmable, and designed to serve grassroot Bitcoiners. BTC is always locked in Taproot outputs with [MAST](https://bitcoinops.org/en/topics/mast/) based spend conditions, while execution environments mirror vault conditions and coordinate stablecoin liquidity across chains.
+Surge is a Bitcoin native lending platform that's transparent, programmable, and designed to serve grassroots Bitcoiners. BTC is always locked in Taproot outputs with [MAST](https://bitcoinops.org/en/topics/mast/) based spend conditions, while execution environments mirror vault conditions and coordinate stablecoin liquidity across chains.
 
 | Domain | Role |
 |----------------------|----------------------------------------------------------------------|
@@ -33,13 +33,13 @@ At the core of Surge are **dVaults**: Taproot outputs encoded with multiple spen
 
 ### Security Properties
 - **Bitcoin Native** - BTC Collateral is always locked in Taproot outputs. Collateral never bridges or wraps.
-- **Non Custodial** - No single signer or coordinator can unilaterally move or control funds.
+- **Non-Custodial** - No single signer or coordinator can unilaterally move or control funds.
 - **Threshold Signatures** - Uses Lin22 Schnorr Signatures (via [cb-mpc](https://github.com/coinbase/cb-mpc)) for signing, providing collusion resistance, abort recovery, and auditability.
 - **Oracle Driven** - BTC/USD feed governs collateral ratios and liquidation triggers.
 
 ## Execution State
 
-Execution state **does not custody BTC** - it mirrors vault conditions on-chain and enforces protocol logic derived from Bitcoin transactions.
+Execution state **does not take custody of BTC** - it mirrors vault conditions on-chain and enforces protocol logic derived from Bitcoin transactions.
 
 - **Event Mirroring** - deposits, debt issuance, repayments, and liquidations map 1:1 to Bitcoin spends.
 - **Signer Epochs** - track active signers set, validate MPC signatures, and coordinate epoch rotation.
@@ -62,7 +62,7 @@ Stablecoin liquidity moves freely across ecosystems while BTC remains locked on 
 
 ## End to End Model
 - BTC is the **source of truth**, secured in Taproot outputs.
-- Execution chains as **state mirrors**, environments maintain synchronized state of coordinating signer rules and debt balances.
+- Execution chains act as **state mirrors**, maintaining environments synchronized state of coordinating signer rules and debt balances.
 - Users retain **sovereignty** through cooperative signer paths or unilateral exits guarantee recoverability.
 
 This architecture enables **sovereign Bitcoin capital markets** - BTC secured by Taproot outputs, with programmable stablecoin liquidity and settlement across multiple chains.
