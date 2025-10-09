@@ -13,7 +13,7 @@ Surge is a Bitcoin native lending platform that's transparent, programmable, and
 | **Bitcoin Custody** | BTC secured under Taproot + MAST conditions via dVaults. |
 | **Execution State** | Mirrors vault state, enforces collateral ratios, and manages signer sets. |
 | **Stability Pool** | Absorbs liquidations and redistributes BTC to stablecoin depositors. |
-| **Cross-Chain Liquidity** | Routes stablecoin supply trustlessly via Circle CCTP v2. |
+| **Cross-Chain Liquidity** | Routes stablecoin supply trustlessly via issuer-authorized protocol |
 
 <ZoomImage
   src="/assets/arch_overview.png"
@@ -54,7 +54,7 @@ Stablecoin supply moves across ecosystems while BTC remains locked:
 
 - **Canonical Events** - standardized signals (`AttestedDeposit`, `DebtIssued`, `DebtRepaid`, `LiquidationTriggered`) form the audit log.
 - **Deterministic Reconciliation** - ensures stablecoin supply always matches BTC collateral locked in dVaults.
-- **Circle CCTP v2** - routes liquidity across Ethereum, Base, Arbitrum and more.
+- **Cross-Chain Settlement** - routes liquidity across Ethereum, Base, Arbitrum and more.
 
 
 ## End to End Model
