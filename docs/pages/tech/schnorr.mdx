@@ -11,6 +11,7 @@ Surge implements **Lindell 2022 Multiparty Schnorr Signing** a threshold Schnorr
 
 - **Taproot Compatibility** - Bitcoin’s Taproot ([BIP340](https://en.bitcoin.it/wiki/BIP_0340)) requires Schnorr signatures. Threshold signatures must be indistinguishable from single-party Schnorr signatures to preserve privacy and efficiency.
 - **Non-Custodial Control** - No individual signer can move BTC, only a threshold of signers can jointly authorize a transaction, preventing unilateral custody.
+- **Threshold Signing** - Every signing session is gated by pre-sign policy checks; only a t-of-n quorum can authorize within rules.
 - **Byzantine Resilient Operation** - Signers must remain operable even if some signers are malicious or offline. Abort detection and recovery prevent permanent capital lock-up.
 
 ## Lin22 vs. FROST
