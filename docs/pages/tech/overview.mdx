@@ -45,6 +45,9 @@ Execution state **does not custody BTC** - it mirrors vault conditions on-chain 
 - **Signer Epochs** - track active signers set, validate MPC signatures, and coordinate epoch rotation.
 - **Collateral Ratios** - continuously monitor vault health via oracles. Liquidation events reconcile against Bitcoin.
 - **Stability Pool** - absorbs undercollateralized debt and distributes received discounted BTC to depositors.
+- **PSBT Coordination** - during micro lot liquidations, the Execution Program constructs Partially Signed Bitcoin Transactions (PSBTs) representing each tranche of BTC collateral to be sold.  
+
+Signers co-sign these PSBTs under the Lin22 aggregate key once the Execution State emits a valid liquidation event, ensuring deterministic, auditable Bitcoin spends.
 
 Execution runs on existing EVM-compatible chains with deterministic program for consistent state replication.
 
