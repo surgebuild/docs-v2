@@ -1,16 +1,16 @@
 ---
 title: Cross-Chain Settlement & Liquidity
-description: Deterministic USDC routing with CCTP and canonical liquidation markets
+description: Routes stablecoin supply and repayment flows across chains with a canonical supply.
 ---
 
 # 📡 Cross-Chain Settlement & Liquidity
 
-## Stablecoin Routing via CCTP v2
-Surge integrates **Circle’s Cross-Chain Transfer Protocol [(CCTP v2)](https://www.circle.com/cross-chain-transfer-protocol)** for stablecoin settlement. CCTP uses **burn and mint semantics** to move USDC across chains:
+## Stablecoin Routing
+Routes stablecoins (e.g., USDC, USDT) across major networks (Ethereum, Base, Arbitrum, etc.) while maintaining a canonical supply:
 
-- **Canonical Supply** - no wrapped or synthetic USDC is ever created.
-- **Deterministic Routing** - stablecoins are burned on the source chain and minted on the destination.
-- **Settlement Finality** - transfers secured by Circle’s attestation network.
+- **Canonical Supply** - no wrapped or synthetic representations.
+- **Deterministic Routing** - tokens are burned on the source chain and minted on the destination upon verified authorization.
+- **Settlement Finality** - mints require signed attestations from the issuer (or an approved attestation service) recorded on-chain.
 
 This design ensures liquidity is **fungible, auditable, and settlement-grade** - essential for institutional adoption.
 
@@ -24,7 +24,6 @@ The **Stability Pool** is Surge’s liquidation clearinghouse. While stablecoin 
 
 | Component | Function |
 |------------|---------------------------------------------------------------------------|
-| **CCTP v2** | Moves stablecoin liquidity across supported chains |
 | **Stability Pool** | Canonical clearinghouse for liquidation settlements |
 | **Liquidation Trigger** | Initiated on any chain, validated against BTC state + CR threshold |
 | **BTC Distribution** | Discounted BTC flows to Stability Pool depositors |

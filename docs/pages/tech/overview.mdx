@@ -6,14 +6,14 @@ import ZoomImage from "../../components/ZoomImage";
 
 # 🔧 Technical Overview
 
-Surge is a Bitcoin native lending platform that's transparent, programmable, and designed to serve everyday Bitcoiners. BTC is always locked in Taproot outputs with MAST (Merklized Alternative Script Trees) based spend conditions, while execution environments mirror vault conditions and coordinate stablecoin liquidity across chains.
+Surge is a Bitcoin native lending platform that's transparent, programmable, and designed to serve grassroot Bitcoiners. BTC is always locked in Taproot outputs with [MAST](https://bitcoinops.org/en/topics/mast/) based spend conditions, while execution environments mirror vault conditions and coordinate stablecoin liquidity across chains.
 
 | Domain | Role |
 |----------------------|----------------------------------------------------------------------|
-| **Bitcoin Custody** | BTC secured under Taproot + MAST conditions via dVaults. |
-| **Execution State** | Mirrors vault state, enforces collateral ratios, and manages signer sets. |
-| **Stability Pool** | Absorbs liquidations and redistributes BTC to stablecoin depositors. |
-| **Cross-Chain Liquidity** | Routes stablecoin supply trustlessly via Circle CCTP v2. |
+| **Bitcoin Custody** | BTC secured under **Taproot + MAST conditions** through programmable dVaults. Each vault defines repayment, liquidation, and escape paths enforced by user + signer logic |
+| **Execution Program** | A hybrid **off-chain + on-chain coordination system** that mirrors vault state, enforces collateral ratios, manages signer epochs, and triggers liquidations or repayments. Deployed on EVM-compatible environments. |
+| **Stability Pool** | A canonical Stability Pool absorbs undercollateralized debt through partial (micro) liquidations and redistributes BTC proceeds or stablecoin yield to depositors. |
+| **Cross-Chain Liquidity** | Routes stablecoin supply and repayment flows across chains via **pluggable adapters** starting with USDC (CCTPv2) and USDT, extensible to other issuers. |
 
 <ZoomImage
   src="/assets/arch_overview.png"
@@ -32,34 +32,34 @@ At the core of Surge are **dVaults**: Taproot outputs encoded with multiple spen
 - **Unilateral Exit** - borrower can reclaim BTC after `OP_CHECKLOCKTIMEVERIFY` expiry.
 
 ### Security Properties
-- **Bitcoin Native** - BTC Collateral is always locked in Taproot outputs. Collateral never bridges or never wraps.
-- **Non Custodial** - no individual signer controls funds.
-- **Threshold Signatures** - Lin22 Schnorr TSS (via [cb-mpc](https://github.com/coinbase/cb-mpc)) resists collusion or aborts.
+- **Bitcoin Native** - BTC Collateral is always locked in Taproot outputs. Collateral never bridges or wraps.
+- **Non Custodial** - No single signer or coordinator can unilaterally move or control funds.
+- **Threshold Signatures** - Uses Lin22 Schnorr TSS (via [cb-mpc](https://github.com/coinbase/cb-mpc)) for signing, providing collusion resistance, abort recovery, and auditability.
 - **Oracle Driven** - BTC/USD feed governs collateral ratios and liquidation triggers.
 
 ## Execution State
 
-Execution state **do not custody BTC** - they only mirror vault conditions and enforce protocol logic.
+Execution state **does not custody BTC** - it mirrors vault conditions on-chain and enforces protocol logic derived from Bitcoin transactions.
 
 - **Event Mirroring** - deposits, debt issuance, repayments, and liquidations map 1:1 to Bitcoin spends.
-- **Signer Epochs** - track signers, validate signatures against the active set.
-- **Collateral Ratios** - monitor vault health via oracles. Liquidation events reconcile against Bitcoin.
-- **Stability Pool** - depositors absorb undercollateralized debt and receive discounted BTC.
+- **Signer Epochs** - track active signers set, validate MPC signatures, and coordinate epoch rotation.
+- **Collateral Ratios** - continuously monitor vault health via oracles. Liquidation events reconcile against Bitcoin.
+- **Stability Pool** - absorbs undercollateralized debt and distributes received discounted BTC to depositors.
 
 Execution runs on existing EVM-compatible chains with deterministic program for consistent state replication.
 
 ## Cross-Chain Liquidity
 
-Stablecoin supply moves across ecosystems while BTC remains locked:
+Stablecoin liquidity moves freely across ecosystems while BTC remains locked on Bitcoin:
 
-- **Canonical Events** - standardized signals (`AttestedDeposit`, `DebtIssued`, `DebtRepaid`, `LiquidationTriggered`) form the audit log.
-- **Deterministic Reconciliation** - ensures stablecoin supply always matches BTC collateral locked in dVaults.
-- **Circle CCTP v2** - routes liquidity across Ethereum, Base, Arbitrum and more.
+- **Canonical Events** - standardized events (`AttestedDeposit`, `DebtIssued`, `DebtRepaid`, `LiquidationTriggered`) serve as verifiable coordination signals across chains.
+- **Deterministic Reconciliation** - ensures stablecoin supply always corresponds to BTC collateral locked in dVaults.
+- **Adapter Based Routing** - liquidity is routed trustlessly via Ethereum, Base, Arbitrum and more.
 
 
 ## End to End Model
-- BTC is the **source of truth**, locked in Taproot outputs (using MAST scripts).
-- Execution chains act as **state mirrors**, coordinating signer rules and debt balances.
-- Users retain **sovereignty**: cooperative signer flows or unilateral exits guarantee recoverability.
+- BTC is the **source of truth**, secured in Taproot outputs.
+- Execution chains as **state mirrors**, environments maintain synchronized state of coordinating signer rules and debt balances.
+- Users retain **sovereignty** through cooperative signer paths or unilateral exits guarantee recoverability.
 
-This architecture enables **sovereign Bitcoin capital markets** - BTC secured by Taproot contracts, with programmable stablecoin liquidity and settlement across multiple chains.
+This architecture enables **sovereign Bitcoin capital markets** - BTC secured by Taproot outputs, with programmable stablecoin liquidity and settlement across multiple chains.
