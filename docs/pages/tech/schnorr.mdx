@@ -35,7 +35,7 @@ Surge prioritizes **liveness, accountability, and verifiability** over lowest la
 
 - **Trustless Coordinator** - Unlike protocols that require trust assumptions on the coordinator or rely on non-standard assumptions like one-more discrete log or algebraic group models, Lin22 achieves security.
 - **Identifiable Misbehavior** - Each signer provides Fischlin Zero-Knowledge Proofs (ZKPs). If a signer cheats or aborts, the network obtains cryptographic evidence, enabling automated slashing and signer rotation.  
-- **Privacy Preserving** - The aggregated output remainsa standard BIP340 Schnorr signature. Vault spends are indistinguishable from any regular Taproot spend.
+- **Privacy Preserving** - The aggregated output remains a standard BIP340 Schnorr signature. Vault spends are indistinguishable from any regular Taproot spend.
 
 Surge’s implementation uses Coinbase’s audited [**cb-mpc**](https://github.com/coinbase/cb-mpc) library, embedding Lin22 within the signer coordination service.
 
