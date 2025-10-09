@@ -16,14 +16,14 @@ Alternatively, users can sign up using social login methods, in which case the a
 Both methods preserve user custody and transparency.
 
 ### 🏗️ Loan Initiation
-Every loan begins with the creation of a dVault - a unique, Taproot-based vault secured collaboratively by the user and the decentralized signer network (TSS).
+Every loan begins with the creation of a dVault - a unique, Taproot-based vault secured collaboratively by the user and the decentralized signer network (Threshold Schnorr Signatures).
 - A Taproot address is generated specifically for the loan.
 - The user deposits BTC into this address.
 - After standard Bitcoin block confirmations (~10 minutes), the BTC becomes collateral.
 
 All BTC remains verifiable on-chain, and any movement requires:
 - The user’s signature, and
-- Authorization from the TSS signer network governed by programmed loan logic.
+- Authorization from the decentralized signer network governed by programmed loan logic.
 
 If a borrower defaults, only the program can execute transfer/liquidation logic - no centralized intervention is possible. This program is defined by a [deterministic liquidation framework](/tech/dvaults-liquidation), where every vault encodes pre-committed spend paths on Bitcoin.
 

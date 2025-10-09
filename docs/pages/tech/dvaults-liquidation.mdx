@@ -44,7 +44,7 @@ When `CR < MCR (Minimum Collateral Ratio)`:
 This process enables **micro-lot liquidation**, minimizing borrower losses and preventing cascading liquidations during volatility.
 
 ## Key Guarantees
-- **Non-Custodial:** BTC remains locked in Taproot vaults on Bitcoin, only user + TSS consensus or timelock can move funds.  
+- **Non-Custodial:** BTC remains locked in Taproot vaults on Bitcoin, only user + signer quorum or timelock can move funds.  
 - **Deterministic:** All state transitions and PSBTs are reproducible and verifiable across signers.  
 - **Censorship-Safe:** Borrowers can always reclaim funds through the Escape path after timelock expiry.  
 - **Stablecoin ready:** Liquidation proceeds automatically flow into the Stability Pool, powering BTC-backed stablecoin liquidity.
