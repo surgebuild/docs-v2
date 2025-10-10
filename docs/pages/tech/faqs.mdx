@@ -1,0 +1,38 @@
+---
+title: FAQs
+description: Common questions about Surge's Bitcoin native architecture and design choices.
+---
+
+# 💬 FAQs
+
+<details>
+<summary>**Why not use DLCs (Discreet Log Contracts)?**</summary>
+
+DLCs are single-use oracle contracts designed for event-based payouts. Surge vaults are persistent and programmable, supporting recurring actions like borrow, repay, and partial liquidation.
+DLCs can’t maintain live vault states or multi-party control, so Surge uses Taproot + MAST scripts for reusable native logic
+
+</details>
+---
+<details>
+<summary>**Why not use a single key path instead of MAST spend paths?**</summary>
+
+A single key path exposes all logic under one aggregated key, reducing flexibility and privacy.  
+**MAST** allows each spend condition - repayment, liquidation, and escape to exist as a separate branch, revealing only the one used and keeping other logic hidden.
+
+</details>
+---
+<details>
+<summary>**What makes Surge non-custodial?**</summary>
+
+Even if signers go offline or refuse to cooperate, users can still unilaterally recover BTC after a timelock using the Escape Hatch path. The non-custodial guarantee comes directly from Bitcoin script.
+
+</details>
+---
+<details>
+<summary>**Why does Surge use Lin22 instead of FROST?**</summary>
+
+**Lin22** provides stronger fault tolerance and accountability.  
+If a signer misbehaves, Lin22 generates cryptographic proof identifying who failed, allowing to exclude signer for next requests, slashing and signer rotation without relying on the coordinator
+
+</details>
+
