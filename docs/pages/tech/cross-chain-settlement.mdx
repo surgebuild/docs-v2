@@ -1,16 +1,17 @@
 ---
 title: Cross-Chain Settlement & Liquidity
-description: Deterministic USDC routing with CCTP and canonical liquidation markets
+description: Routing and settlement of stablecoin across major chains via canonical supply.
 ---
 
 # 📡 Cross-Chain Settlement & Liquidity
 
-## Stablecoin Routing via CCTP v2
-Surge integrates **Circle’s Cross-Chain Transfer Protocol [(CCTP v2)](https://www.circle.com/cross-chain-transfer-protocol)** for stablecoin settlement. CCTP uses **burn and mint semantics** to move USDC across chains:
+## Stablecoin Routing
+Routes stablecoins (e.g., USDC, USDT) across major networks (Ethereum, Base, Arbitrum, etc.) while maintaining a canonical supply:
 
-- **Canonical Supply** - no wrapped or synthetic USDC is ever created.
-- **Deterministic Routing** - stablecoins are burned on the source chain and minted on the destination.
-- **Settlement Finality** - transfers secured by Circle’s attestation network.
+- **Canonical Supply** - no wrapped or synthetic representations.
+- **Adapter-Based Routing** — integrates with pluggable adapters (e.g., CCTPv2 etc.,) to enable issuer verified cross-chain transfers.
+- **Deterministic Settlement** - tokens are burned on the source chain and minted on the destination upon verified authorization.
+- **Settlement Finality** - mints require signed attestations from the issuer verifiable on-chain.
 
 This design ensures liquidity is **fungible, auditable, and settlement-grade** - essential for institutional adoption.
 
@@ -20,11 +21,10 @@ The **Stability Pool** is Surge’s liquidation clearinghouse. While stablecoin 
 - **Implementation** - a stateful contract deployed on a chosen execution chain (e.g., Ethereum).
 - **Inputs** - stablecoins deposited by liquidity providers.
 - **Outputs** - discounted BTC distributed to pool participants during liquidations.
-- **Market Integrity** - consolidates bad debt resolution into one venue, preventing fragmented pricing or MEV-driven arbitrage.
+- **Market Integrity** - Centralizes bad debt absorption, preventing fragmented liquidations or MEV-driven arbitrage.
 
 | Component | Function |
 |------------|---------------------------------------------------------------------------|
-| **CCTP v2** | Moves stablecoin liquidity across supported chains |
 | **Stability Pool** | Canonical clearinghouse for liquidation settlements |
 | **Liquidation Trigger** | Initiated on any chain, validated against BTC state + CR threshold |
 | **BTC Distribution** | Discounted BTC flows to Stability Pool depositors |
@@ -34,6 +34,7 @@ When a dVault’s collateral ratio (CR) falls below the minimum threshold:
 1. CR Validation → Medianized BTC/USD prices from trusted oracles confirm the breach.
 2. Trigger → The Execution State emits a LiquidationTriggered event.
 3. Debt Absorption → The Stability Pool automatically covers the undercollateralized debt using pooled stablecoins.
-4. Collateral Distribution → A proportional slice of BTC collateral is released at a discount to Stability Pool providers.
+4. Collateral Distribution → The Deterministic Liquidation program executes pre-committed **PSBTs**, sending the corresponding BTC tranche to the Stability Pool at a protocol defined discount.  
+5. **Re-Lock** — Remaining BTC is re-locked into a new dVault under the same script policy with an incremented nonce.
 
 This deterministic process ensures **continuous, predictable liquidation markets** through **micro-liquidations**, without opportunistic fragmented liquidator auctions.

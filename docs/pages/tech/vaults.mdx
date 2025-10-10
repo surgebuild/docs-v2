@@ -6,21 +6,21 @@ import ZoomImage from "../../components/ZoomImage";
 
 # 🔐 dVaults: Programmable Bitcoin Vaults
 
-A **dVault** is a Bitcoin Taproot UTXO (BIP341) whose spend conditions are committed via **<a href="https://en.bitcoin.it/wiki/Taproot" target="_blank" rel="noopener noreferrer" class="opacity-80 hover:opacity-100 hover:underline cursor-pointer transition-colors">MAST</a>/Tapscript** (BIP342).  
-- **Taproot** lets us commit to multiple possible spending rules inside a single address.
-- **<a href="https://en.bitcoin.it/wiki/Taproot" target="_blank" rel="noopener noreferrer" class="opacity-80 hover:opacity-100 hover:underline cursor-pointer transition-colors">MAST</a> (Merkelized Alternative Script Tree)** organizes those rules into a hidden tree: only the rule you use is revealed when spending.
+A **dVault** is a Bitcoin Taproot UTXO ([BIP341](https://en.bitcoin.it/wiki/BIP_0341)) whose spend conditions are committed via **MAST/Tapscript** ([BIP342](https://en.bitcoin.it/wiki/BIP_0342)).  
+- **Taproot** commits multiple possible spending rules inside a single address.
+- **MAST (Merkelized Alternative Script Tree)** organizes those rules into a hidden tree: only the rule used is revealed when spending.
 - This keeps vaults private, efficient, and flexible.
 
-Surge uses dVaults as its **collateral engine** and BTC always stays on Bitcoin, only moving if one of the pre-committed rules is satisfied.
+Surge uses dVaults as its **collateral engine** and BTC always remains on Bitcoin, only moving when one of the pre-committed spend conditions is satisfied.
 
 ## How dVaults are Programmed?
 
-A dVault locks BTC in a Taproot script address with multiple **exit paths**:
-- **Key Path** - The repayment/close path, co-signed by the user and decentralized signer set using **Lin22 (threshold Schnorr)** via Coinbase [cb-mpc](https://github.com/coinbase/cb-mpc).
-- **Script Paths** - Extra branches in the vault’s taptree that open under special conditions:
-  - **Repayment branch** (default close path) when borrower & signers sign after the repayment.
-  - **Liquidation branch** if collateral drops below minimum ratio.
-  - **Timelock branch** for long-term recovery by the depositor.
+A dVault locks BTC in a Taproot script address with multiple **spend paths**:
+- **Key Path(Repayment)** - co-signed by the borrower and decentralized signer set using **Lin22 (threshold Schnorr)** via Coinbase [cb-mpc](https://github.com/coinbase/cb-mpc).
+- **Script Paths** - additional branches in the vault’s taptree that open under specific conditions:
+  - **Repayment branch** default close path triggered once repayment is attested by the Execution Program.
+  - **Liquidation branch** activated when collateral ratio falls below the minimum threshold.
+  - **Timelock branch** a long-term unilateral recovery path for the depositor.
 
 <ZoomImage
   src="/assets/dvault_taproot.png"
@@ -31,22 +31,22 @@ A dVault locks BTC in a Taproot script address with multiple **exit paths**:
 
 ## Core Scripting
 
-- Each vault commits a **taptree** of spend leaves (tapscript). Only the executed leaf is revealed on spend; unused branches remain hidden.
-- The **key path** uses an **aggregate Lin22 Schnorr key** (`cb-mpc(P_user, P_signer_epoch)`) to handle the common repayment flow.
-- **Script leaves** enforce exceptional paths (liquidation, timelock, etc.,).
+- Each vault commits a **taptree** of spend leaves (tapscripts). Only the executed leaf is revealed during spend; unused branches remain hidden.
+- The **repayment path** uses an **aggregate Lin22 Schnorr key** (`cb-mpc(P_user, P_signer_epoch)`) for the standard close flow.
+- **Script leaves** define exceptional paths (liquidation, CR checks, timelock, etc.,).
 
 ## Spend Paths
 
-- **Repayment** - BTC can be spent via the **key path** by `Lin22(P_user, P_epoch)` after the execution environment attests that debt was repaid.  
+- **Repayment** - BTC can be spent via the **key path** by `Lin22(P_user, P_epoch)` once the execution program attests that debt was repaid.  
 _Enforced by signers + state proofs, the script enforces signatures only._
 
-- **Liquidation** - If CR < MinCR, signers spend via a **CSV gated** script leaf. The spend creates outputs:
-   - Discounted sale to Stability Pool.
-   - Change re-locked to a new dVault for the user.
+- **Liquidation** - If CR < MinCR, signers spend via a **CSV gated** liquidation leaf. The spend creates outputs:
+   - Delivers discounted BTC to the Stability Pool.
+   - Re-locks change to a new dVault under the borrower’s control.
 
 _CR check is off-chain; the script enforces signer control + delay._
 
-- **Timelock** - After a long **CLTV**, the depositor can unilaterally recover with a dedicated recovery key.
+- **Timelock** - After a defined **CLTV** period, the depositor can unilaterally recover BTC with a dedicated recovery key.
 
 ## Script Structures
 
@@ -89,11 +89,12 @@ AND(
 3. **Monitoring** - BTC/USD oracle updates CR, state commits, debts, and Stability Pool balances.
 4. **Incremental Liquidations** - If `CR < MinCR`, signers spend via the liquidation leaf. The spend MUST produce:
    - **Stability Pool purchase** - discounted BTC to the Stability Pool.
-   - **Relock** - change re-locked to a new dVault taptree for the user.
-5. **Repayment/Close** - Upon debt repayment, signers co-sign the key-path spend, moving BTC as per user instructions.
+   - **Relock** - re-locked into a new dVault under user control.
+5. **Repayment/Close** - Once repaid, signers co-sign the key-path spend, moving BTC as per user instructions.
 
 ## Security Anchors
 
 - **On-chain invariants (script):** Schnorr key verification, `CLTV` timelocks, and MAST-committed branches.
-- **Off-chain invariants (state):** CR evaluation, repayment attestations, SP discount schedules, and epoch rotation tied to the execution environment’s state root.
+- **Off-chain invariants (state):** CR validation, repayment attestations, liquidation authorization, and signer epoch rotation bound to the execution program's state.
 - **Signer tech:** Coinbase **cb-mpc** coordinating **Lin22 (threshold Schnorr)** for Taproot keys. **Hai18 (threshold ECDSA)** only where non Bitcoin interoperability requires it.
+- **Execution program consistency:** All Bitcoin spends reference the latest on-chain Execution State, ensuring deterministic reconciliation between BTC vaults and stablecoin liabilities.
