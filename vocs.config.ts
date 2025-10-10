@@ -112,6 +112,10 @@ export default defineConfig({
             text: "Cross-Chain Settlement & LPs",
             link: "/tech/cross-chain-settlement",
           },
+          {
+            text: "FAQs",
+            link: "/tech/faqs",
+          },
         ],
       },
       // {
