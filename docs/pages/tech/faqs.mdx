@@ -32,8 +32,7 @@ Even if signers go offline or refuse to cooperate, users can still unilaterally 
 <summary>**Why does Surge use Lin22 instead of FROST?**</summary>
 
 **Lin22** provides stronger fault tolerance and accountability.  
-If a signer misbehaves, Lin22 generates cryptographic proof identifying who failed, allowing safe recovery and signer rotation without relying on the coordinator. 
-**FROST** is faster but aborts if any signer fails, making it less reliable for live collateral systems.
+If a signer misbehaves, Lin22 generates cryptographic proof identifying who failed, allowing to exclude signer for next requests, slashing and signer rotation without relying on the coordinator
 
 </details>
 
