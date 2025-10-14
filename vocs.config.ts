@@ -79,18 +79,26 @@ export default defineConfig({
             link: "/tech/overview",
           },
           {
-            text: "dVaults & Tapscript",
+            text: "dVaults and Taproot",
             link: "/tech/vaults",
-            collapsed: true,
+            collapsed: false,
             items: [
               {
-                text: "Escape Hatch / Unilateral Exit",
+                text: "Repayment",
+                link: "/tech/exit",
+              },
+              {
+                text: "Liquidation",
+                link: "/tech/dvaults-liquidation",
+              },
+              {
+                text: "Unilateral Exit",
                 link: "/tech/exit",
               },
             ],
           },
           {
-            text: "Threshold Schnorr Signatures (Lin22)",
+            text: "Threshold Schnorr (Signer Network)",
             link: "/tech/schnorr",
           },
           {
@@ -104,13 +112,14 @@ export default defineConfig({
             //   },
             // ],
           },
+
           {
-            text: "Deterministic dVault Liquidation",
-            link: "/tech/dvaults-liquidation",
+            text: "Liquidity Management & Stability Pools",
+            link: "/tech/cross-chain-settlement",
           },
           {
-            text: "Cross-Chain Settlement & LPs",
-            link: "/tech/cross-chain-settlement",
+            text: "Oracle System",
+            link: "/tech/oracles",
           },
           {
             text: "FAQs",
