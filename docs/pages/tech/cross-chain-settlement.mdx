@@ -29,7 +29,7 @@ The **Stability Pool** is Surge’s liquidation clearinghouse. While stablecoin 
 | **Liquidation Trigger** | Initiated on any chain, validated against BTC state + CR threshold |
 | **BTC Distribution** | Discounted BTC flows to Stability Pool depositors |
 
-## Micro Liquidation Lifecycle
+{/* ## Micro Liquidation Lifecycle
 When a dVault’s collateral ratio (CR) falls below the minimum threshold:
 1. CR Validation → Medianized BTC/USD prices from trusted oracles confirm the breach.
 2. Trigger → The Execution State emits a LiquidationTriggered event.
@@ -37,4 +37,4 @@ When a dVault’s collateral ratio (CR) falls below the minimum threshold:
 4. Collateral Distribution → The Deterministic Liquidation program executes pre-committed **PSBTs**, sending the corresponding BTC tranche to the Stability Pool at a protocol defined discount.  
 5. **Re-Lock** — Remaining BTC is re-locked into a new dVault under the same script policy with an incremented nonce.
 
-This deterministic process ensures **continuous, predictable liquidation markets** through **micro-liquidations**, without opportunistic fragmented liquidator auctions.
+This deterministic process ensures **continuous, predictable liquidation markets** through **micro-liquidations**, without opportunistic fragmented liquidator auctions.*/}
