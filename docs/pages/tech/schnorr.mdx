@@ -2,12 +2,20 @@
 title: Threshold Schnorr (Lin22)
 description: Distributed Schnorr signing for Taproot vault control.
 ---
+import ZoomImage from "../../components/ZoomImage";
 
 # 👥 Threshold Schnorr (Lin22)
 
 Surge implements **Lindell 2022 Multiparty Schnorr Signing (Lin22)** a threshold Schnorr signature protocol and with ideal zero-knowledge and commitment functionality this framework provides strong security, fault tolerance, and privacy. 
 
 It enables quorum-based gated spending of Taproot vaults (dVaults) without revealing the signer structure or compromising on-chain efficiency.
+
+<ZoomImage
+  src="/assets/signer-user.png"
+  alt="Signer"
+  width="100%"
+  className="mx-auto"
+/>
 
 ## Why Threshold Schnorr Signatures Essential for dVaults
 
@@ -16,6 +24,13 @@ It enables quorum-based gated spending of Taproot vaults (dVaults) without revea
 - **Taproot Compatibility** - Bitcoin’s Taproot ([BIP340](https://en.bitcoin.it/wiki/BIP_0340)) requires Schnorr signatures. Threshold signatures must be indistinguishable from single-party Schnorr signatures to preserve privacy and efficiency.
 
 ## Why Surge Chooses Lin22
+
+<ZoomImage
+  src="/assets/Signers.png"
+  alt="Malicious Signer"
+  width="100%"
+  className="mx-auto"
+/>
 
 Surge prioritizes **reliability, accountability, and verifiability** over lowest latency.
 
