@@ -7,15 +7,14 @@ import ZoomImage from "../../components/ZoomImage";
 # 🔐 dVaults: Programmable Bitcoin Vaults
 
 A **dVault** is a Bitcoin Taproot UTXO ([BIP341](https://en.bitcoin.it/wiki/BIP_0341)) whose spend conditions are committed via **MAST/Tapscript** ([BIP342](https://en.bitcoin.it/wiki/BIP_0342)).  
-- **Taproot** commits multiple spend rules into a single address.
-- **MAST (Merkelized Alternative Script Tree)** organizes those rules into a hidden tree: only the rule used is revealed when spending.
-- This keeps vaults private, efficient, and flexible.
+- **Taproot** commits multiple spend conditions into a single address.
+- **MAST (Merkelized Alternative Script Tree)** is to enumerate different spending conditions and allow funds to be spent by satisfying any one script. Each script is a leaf in a Merkle tree, and only the executed leaf is revealed during spend. Any unused branches remain hidden.
 
 Surge uses dVaults as its **collateral engine** and BTC always remains on Bitcoin, only moving when one of the pre-committed spend conditions is satisfied.
 
 ## How dVaults are Programmed?
 
-A dVault locks BTC in a Taproot output script address with multiple **spend paths**:
+A dVault locks BTC in a single encoded public key(PT2R) with multiple **spend paths**:
 - **Repayment path** activated when the borrower’s repayment is attested by the **Execution State Machine (ESM)** and Authorized by the borrower and decentralized signer set using **Lin22 (threshold Schnorr)** via Coinbase [cb-mpc](https://github.com/coinbase/cb-mpc). This is the normal closure condition that releases BTC once the loan is settled.
 - **Liquidation path** activated when collateral ratio falls below the minimum threshold and signed by the decentralised signer set. The signer set, following oracle validation, can execute liquidation to settle outstanding debt by transferring discounted BTC to the Stability Pool.
 - **Timelock Exit** a long-term unilateral exit path that activates after a defined **CLTV** delay, guaranteeing non-custodial control even if all signers fail.
@@ -69,7 +68,7 @@ AND(
 3. **Monitoring** - BTC/USD oracle updates CR, state commits, debts, and Stability Pool balances.
 4. **Incremental Liquidations** - If `CR < MinCR`, signers spend via the liquidation leaf. The spend MUST produce:
    - **Stability Pool purchase** - discounted BTC to the Stability Pool.
-   - **Relock** - re-locked into a new dVault under user control.
+   - **Relock** - re-locked into a new dVault under the borrower’s control.
 5. **Repayment/Close** - Once repaid, signers co-sign the key-path spend, moving BTC as per user instructions.
 
 Each spend path is covered in detail in its own section:
