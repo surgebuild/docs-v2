@@ -85,7 +85,7 @@ export default defineConfig({
             items: [
               {
                 text: "Repayment",
-                link: "/tech/exit",
+                link: "/tech/payment",
               },
               {
                 text: "Liquidation",

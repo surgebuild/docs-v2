@@ -1,0 +1,23 @@
+---
+title: Repayment
+description: Normal closure of a dVault enforced by Taproot script and Lin22 threshold Schnorr signatures
+---
+
+# 💳 Repayment Path
+
+The **Repayment Path** is the primary Taproot leaf of a dVault. It defines how BTC leaves the vault when the loan is repaid. 
+
+There’s no bridge, contract, or wrapped asset - just a Bitcoin spend that becomes valid when the correct signatures are presented.
+
+## Script Anatomy
+
+Each repayment branch commits the following tapscript at vault creation:
+
+```bitcoin
+# Repayment leaf
+# User + signer network must co-sign with a Lin22 aggregated Schnorr key.
+# The execution layer attests repayment but cannot move funds.
+AND(
+    OP_CHECKSIG(user_pubkey),
+    OP_CHECKSIG(lin22_signer_set_key)
+)

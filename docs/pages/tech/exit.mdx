@@ -1,24 +1,31 @@
 ---
 title: Unilateral Exit
-description: 
+description: Time-locked Taproot path allowing sovereign BTC exit if signers or execution layer fail
 ---
 
 # ⏳ Unilateral Exit
 
-## Programmable Spend Paths via Taproot + MAST
-Each dVault defines **three independent spend paths**, encoded using MAST. This ensures Bitcoin-native programmability while keeping the on-chain footprint minimal.
+The **Unilateral Exit** (also called the *Timelock Exit Path*) is the final Taproot branch in every dVault. It guarantees that the vault owner can always recover their BTC, even if all signers or the Execution State Machine (ESM) become unavailable.
 
+This path enforces **sovereignty at the script level** - not by protocol promises, but by Bitcoin’s native time-lock logic.
 
-| Path | Condition | Example Script |
-|-----------------|---------------------------------------------------------------------------|----------------|
-| **Repayment** | User + Signer co-sign repayment when liabilities cleared. | `OP_CHECKSIGADD OP_EQUALVERIFY` |
-| **Liquidation** | Triggered when CR < threshold; executed via Stability Pool. | `IF <oracle_CR_check> ELSE <liquidation_branch> ENDIF` |
-| **Unilateral Exit**| Time-locked unilateral exit by user, used if signers fail. | `OP_CHECKLOCKTIMEVERIFY OP_DROP <user_pubkey> OP_CHECKSIG` |
-{/* | **Migration** | Reassigns control to a new signer set at epoch rotation. | `OP_IF <new_signer_pubkey> OP_CHECKSIG OP_ENDIF` | */}
+## Why It Exists
+All other dVault paths (Repayment and Liquidation) require multi party coordination:
+- Repayment → borrower + signers co-sign.  
+- Liquidation → signer set executes based on oracle attestations.  
 
-## Failure Modes & Recovery
-- **Signer Downtime**: Unilateral Exit allows users to unilaterally reclaim BTC after timelock expiry.
-- **Oracle Failure**: Default conservative CR assumptions are enforced until feeds recover.
-- **Execution Program Halt**: Even if off-chain execution fails, BTC remains secure under Taproot conditions
+If those external systems fail - signers go offline, oracle data stops updating, or the ESM halts - the user still needs a guaranteed way to recover funds.  
+That’s what this Taproot leaf enforces: **after a fixed delay, the user can unilaterally spend the vault**.
 
-This ensures BTC is **always retrievable**, regardless of protocol failures.
+## Script Logic
+
+The unilateral exit leaf commits a simple, auditable Bitcoin script using `OP_CHECKLOCKTIMEVERIFY (CLTV)`:
+
+```bitcoin
+# Timelock Exit Path
+# Spendable by user only after predefined timelock expiry
+AND(
+    OP_CHECKLOCKTIMEVERIFY,
+    OP_DROP,
+    OP_CHECKSIG(user_exit_key)
+)
