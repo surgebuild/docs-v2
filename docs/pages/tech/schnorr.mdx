@@ -1,17 +1,17 @@
 ---
-title: Threshold Schnorr (Lin22)
+title: Threshold Schnorr (Signer Network)
 description: Distributed Schnorr signing for Taproot vault control.
 ---
 import ZoomImage from "../../components/ZoomImage";
 
-# 👥 Threshold Schnorr (Lin22)
+# 👥 Threshold Schnorr (Signer Network)
 
 Surge implements **Lindell 2022 Multiparty Schnorr Signing (Lin22)** a threshold Schnorr signature protocol and with ideal zero-knowledge and commitment functionality this framework provides strong security, fault tolerance, and privacy. 
 
 It enables quorum-based gated spending of Taproot vaults (dVaults) without revealing the signer structure or compromising on-chain efficiency.
 
 <ZoomImage
-  src="/assets/signer-user.png"
+  src="/assets/user-signer.png"
   alt="Signer"
   width="100%"
   className="mx-auto"
@@ -25,18 +25,18 @@ It enables quorum-based gated spending of Taproot vaults (dVaults) without revea
 
 ## Why Surge Chooses Lin22
 
-<ZoomImage
-  src="/assets/Signers.png"
-  alt="Malicious Signer"
-  width="100%"
-  className="mx-auto"
-/>
-
 Surge prioritizes **reliability, accountability, and verifiability** over lowest latency.
 
 - **Trustless Coordinator** - Lin22 doesn’t rely on a trusted coordinator. Its security holds even with partial failures or adversarial behavior.
 - **Identifiable Misbehavior** - Each signer provides Fischlin Zero-Knowledge Proofs (ZKPs). If a signer cheats or aborts, the network obtains cryptographic evidence, enabling automated slashing and signer rotation.  
 - **Privacy Preserving** - The final aggregated signature is a standard Taproot compatible Schnorr signature. Vault spends are indistinguishable from single signer spends.
+
+<ZoomImage
+  src="/assets/signers.png"
+  alt="Malicious Signer"
+  width="70%"
+  className="mx-auto"
+/>
 
 Unlike FROST, where a single malicious signer can halt the session, Lin22 identifies and proves who misbehaved. Even if a round fails, it records cryptographic proof, keeping vault operations auditable and recoverable.
 
