@@ -25,9 +25,8 @@ The **Repayment Path** is the normal closure path for of a dVault. It defines ho
 ## Script Anatomy
 Each repayment branch commits the following tapscript at vault creation:
 
-```
-# Repayment leaf
-# User + signer network must co-sign with a Lin22 aggregated Schnorr key.
+```bitcoin-script
+# User + signer network both mush sign with their signature keys.
 # The execution layer attests repayment but cannot move funds.
 AND(
     OP_CHECKSIG(user_pubkey),

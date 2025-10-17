@@ -10,7 +10,7 @@ A **dVault** is a Bitcoin Taproot UTXO ([BIP341](https://en.bitcoin.it/wiki/BIP_
 - **Taproot** commits multiple spend conditions into a single address.
 - **MAST (Merkelized Alternative Script Tree)** is to enumerate different spending conditions and allow funds to be spent by satisfying any one script. Each script is a leaf in a Merkle tree, and only the executed leaf is revealed during spend. Any unused branches remain hidden.
 
-Surge uses dVaults as its **collateral engine** and BTC always remains on Bitcoin, only moving when one of the pre-committed spend conditions is satisfied.
+Surge uses dVaults as its collateral engine and BTC always remains on Bitcoin, only moving when one of the pre-committed spend conditions is satisfied.
 
 ## How dVaults are Programmed?
 
@@ -33,43 +33,38 @@ All three branches are committed at vault creation. Only the executed path is re
 ### 1. Repayment Path (Ledger Validated Unlock)
 
 ```bitcoin-script
-# Requires depositor + decentralised signer set key
+# Requires depositor + decentralised signer set key &
 # Valid only if repayment is attested by the ESM
-AND(
-    OP_CHECKSIG(user_pubkey),
-    OP_CHECKSIGADD(lin22_signer_set_key)
-    OP_2
-)
+OP_CHECKSIG(user_pubkey),
+OP_CHECKSIGADD(lin22_signer_set_key)
+OP_2
 ```
 
-### 2. Liquidation (Micro Liquidations)
+### 2. Liquidation
 
 ```bitcoin-script
 # Signers key can spend BTC if CR < MinCR
-AND(
-    OP_CHECKSIG(lin22_signer_set_key),
-)
+OP_CHECKSIG(lin22_signer_set_key),
+OP_CHECKSIGADD(oracle_attestation_signature),
 ```
 
 ### 3. Timelock Exit
 
 ```bitcoin-script
 # Depositor regains unilateral control after CLTV expiry
-AND(
-    OP_CHECKLOCKTIMEVERIFY,
-    OP_DROP,
-    OP_CHECKSIG(user_exit_key)
-)
+OP_CHECKLOCKTIMEVERIFY,
+OP_DROP,
+OP_CHECKSIG(user_exit_key)
 ```
 
 ## Vault Lifecycle
 1. **Deposit** - User locks BTC to the Taproot address.
 2. **Borrow** - Execution environment issues stablecoins against the attested deposit.
 3. **Monitoring** - BTC/USD oracle updates CR, state commits, debts, and Stability Pool balances.
-4. **Incremental Liquidations** - If `CR < MinCR`, signers spend via the liquidation leaf. The spend MUST produce:
+4. **Liquidations** - If `CR < MinCR`, signers spend via the liquidation leaf. The spend MUST produce:
    - **Stability Pool purchase** - discounted BTC to the Stability Pool.
    - **Relock** - re-locked into a new dVault under the borrower’s control.
-5. **Repayment/Close** - Once repaid, signers co-sign the key-path spend, moving BTC as per user instructions.
+5. **Repayment/Full Closure** - Once repaid, signers co-sign the key-path spend, moving BTC as per user instructions.
 
 Each spend path is covered in detail in its own section:
 - [Repayment](/tech/payment)
