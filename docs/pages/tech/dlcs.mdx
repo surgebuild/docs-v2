@@ -1,0 +1,35 @@
+---
+title: DLCs
+description: Why Discreet Log Contracts don’t fit Surge’s persistent vault model.
+---
+
+# ⚡ Why DLCs Don’t Work for Surge
+
+Discreet Log Contracts (DLCs) are a clever way to make Bitcoin respond to external data like the BTC/USD price - by letting an oracle decide which outcome becomes valid. That works well for **single-event contracts** (like “if BTC > $60k, pay Alice”), but Surge vaults are long-lived financial state machines. They need to handle multiple transactions - repayments, partial liquidations, and timeouts - from same vault address. 
+
+## 1. Outcome Explosion  
+In a DLC, every possible oracle result must be **predefined** with its own payout path. For lending, this means mapping *every* potential liquidation price to a unique address.  
+Example:
+```
+Outcome 1 → 110000k
+Outcome 2 → 109000k
+...
+Outcome 10 → 100100k ✅ (Sweep)
+```
+In a live system with continuous BTC price updates, the number of outcomes grows exponentially. Surge vaults need a **continuous collateral ratio**, not a finite list of precomputed addresses.
+
+## 2. One Keypath per Outcome  
+DLCs work by revealing a single keypath - the one matching the oracle’s outcome. Once that path is used, we can’t reuse the same address after the first event.  
+
+## 3. Non-Persistent Lifecycle  
+When a DLC settles, the address is “burned” - funds are swept, and the contract ends. A dVault keeps the same Taproot tree until final closure. Each dVault encodes its logic from the start.
+
+## Summary
+
+| Concept | DLC | dVault |
+|----------|-----|--------|
+| Outcome model | Discrete, precomputed | Continuous, protocol-driven |
+| Keypath usage | One per outcome | Multiple reusable paths |
+| Lifecycle | Single-use | Persistent |
+| Oracle role | Executes payout | Attests to state |
+| Address model | Burns on settle | Lives until closure |
