@@ -1,0 +1,122 @@
+---
+title: ⚙️ Liquidity Management & Stability Pools
+description: Deterministic routing and liquidation flow for stablecoin settlement and BTC recovery.
+---
+
+# ⚙️ Liquidity Management & Stability Pools
+
+Surge’s liquidity layer connects **cross-chain stablecoin routing** with **on-chain collateral management**.  
+While stablecoins move freely across networks, all liquidation and recovery activity resolves through the **canonical Stability Pool** - the protocol’s equilibrium mechanism for BTC-backed solvency.
+
+## 1. Stablecoin Routing
+Stablecoin routing ensures a unified, auditable supply across multiple networks (Ethereum, Base, Arbitrum, Optimism, etc.) while keeping Surge’s BTC collateral anchored on Bitcoin.
+
+### Core Principles
+- **Canonical Supply** Stablecoins remain native - no synthetic or wrapped representations. Supply consistency is verified directly from issuer attestations.
+- **Adapter-Based Routing** Modular integration with adapters (e.g., **CCTPv2**) allows deterministic burn-and-mint settlement between chains under issuer authorization.
+- **Deterministic Settlement** Transfers finalize through signed attestations verifiable on-chain, ensuring mint/burn parity and preventing double liquidity issuance.
+- **Settlement Finality** All mints require issuer-signed proof; once confirmed, tokens on the destination chain are treated as canonical supply.
+
+This design keeps liquidity **fungible, auditable, and settlement-grade**, aligning with institutional requirements for verifiable cross-chain balance sheets.
+
+
+## 2. Canonical Stability Pool
+
+The **Stability Pool** is the canonical clearinghouse for all liquidation and recovery events.  
+It absorbs undercollateralized debt using stablecoin liquidity and receives discounted BTC tranches in return.
+
+| Component | Function |
+|------------|-----------|
+| **Stability Pool** | Primary settlement contract for liquidation and BTC recovery |
+| **Liquidation Trigger** | Initiated when Collateral Ratio (CR) < MinCR, validated by oracles |
+| **BTC Distribution** | Discounted BTC transferred to pool depositors proportional to stake |
+
+The Stability Pool thus acts as **systemic insurance**, guaranteeing that bad debt is cleared instantly and without external liquidator competition.
+
+## 3. Micro Liquidation Logic
+
+Micro Liquidations are **partial, iterative adjustments** of vault collateral designed to maintain solvency smoothly rather than abruptly.  
+Each iteration cancels a fraction of the vault’s debt and transfers a corresponding BTC slice to the Stability Pool.
+
+### Parameters
+
+| Symbol | Description | Example |
+|--------|--------------|----------|
+| \( B \) | Collateral BTC | 0.28483537 |
+| \( P \) | Current BTC price after drop | $69,000 |
+| \( D \) | Outstanding debt (USDC) | $11,200 |
+| \( \ MinCR \) | Liquidation threshold | 1.50 |
+| \( \RecCR \) | Recovery target after liquidation | 1.70 |
+| \( s \) | Stability pool discount | 0.05 |
+
+### Step 1 - Check if liquidation is required
+
+Calculate the current collateral ratio (CR) by dividing the collateral value (B × P) by the outstanding debt (D).
+
+If CR ≥ MinCR, do nothing.  
+Otherwise, proceed to compute the micro liquidation delta.
+
+
+### Step 2 - Compute debt to cancel
+
+Calculate the amount of debt (ΔD) to be canceled using the formula: ΔD = (RecCR × D - B × P) / (RecCR - 1/(1-s))
+
+Clamp ΔD between [0, D].  
+This defines the amount of stablecoin the Stability Pool must provide to restore CR ≈ RecCR.
+
+
+### Step 3 - Compute BTC sent to pool
+
+Calculate the BTC amount sent to the pool: BTC_pool = ΔD / (P × (1-s))
+
+Clamp BTC_pool ≤ B.
+
+
+### Step 4 - Post-liquidation state
+
+After liquidation:
+- D_post = D - ΔD
+- B_post = B - BTC_pool  
+- CR_post = (B_post × P) / D_post ≈ RecCR
+
+Vault solvency is restored, and liquidation proceeds are distributed to the Stability Pool.
+
+
+## 4. Numerical Example
+
+| Metric | Before | After |
+|---------|---------|--------|
+| BTC Price | $70,000 | $63,000 |
+| Collateral BTC | 0.2848 | 0.2355 |
+| Collateral Value | $20,000 | $14,832 |
+| CR | 198% | 151% |
+| ΔD (Debt canceled) | – | $8,151 |
+| BTC to Stability Pool | – | 0.0499 |
+| Post CR | – | 151.7% |
+| Post LTV | – | 65.9% |
+
+The system cancels ~$8.1k of debt, sends 0.0499 BTC (discounted 5%) to the Stability Pool, and restores the vault to its recovery CR target (~1.7× collateralization).
+
+
+## 5. Post-Liquidation Flow
+
+1. **Trigger Event** - Oracle attests.  
+2. **ESM Authorization** - Executes liquidation transaction, computing.  
+3. **Stability Pool Settlement** - Stablecoins are burned; BTC is sent at discount.  
+4. **Re-Vaulting** - Remaining BTC automatically re-locked into a fresh dVault (same template, incremented nonce).  
+5. **Ledger Update** - ESM emits `LiquidationExecuted` and updates vault state.
+
+
+## 6. Design Outcome
+
+- **Continuous Solvency** - No full liquidations; risk is amortized.  
+- **Predictable Market Behavior** - Eliminates liquidation cascades.  
+- **Transparent Accounting** - Every liquidation step logged and replayable via on-chain events.  
+- **Institutional Stability** - Ensures system-wide CR remains deterministic and auditable.
+
+
+### Cross-Link
+
+- [dVaults](/tech/dvaults) - Script-level spend paths  
+- [Repayment](/tech/repayment) - Normal closure logic  
+- [Oracle System](/tech/oracle-system) - Medianized BTC/USD feed

@@ -115,7 +115,7 @@ export default defineConfig({
 
           {
             text: "Liquidity Management & Stability Pools",
-            link: "/tech/cross-chain-settlement",
+            link: "/tech/liquidity-pools",
           },
           {
             text: "Oracle System",
