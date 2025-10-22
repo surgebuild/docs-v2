@@ -26,7 +26,7 @@ The **Repayment Path** is the normal closure path for of a dVault. It defines ho
 Each repayment branch commits the following tapscript at vault creation:
 
 ```bitcoin-script
-# User + signer network both mush sign with their signature keys.
+# User + signer network both must sign with their signature keys.
 # The execution layer attests repayment but cannot move funds.
 AND(
     OP_CHECKSIG(user_pubkey),

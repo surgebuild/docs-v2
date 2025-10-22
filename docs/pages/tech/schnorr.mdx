@@ -73,9 +73,9 @@ Two major threshold Schnorr constructions were evaluated:
 ## Example: 3 of 4 Signing
 
 - **FROST** → If a signer submits invalid data (e.g., a bad signature share), the session aborts. The honest participants cannot complete the signature. Need to trust coordinator to remove malicious signer.
-- **Lin22** → If a signer misbehaves, their ZK proof (included in the protocol) reveals them as malicious to the network. The session aborts, but with publicly verifiable evidence of who misbehaved. this will help for slashing and signature share rotation.
+- **Lin22** → If a signer misbehaves, their ZK proof (included in the protocol) reveals them as malicious to the network. The session aborts, but with publicly verifiable evidence of who misbehaved. This will help for slashing and signature share rotation.
 
-**dVault remains operable even under Byzantine conditions.**, ensuring both fault-tolerance and cryptographic accountability.
+**dVault remains operable even under Byzantine conditions,** ensuring both fault-tolerance and cryptographic accountability.
 
 ---
 
