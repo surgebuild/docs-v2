@@ -98,23 +98,16 @@ export default defineConfig({
             ],
           },
           {
-            text: "Threshold Schnorr (Signer Network)",
+            text: "Threshold Schnorr",
             link: "/tech/schnorr",
           },
           {
             text: "Execution State Machine",
             link: "/tech/execution",
-            // collapsed: true,
-            // items: [
-            //   {
-            //     text: "Oracle System",
-            //     link: "/tech/oracles",
-            //   },
-            // ],
           },
 
           {
-            text: "Liquidity Management & Stability Pools",
+            text: "Liquidity Management",
             link: "/tech/liquidity-pools",
           },
           {
