@@ -21,6 +21,6 @@ A dVault is controlled by the user and the **signer network**. Both must provide
 
 Surge uses an Execution State Machine (ESM) to coordinate vault logic and monitor collateral health. The ESM functions as a **deterministic coordination layer** operated by decentralized signer nodes. It observes Bitcoin vault data, oracle price attestations, and signer proofs, then produces **verifiable state commitments** when spend conditions are satisfied.
 
-When a vault’s collateral ratio (CR) drops below its safety threshold, the **liquidation path** activates automatically.  BTC is spent to a **stability pool**, which absorbs the outstanding debt and receives BTC at a discount.  Other paths **repayment** and **time locked recovery (Unilateral exit)** are enforced directly through Taproot conditions, ensuring execution by code, not trust.  
+When a vault’s collateral ratio (CR) drops below its safety threshold, the **liquidation path** activates automatically.  BTC is spent to a **unified liquidity pool**, which absorbs the outstanding debt and receives BTC at a discount.  Other paths **repayment** and **time locked recovery (Unilateral exit)** are enforced directly through Taproot conditions, ensuring execution by code, not trust.
 
-**Oracles** supply signed BTC/USD price feeds to the ESM. Signer nodes verify these updates before they modify vault state. Oracles cannot move funds, they only inform collateral calculations.  
+**Oracles** supply signed BTC/USD price feeds to the ESM. Signer nodes verify these updates before they modify vault state. Oracles cannot move funds, they only inform collateral calculations.

@@ -16,7 +16,7 @@ Surge uses dVaults as its collateral engine and BTC always remains on Bitcoin, o
 
 A dVault locks BTC in a single encoded public key(PT2R) with multiple **spend paths**:
 - **Repayment path** activated when the borrower’s repayment is attested by the **Execution State Machine (ESM)** and Authorized by the borrower and decentralized signer set using **Lin22 (threshold Schnorr)** via Coinbase [cb-mpc](https://github.com/coinbase/cb-mpc). This is the normal closure condition that releases BTC once the loan is settled.
-- **Liquidation path** activated when collateral ratio falls below the minimum threshold and signed by the decentralised signer set. The signer set, following oracle validation, can execute liquidation to settle outstanding debt by transferring discounted BTC to the Stability Pool.
+- **Liquidation path** activated when collateral ratio falls below the minimum threshold and signed by the decentralised signer set. The signer set, following oracle validation, can execute liquidation to settle outstanding debt by transferring discounted BTC to the Unified Liquidity Pool.
 - **Timelock Exit** a long-term unilateral exit path that activates after a defined **CLTV** delay, guaranteeing non-custodial control even if all signers fail.
 
 All three branches are committed at vault creation. Only the executed path is revealed during a spend.
@@ -60,9 +60,9 @@ OP_CHECKSIG(user_exit_key)
 ## Vault Lifecycle
 1. **Deposit** - User locks BTC to the Taproot address.
 2. **Borrow** - Execution environment issues stablecoins against the attested deposit.
-3. **Monitoring** - BTC/USD oracle updates CR, state commits, debts, and Stability Pool balances.
+3. **Monitoring** - BTC/USD oracle updates CR, state commits, debts, and Unified Liquidity Pool balances.
 4. **Liquidations** - If `CR < MinCR`, signers spend via the liquidation leaf. The spend MUST produce:
-   - **Stability Pool purchase** - discounted BTC to the Stability Pool.
+   - **Unified Liquidity Pool exchange** - discounted BTC transferred to the pool in exchange for proportional stablecoin debt cancellation.
    - **Relock** - re-locked into a new dVault under the borrower’s control.
 5. **Repayment/Full Closure** - Once repaid, signers co-sign the key-path spend, moving BTC as per user instructions.
 

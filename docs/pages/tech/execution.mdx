@@ -28,7 +28,7 @@ This guarantees that liabilities within Surge are always corresponds to **native
 A confirmed state transition finalizes a **state root** that encodes:
 - Vault positions and collateral ratios.  
 - Active signer set and epoch key.  
-- Stability Pool balances and stablecoin liabilities
+- Unified Liquidity Pool balances and stablecoin liabilities
 
 BTC spends from a dVault are only valid if the signer set signs under the **aggregate Lin22 Schnorr key** bound to this state root. This creates a cryptographic anchor, BTC collateral cannot move unless the Execution Program has verified and authorizes it.
 

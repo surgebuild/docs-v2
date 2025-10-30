@@ -1,6 +1,6 @@
 ---
 title: Deterministic Liquidation
-description: Taproot-based Bitcoin vaults that enforce deterministic liquidation and non-custodial collateral management
+description: Bitcoin Taproot vaults that enforce deterministic liquidation and non-custodial collateral management
 ---
 
 # 🎯 Deterministic Liquidation for Locked Bitcoin
@@ -39,7 +39,7 @@ When `CR < MCR (Minimum Collateral Ratio)`:
 2. The coordination middleware publishes the corresponding liquidation instruction.
 3. Signers reconstruct the PSBT based on committed vault parameters.
 4. The signer quorum co-sign and broadcasts the transaction to Bitcoin.
-5. Liquidated BTC is sent to the **Stability Pool**.
+5. Liquidated BTC is sent to the **Unified Liquidity Pool**, which cancels an equivalent amount of stablecoin debt to restore solvency.
 6. Remaining BTC is **re-locked** into a new dVault UTXO under the same script conditions with an incremented nonce.
 This process enables **micro-lot liquidation**, minimizing borrower losses and preventing cascading liquidations during volatility.
 
@@ -47,4 +47,4 @@ This process enables **micro-lot liquidation**, minimizing borrower losses and p
 - **Non-Custodial:** BTC remains locked in Taproot vaults on Bitcoin, only user + signer quorum or timelock can move funds.  
 - **Deterministic:** All state transitions and PSBTs are reproducible and verifiable across signers.  
 - **Censorship-Safe:** Borrowers can always reclaim funds through the Escape path after timelock expiry.  
-- **Stablecoin ready:** Liquidation proceeds automatically flow into the Stability Pool, powering BTC-backed stablecoin liquidity.
+- **Unified Liquidity:** Liquidation proceeds flow directly into the Unified Liquidity Pool, reconciling BTC collateral and stablecoin liabilities within a single deterministic ledger.
