@@ -47,59 +47,29 @@ export default function LockScreen({ onUnlock }: LockScreenProps) {
           {/* Logo and Branding */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
-              <img
-                className="h-16 w-auto logo-light dark:hidden"
-                src="/logo/surge-icon-rec-light.svg"
-                alt="Surge Logo"
-              />
-              <img
-                className="h-16 w-auto logo-dark hidden dark:block"
-                src="/logo/surge-icon-rec-dark.svg"
-                alt="Surge Logo"
-              />
+              <img className="h-16 w-16 logo-light dark:hidden" src="/logo/surge-icon-rec-light.svg" alt="Surge Logo" />
+              <img className="h-16 w-16 logo-dark hidden dark:block" src="/logo/surge-icon-rec-dark.svg" alt="Surge Logo" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              Surge Documentation
-            </h1>
-            <p className="text-gray-600 dark:text-gray-300 text-sm">
-              Unlocking Bitcoin's Lending Future
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Surge Documentation</h1>
+            <p className="text-gray-600 dark:text-gray-300 text-sm">Bitcoin Native Credit Line</p>
           </div>
 
           {/* Password Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Enter Password to Continue
               </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#f4431b] focus:border-transparent bg-white dark:bg-[#0d1111] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
-                placeholder="Enter access password"
-                required
-                disabled={isLoading}
-              />
+              <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#f4431b] focus:border-transparent bg-white dark:bg-[#0d1111] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200" placeholder="Enter access password" required disabled={isLoading} />
             </div>
 
             {error && (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
-                <p className="text-red-600 dark:text-red-400 text-sm">
-                  {error}
-                </p>
+                <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={isLoading || !password.trim()}
-              className="auth-btn"
-            >
+            <button type="submit" disabled={isLoading || !password.trim()} className="auth-btn">
               {isLoading ? (
                 <div className="flex items-center justify-center">
                   <div className="shimmer-effect mr-2"></div>
@@ -113,9 +83,7 @@ export default function LockScreen({ onUnlock }: LockScreenProps) {
 
           {/* Footer */}
           <div className="mt-8 text-center">
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Secure access to Surge's technical documentation
-            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Secure access to Surge's technical documentation</p>
           </div>
         </div>
       </div>
