@@ -172,7 +172,7 @@ export default defineConfig({
     },
     {
       icon: "x",
-      link: "https://x.com/surgebuild",
+      link: "https://x.com/surge_credit",
     },
     // {
     //   icon: "telegram",
