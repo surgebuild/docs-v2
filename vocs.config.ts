@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export default defineConfig({
-  description: "Bitcoin Native Credit Line. Secure Bitcoin collateral system with Taproot UTXOs, MPC signers, and decentralized lending infrastructure.",
+  description: "Bitcoin Native Credit Line. Secure Bitcoin collateral system with Taproot UTXOs, Decentralized Signers, and Credit line infrastructure.",
   logoUrl: {
     light: "/logo/surge-icon-rec-light.svg",
     dark: "/logo/surge-icon-rec-dark.svg",
@@ -19,7 +19,7 @@ export default defineConfig({
     accentColor: "#f4431b",
     // colorScheme: "dark",
   },
-  title: "Surge - Bitcoin's Lending Future",
+  title: "Surge - Bitcoin-native Credit Line",
   sidebar: {
     "/": [
       {
