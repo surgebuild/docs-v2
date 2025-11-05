@@ -50,7 +50,7 @@ export default function LockScreen({ onUnlock }: LockScreenProps) {
               <img className="h-16 w-16 logo-light dark:hidden" src="/logo/surge-icon-rec-light.svg" alt="Surge Logo" />
               <img className="h-16 w-16 logo-dark hidden dark:block" src="/logo/surge-icon-rec-dark.svg" alt="Surge Logo" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Surge Documentation</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Surge Docs</h1>
             <p className="text-gray-600 dark:text-gray-300 text-sm">Bitcoin Native Credit Line</p>
           </div>
 
@@ -76,14 +76,14 @@ export default function LockScreen({ onUnlock }: LockScreenProps) {
                   Verifying...
                 </div>
               ) : (
-                "Access Documentation"
+                "Access Docs"
               )}
             </button>
           </form>
 
           {/* Footer */}
           <div className="mt-8 text-center">
-            <p className="text-xs text-gray-500 dark:text-gray-400">Secure access to Surge's technical documentation</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Secure access to Surge's technical docs</p>
           </div>
         </div>
       </div>

@@ -63,7 +63,7 @@ img {
   color: #fff;
 }
 .vocs_Sidebar .vocs_Sidebar_logo a:after {
-  content: "Surge Documentation"; /* Add the text next to the logo */
+  content: "Surge Docs"; /* Add the text next to the logo */
   font-size: 16px;
   font-weight: 600;
   font: "Inter";

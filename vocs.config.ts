@@ -34,11 +34,7 @@ export default defineConfig({
             link: "/overview/bitcoin-lending-landscape",
           },
           {
-            text: "Underserved Bitcoin Majority",
-            link: "/overview/challenges",
-          },
-          {
-            text: "Stablecoins adoption",
+            text: "Stablecoin Adoption",
             link: "/overview/stablecoins",
           },
         ],

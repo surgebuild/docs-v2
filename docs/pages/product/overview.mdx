@@ -7,13 +7,23 @@ import ZoomImage from "../../components/ZoomImage";
 
 
 # 🖼️ Product Overview
-Surge is fundamentally a decentralized lending marketplace, where Bitcoiners, stablecoin holders, and infrastructure providers collaborate to enable transparent, on-chain lending - without intermediaries.
+Surge is a Bitcoin-native credit line powered an advanced multisig wallet, where every credit line is a dedicated vault with two parties: the Bitcoiner and a distributed signer network that manages liquidity and enforces loan logic.
 
-The Surge product suite comprises three core interfaces:
+## How it Works
+Each Bitcoiner sends BTC to a unique dVault, a Taproot-based, programmable vault secured via a threshold signature network (lin22). 
+This vault enforces three deterministic spending paths:
 
-- **Borrow Interface** for Bitcoiners seeking liquidity against their BTC
-- **LPs Interface** for stablecoin holders and LPs looking to earn yield
-- **Infra Provider Tools** for validators, signers, and network operators powering the decentralized backend
+1. **Voluntary Repayment:** If no credit is drawn, or once the borrower repays, they can withdraw BTC directly—without signer intervention.
+2. **Liquidation:** If the loan health drops below safe thresholds, the signer network can co-sign a liquidation transaction, only when validated by external oracle attestations.
+3. **Time-Locked Recovery:** If the system becomes unresponsive or signer nodes go offline, the BTC auto-returns to the user’s wallet after a pre-set time lock.
+
+This ensures that funds are always:
+- Non-custodial – user remains in control
+- Verifiably on-chain – visible and auditable at all times
+- Decentralized – signer network is distributed and economically aligned
+
+Once the BTC is locked, stablecoin liquidity is released from Ethereum-based pools (starting with USDC, USDT), sent directly to the borrower. 
+It’s a peer-to-pool system where Bitcoiners tap liquidity, and LPs earn yield, with infrastructure ensuring safety and execution.
 
 <ZoomImage
   src="/assets/overview.png"
@@ -22,15 +32,11 @@ The Surge product suite comprises three core interfaces:
   className="mx-auto"
 />
 
-At the core of all this is dVaults, decentralized, programmable Bitcoin vaults built using Tapscript and secured via lin22, a threshold schnorr signature protocol. 
-These vaults ensure Bitcoin stays verifiably on-chain and unrehypothecated.
+## Interface Suite
 
-:::info[Deterministic Liquidation]
-Each dVault encodes deterministic spend paths (Repay, Liquidate, Escape) and a pre-committed PSBT template. If a borrower defaults, liquidation follows these pre-defined, verifiable conditions.  
-[Learn more →](/tech/dvaults-liquidation)
-:::
+Surge has three core interfaces, each designed for a key participant:
+- **Bitcoiners:** Access their credit line via Surge’s mobile app (iOS, Android; PWA coming soon). No paperwork, no middlemen, just verifiable BTC and instant stablecoin access.
+- **Liquidity Providers:** Contribute stablecoins into pools, earn fixed yields, and optionally run signer nodes to power the system and earn protocol fees.
+- **Network Verifiers & Builders:** Access technical data, audit trails, oracle feeds, system status, and open-source repos via surge.build, our transparency hub.
 
-Another critical innovation is Surge’s Bitcoin-aware execution state, which manages the lending lifecycle - origination, repayment, liquidation - on-chain, 
-cutting out the need for manual oversight or off-chain risk.
-
-In the following sections, we’ll dive into the key features of each product interface and how they work together to create a new standard for Bitcoin-native lending.
+Surge is built ground-up for trust-minimized lending, where users verify everything on-chain, and no one can touch their Bitcoin without following predefined, public rules.

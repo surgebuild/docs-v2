@@ -9,38 +9,28 @@ import ZoomImage from "../../components/ZoomImage";
 # 🗺️ Market Landscape
 ## Market Context
 
-It’s difficult to estimate the true size of the Bitcoin-backed lending market due to its centralized nature. Most platforms are opaque - lacking public proof-of-reserve disclosures or any on-chain verification mechanisms. 
-That’s part of the problem. However, this is a large and growing market. The first product in this space dates back to 2014 and still operates today.
+It’s difficult to estimate the true size of the Bitcoin-backed lending market due to its centralized nature. Most platforms offer no public proof-of-reserves or on-chain visibility, making analysis challenging. Still, this market is substantial, with products dating back to 2014.
 
-We conducted a comprehensive analysis of over twenty players in this space. The summary below captures the structure and insights we uncovered. 
-You’ll find the full dataset in the resources section.
+We analyzed over 20 players and identified key patterns. The summary below outlines those findings. You’ll find the full dataset in the resources section.
 
-## Market Categorization
-
-The Bitcoin-backed lending market can be divided into three main categories - based on who holds custody of your Bitcoin. 
-Like with all lending products, the difference in DeFi comes down to on-chain transparency - the ability to verify the existence and movement of collateral.
-
-Due to Bitcoin’s limited programmability, custody has remained centralized for the most part. 
-So we classify players primarily based on how they manage Bitcoin custody:
+## Market Categorization 
+Based on Custody Model 👇
 
 ### CeFi Platforms
 These platforms take full custody of your Bitcoin either directly or via a group of trusted institutions using multi-institution custody (MIC) models. 
 This category dominates the market and includes regulated entities. However, most of these platforms are still black boxes, offering little or no transparency. 
-Users are expected to trust the regulators and custodians.
 
 ### Bitcoin DeFi Models (Multisig, P2P, DLCs)
 Emerging platforms in this space leverage Bitcoin-native scripting: multisigs, Discreet Log Contracts (DLCs), and now Tapscript. These models appeal to Bitcoiners with smaller holdings (often below ten BTC). 
 While adoption is growing, their programmability and UX are still limited compared to EVM-based ecosystems.
 
 ### Wrapped BTC on other chains
-This market is sizable, with WBTC being the dominant wrapped asset, followed by cbBTC, tBTC, and others. These models use custodians like BitGo to lock BTC and mint wrapped versions for use in ecosystems like Ethereum or Stacks. 
+This market is sizable, with WBTC being the dominant wrapped asset, followed by cbBTC, BTCb, tBTC, and others. These models use custodians like BitGo to lock BTC and mint wrapped versions for use in ecosystems like Ethereum or Base. 
 While the smart contracts live on these chains, the BTC itself is held by third parties, making it difficult to classify as true DeFi from a Bitcoin perspective.
-
-_The visual breakdown below illustrates the diversity of players and tech stacks in this market_:
 
 <ZoomImage
   src="/assets/cefi.png"
-  alt="Bitcoin lending landscape"
+  alt="The visual below highlights key players across each category"
   width="100%"
   className="mx-auto"
 />
@@ -54,7 +44,28 @@ _The visual breakdown below illustrates the diversity of players and tech stacks
 - **Access is limited:** Many platforms cater to HNWIs or institutions, sidelining everyday Bitcoiners (less than ten BTC) who face higher borrowing costs and fewer options.
 - **Decentralized platforms are gaining ground:** A wave of new entrants is adopting trust-minimized infrastructure and on-chain verification. While still early, this category is poised to disrupt the current centralized players.
 
+## What’s Missing in Bitcoin Lending?
+We’ve created a new visual map that charts Bitcoin-backed lending platforms across two axes:
+- X-Axis: Market Focus from HNWIs to Grassroots Bitcoiners
+- Y-Axis: Custody Model from Full Custody to Self-Custody
+
+<ZoomImage
+  src="/assets/market_map.png"
+  alt="This view helps understand how players position themselves in terms of accessibility and transparency."
+  width="100%"
+  className="mx-auto"
+/>
+
+## We also introduce a new category
+Surge doesn’t just fit into the existing categories—it reimagines the model entirely:
+
+- Non-custodied BTC in verifiable, non-rehypothecated dVaults
+- Open lending markets for rate discovery and fair access
+- Programmable loan terms enforced on-chain
+
+It’s not a CeFi platform. It’s not DeFi built elsewhere. It’s a **Bitcoin-native Credit Line**, a fundamentally new design
+
 ## Resources
 - [Bitcoin Lending Platforms Comparison Table](https://surgehq.notion.site/263232deac9080e3a6a3f9f040047105?v=263232deac90803bbf49000c80e4431b)  
-- [In-depth Breakdown: Bitcoin-backed Lending Market](https://metabitcoiner.substack.com/p/bitcoin-lending-landscape)  
+- [In-depth Breakdown: Bitcoin-backed Lending Market](https://onchainbitcoin.substack.com/p/bitcoin-lending-landscape)  
 
