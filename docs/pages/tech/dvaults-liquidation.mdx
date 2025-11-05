@@ -5,7 +5,7 @@ description: Bitcoin Taproot vaults that enforce deterministic liquidation and n
 
 # 🎯 Deterministic Liquidation for Locked Bitcoin
 
-*dVaults* are Taproot-based Bitcoin vaults that enforce deterministic liquidation and non-custodial collateral management. Which encodes three spend paths:
+*dVaults* are Taproot-based Bitcoin vaults that enforce deterministic liquidation and non-custodial collateral management. Each vault encodes three spend paths:
 1. **Repay** - borrower + signer authorization.  
 2. **Liquidate** - signer-only authorization when collateral falls below the minimum ratio.  
 3. **Escape** - borrower-only fallback after a time-based lock (censorship safety).
@@ -25,12 +25,11 @@ This middleware acts as an *execution oracle* that coordinates signer actions wi
 
 ## Signer Verification 
 Each signer independently validates before co-signing:
-- The PSBT matches a committed deterministic template.  
-- Inputs correspond to the correct dVault UTXO and MAST leaf.  
-- Outputs are not controlled by signers.  
-- Input parameters align with pre-committed liquidation rules.  
-- Oracle data used is within deviation limits.  
-- Escape timelock has not expired.
+- Verify that inputs correspond to the correct dVault UTXO and MAST leaf.  
+- Ensure outputs are not controlled by signers.  
+- Confirm input parameters align with pre-committed liquidation rules.  
+- Check that oracle data remains within deviation limits.  
+- Verify that the escape timelock has not expired.
 If any rule fails, **no signature is produced** preventing arbitrary spending.
 
 ## Liquidation Flow
@@ -39,7 +38,7 @@ When `CR < MCR (Minimum Collateral Ratio)`:
 2. The coordination middleware publishes the corresponding liquidation instruction.
 3. Signers reconstruct the PSBT based on committed vault parameters.
 4. The signer quorum co-sign and broadcasts the transaction to Bitcoin.
-5. Liquidated BTC is sent to the **Unified Liquidity Pool**, which cancels an equivalent amount of stablecoin debt to restore solvency.
+5. Liquidated BTC is routed to the **Unified Liquidity Pool**, which cancels an equivalent amount of stablecoin debt to restore solvency.
 6. Remaining BTC is **re-locked** into a new dVault UTXO under the same script conditions with an incremented nonce.
 This process enables **micro-lot liquidation**, minimizing borrower losses and preventing cascading liquidations during volatility.
 

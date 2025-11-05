@@ -6,11 +6,15 @@ import ZoomImage from "../../components/ZoomImage";
 
 # 🔧 Technical Overview
 
-Surge is a Bitcoin-native credit line built around programmable Taproot vaults, called **dVaults**. 
+Surge is a Bitcoin-native credit line built on **programmable Taproot vaults**, called **dVaults**. 
 
-Each dVault locks BTC under predefined scripted conditions that allow repayment, liquidation, & unilateral exit. All logic is enforced by Bitcoin script, without wrapped assets or custodians.
+Each dVault locks BTC under predefined scripted conditions that allow repayment, liquidation, & unilateral exit. All logic is enforced by Bitcoin script, no wrapped assets or no custodians.
 
-A dVault is controlled by the user and the decentralized **signer network**. Both must provide Schnorr signatures to authorize any movement of BTC, ensuring coordination without compromising user custody.
+A dVault is co-manged by the user and the signer network. 
+- **The User**, who provides BTC as collateral
+- **The Signer Network**, a decentralized set of threshold signers that validate state transitions. 
+
+Both must provide Schnorr signatures to authorize any movement of BTC, ensuring coordination without compromising user custody.
 
 <ZoomImage
   src="/assets/arch_overview.png"

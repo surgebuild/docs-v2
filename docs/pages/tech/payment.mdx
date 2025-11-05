@@ -3,19 +3,19 @@ title: Repayment
 description: Normal closure of a dVault enforced by Taproot script and Lin22 threshold Schnorr signatures
 ---
 
-# 💳 Repayment Path
+# 💰 Repayment Path
 
-The **Repayment Path** is the normal closure path for of a dVault. It defines how BTC leaves the vault when the loan is repaid. There’s no bridge, contract, or wrapped asset - just a Bitcoin spend that becomes valid when the correct signatures are presented.
+The **Repayment Path** is the normal closure path of a dVault. It defines how BTC leaves the vault when the loan is repaid. There’s no bridge, contract, or wrapped asset - only a Bitcoin spend that becomes valid once the correct signatures are presented.
 
 ## How It Works
 
 1. **Debt Reduction**
-   - The borrower sends stablecoins (e.g., USDC) to the protocol treasury via the `Repay()` function.
+   - The borrower repays stablecoins (e.g., USDC) to the protocol treasury via the `Repay()` function.
    - The Execution Layer validates the transfer and updates the `debtUsd` field of the vault ledger.
 
 2. **Collateral Unlock**
    - Once the repayment is confirmed, a release signal is emitted for a proportional BTC amount.
-   - Signers verify the repayment event and co-sign a spend via the **Repayment ScriptPath** inside the Taproot tree.
+   - Signers verify the repayment event and co-sign a spend via the **Repayment ScriptPath** inside the Taproot tree. They cannot trigger this spend independently - the borrower’s authorization is always required.
 
 3. **Full Repayment**
    - When total `debtUsd = 0`, the dVault can be fully unlocked.
