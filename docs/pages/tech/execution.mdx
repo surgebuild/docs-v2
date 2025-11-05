@@ -4,7 +4,7 @@ description: Deterministic contract layer coordinating BTC vault state, signer a
 ---
 
 # ⚙️ Execution State Machine
-The **Execution State Machine (ESM)** functions as Surge’s canonical ledger for **BTC-backed liabilities**.  
+The **Execution State Machine (ESM)** functions as canonical ledger for **BTC-backed liabilities**.  
 It connects Bitcoin vaults, signer sets, and stablecoin issuance through deterministic state transitions, ensuring BTC collateral can only move when programmatic conditions are satisfied.
 
 The ESM defines *authorization logic* for Bitcoin spends, while the actual spend construction and signing occur in the **[Deterministic Liquidation](/tech/dvaults-liquidation)** module.
@@ -22,7 +22,7 @@ The ESM is natively coupled to Bitcoin:
 - **Oracle Feeds**: Medianized BTC/USD prices from trusted providers update collateral ratios in real time.
 - **Bitcoin Attestations**: Inclusion proofs for Taproot UTXOs and spends confirmations are submitted to ESM, ensuring the on-chain records mirrors actual Bitcoin state.
 
-This guarantees that liabilities within Surge are always corresponds to **native Bitcoin collateral**, never synthetic or wrapped assets.
+This guarantees that liabilities within application are always corresponds to **native Bitcoin collateral**, never synthetic or wrapped assets.
 
 ## State Root Commitments
 A confirmed state transition finalizes a **state root** that encodes:

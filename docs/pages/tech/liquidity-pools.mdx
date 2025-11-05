@@ -22,17 +22,17 @@ This design keeps liquidity **fungible, auditable, and settlement-grade**, align
 
 ## 2. Unified Liquidity Pool
 
-The **Unified Liquidity Pool** serves both lending and liquidation purposes.
+The **Unified Liquidity Pool** serves both credit and liquidation purposes.
 For liquidation it absorbs undercollateralized debt using stablecoin liquidity and receives discounted BTC tranches in return.
 
 | Component | Function |
 |------------|-----------|
-| **Unified Liquidity Pool** | Primary source of funds for lending and liquidation |
+| **Unified Liquidity Pool** | Primary source of funds for credit and liquidation |
 | **Liquidation Trigger** | Initiated when Collateral Ratio (CR) < MinCR, validated by oracles |
 | **Reserved Liquidity** | Deterministic buffer allocated for liquidation events |
 | **BTC Distribution** | Discounted BTC transferred to pool depositors proportional to stake |
 
-The Execution State Machine dynamically partitions liquidity between Lending Liquidity and Reserved Liquidity based on real-time collateral conditions.  
+The Execution State Machine dynamically partitions liquidity between Credit Liquidity and Reserved Liquidity based on real-time collateral conditions.  
 
 ## 3. Micro Liquidation Logic
 
