@@ -56,12 +56,12 @@ export default defineConfig({
                 link: "/product/for-bitcoiners",
               },
               {
-                text: "For Stablecoin Holders",
-                link: "/product/for-stablecoiners",
+                text: "For Liquidity Providers",
+                link: "/product/for-liquidity-providers",
               },
               {
-                text: "For Infra Providers",
-                link: "/product/providers",
+                text: "For Everyone",
+                link: "/product/for-everyone",
               },
             ],
           },
