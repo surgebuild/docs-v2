@@ -30,7 +30,7 @@ A confirmed state transition finalizes a **state root** that encodes:
 - Active signer set and epoch key.  
 - Unified Liquidity Pool balances and stablecoin liabilities
 
-BTC spends from a dVault are only valid if the signer set signs under the **aggregate Lin22 Schnorr key** bound to this state root. This creates a cryptographic anchor, BTC collateral cannot move unless the Execution Program has verified and authorizes it.
+BTC spends from a dVault are only valid if the signer set signs under the **aggregate threshold Schnorr key** bound to this state root. This creates a cryptographic anchor, BTC collateral cannot move unless the Execution Program has verified and authorizes it.
 
 ## Oracle Integration
 The ESM depends on a Native Oracle Hub to monitor BTC/USD prices and enforce collateralization rules.  

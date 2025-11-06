@@ -18,7 +18,7 @@ Liquidations are **triggered by the Execution State Machine (ESM)**, which emits
 A deterministic coordination program (middleware) runs on EVM-compatible infrastructure.
 - Tracks vault collateral, debt, and oracle state.  
 - Emits deterministic liquidation instructions (“liquidate 0.02 BTC lot”).  
-- Cannot move BTC directly, it only attests valid liquidation conditions to the **Lin22 signer quorum**.  
+- Cannot move BTC directly, it only attests valid liquidation conditions to the **signer quorum**.  
 - Every state change is verifiable and reproducible across signers.
 
 This middleware acts as an *execution oracle* that coordinates signer actions without custodial control or discretionary intervention.

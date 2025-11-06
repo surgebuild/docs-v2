@@ -15,7 +15,7 @@ Surge uses dVaults as its collateral engine and BTC always remains on Bitcoin, o
 ## How dVaults are Programmed?
 
 Each dVault locks BTC under a single encoded public key (PT2R) with multiple predefined **spend paths**:
-- **Repayment path** activated when the borrower’s repayment is attested by the Execution State Machine (ESM) and Authorized by the borrower and decentralized signer set using **Lin22 (threshold Schnorr)** from Coinbase [cb-mpc](https://github.com/coinbase/cb-mpc). This is the normal closure condition that releases BTC once the loan is settled.
+- **Repayment path** activated when the borrower's repayment is attested by the Execution State Machine (ESM) and Authorized by the borrower and decentralized signer set using **threshold Schnorr signatures** from Coinbase [cb-mpc](https://github.com/coinbase/cb-mpc). This is the normal closure condition that releases BTC once the loan is settled.
 - **Liquidation path** activated when collateral ratio falls below the minimum threshold and signed by the decentralised signer set. The signer set, following oracle validation, can execute liquidation to settle outstanding debt by transferring discounted BTC to the Unified Liquidity Pool.
 - **Timelock Exit** a long-term unilateral exit path that activates after a defined **CLTV** delay, guaranteeing non-custodial control even if all signers fail.
 
