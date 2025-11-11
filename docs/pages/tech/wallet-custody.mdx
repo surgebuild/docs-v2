@@ -6,11 +6,11 @@ import ZoomImage from "../../components/ZoomImage";
 
 # 🔐 Wallet Custody & Trusted Execution Enclave
 
-The Surge wallet custody layer implements a **self-custodial design** that isolates all cryptographic key operations within a hardware backed **Trusted Execution Environment (TEE)**.  
+The user wallet custody implements a **self-custodial design** that isolates all cryptographic key operations within a hardware backed **Trusted Execution Environment (TEE)**.  
 This approach follows an institutional-grade security model similar to Coinbase’s enclave based wallet infrastructure, providing deterministic isolation and remote attestation guarantees.
 
 The enclave executes as a sealed runtime within the underlying host infrastructure (GCP Confidential Computing).  
-Once instantiated, its memory and code are cryptographically measured and isolated — even Surge operators, administrators, or the host kernel cannot read, export, or modify a user’s private key.
+Once instantiated, its memory and code are cryptographically measured and isolated even operators, administrators, or the host kernel cannot read, export, or modify a user’s private key.
 
 <ZoomImage
   src="/assets/enclave_arch.png"
@@ -49,7 +49,7 @@ Once instantiated, its memory and code are cryptographically measured and isolat
 | Property | Enforcement |
 |-----------|-------------|
 | **Key Isolation** | Enforced by hardware boundary, inaccessible to OS or provider. |
-| **User Sovereignty** | Signing only under valid JWT session; Surge cannot initiate transactions. |
+| **User Sovereignty** | Signing only under valid JWT session Controlled by the user. |
 | **Immutability** | Enclave code and memory are sealed post-deployment. |
 
 > The enclave acts as a hardware root of trust ensuring keys exist, operate independently of any application-layer control.
