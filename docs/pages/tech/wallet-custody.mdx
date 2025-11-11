@@ -9,8 +9,7 @@ import ZoomImage from "../../components/ZoomImage";
 The user wallet custody implements a **self-custodial design** that isolates all cryptographic key operations within a hardware backed **Trusted Execution Environment (TEE)**.  
 This approach follows an institutional-grade security model similar to Coinbase’s enclave based wallet infrastructure, providing deterministic isolation and remote attestation guarantees.
 
-The enclave executes as a sealed runtime within the underlying host infrastructure (GCP Confidential Computing).  
-Once instantiated, its memory and code are cryptographically measured and isolated even operators, administrators, or the host kernel cannot read, export, or modify a user’s private key.
+The enclave executes as a sealed runtime within the underlying infrastructure. Once instantiated, its memory and code are cryptographically measured and isolated even operators, administrators, or the host kernel cannot read, export, or modify a user’s private key.
 
 <ZoomImage
   src="/assets/enclave_arch.png"
