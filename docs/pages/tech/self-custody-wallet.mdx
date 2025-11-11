@@ -1,12 +1,12 @@
 ---
-title: Wallet Custody & Trusted Execution Enclave
+title: Self Custody & Trusted Execution Enclave
 description: Architecture and lifecycle of Surge's self-custodial wallet leveraging hardware-isolated Trusted Execution Environments (TEE) for key generation, signing, attestation, and verifiable self-custody.
 ---
 import ZoomImage from "../../components/ZoomImage";
 
-# 🔐 Wallet Custody & Trusted Execution Enclave
+# 🔐 Self Custody & Trusted Execution Enclave
 
-The user wallet custody implements a **self-custodial design** that isolates all cryptographic key operations within a hardware backed **Trusted Execution Environment (TEE)**.  
+The user wallet implements a **self-custodial design** that isolates all cryptographic key operations within a hardware backed **Trusted Execution Environment (TEE)**.  
 This approach follows an institutional-grade security model similar to Coinbase’s enclave based wallet infrastructure, providing deterministic isolation and remote attestation guarantees.
 
 The enclave executes as a sealed runtime within the underlying infrastructure. Once instantiated, its memory and code are cryptographically measured and isolated even operators, administrators, or the host kernel cannot read, export, or modify a user’s private key.
