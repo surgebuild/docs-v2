@@ -1,0 +1,58 @@
+---
+title: Wallet Custody & Secure Enclave
+description: Self-custodial wallet design powered by hardware-isolated Trusted Execution Environments ensuring secure key management and user sovereignty.
+---
+import ZoomImage from "../../components/ZoomImage";
+
+
+# 🔐 Wallet Custody & Secure Enclave
+
+User wallets are designed to be **self-custodial** from the ground up.  
+Each user’s keys are generated inside hardware-isolated environment called a **Trusted Execution Environment (TEE)**, the institutional grade security model used in Coinbase’s enclave based wallet infrastructure. 
+
+The TEE runs as an isolated runtime on our infrastructure. Even our engineers, administrators, or the host OS cannot read, export, or alter a user’s key.
+
+## Auth & Key Lifecycle
+
+### 1. Email Login & Session
+- User logs in with **email + OTP**.  
+- The backend verifies the OTP and issues a short-lived **JWT session token**.  
+- This session authorizes signing requests for its active duratione																	w.
+
+### 2. Key Generation in TEE
+- When the user logs in for the first time, the backend checks the enclave for an existing keypair.  
+- If none exists, the enclave **generates a new keypair internally**.  
+- The enclave returns only the **public key** to the backend.  
+- Mapping `{userID, email, publicKey}` is recorded; the private key never leaves the TEE.
+
+### 3. Transaction Signing
+- The client submits a transaction request with the active JWT.  
+- Backend verifies the session and forwards `{userID, txData, signatureRequestID}` to the enclave.  
+- The enclave verifies that the request is valid, then **signs the transaction within its isolated memory**.  
+- Only the resulting **signature** leaves the enclave.
+
+### 4. Key Export
+- A user may export their key for external custody.  
+- Backend re-prompts for OTP → sends an export command to the enclave.  
+- The enclave decrypts and returns the key encrypted.  
+- This encrypted blob is the user’s portable backup.  
+- Surge never stores or can decrypt the keys.
+
+## Nature of Self-Custody
+- **Private Key Isolation:** The key exists only inside hardware that is cryptographically sealed from the host OS and operators.  
+- **User Sovereignty:** Only the authenticated user session can initiate signing.  
+- **Portability:** Users can export and migrate their encrypted key at any time.  
+
+## Attestation - Proof of Integrity
+Every TEE instance produces a **cryptographic attestation** at start:
+- Proves the enclave runs on **genuine, untampered hardware**.  
+- Proves it’s running the **approved wallet code**.  
+The backend validates this report before trusting the enclave. If the code or environment changes, the attestation hash changes, and the enclave loses trust automatically.
+
+
+## Updating Enclave Code
+Enclaves can’t be modified once live. To ship updates or bug fixes:
+1. Build a new enclave image.  
+2. Deploy and attest the new version before migration.  
+
+The Surge wallet combines hardware-rooted security with user-controlled encryption enabling true self-custody at infrastructure scale.

@@ -94,6 +94,10 @@ export default defineConfig({
             ],
           },
           {
+            text: "Wallet Custody",
+            link: "/tech/wallet-custody",
+          },
+          {
             text: "Threshold Schnorr",
             link: "/tech/schnorr",
           },
