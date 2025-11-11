@@ -37,7 +37,7 @@ Once instantiated, its memory and code are cryptographically measured and isolat
 - The backend validates the session and relays `{ userID, txData, signatureRequestID }` to the enclave.  
 - The enclave verifies request authenticity and authorization before signing.  
 - Signing is executed inside the isolated enclave runtime using the internal key material.  
-- The resulting **signature** is returned, the key never leaves secure memory.
+- The resulting signature is returned, the key never leaves secure memory.
 
 ### 4. Controlled Key Export
 - Users may optionally export their private key for external self-custody.  
@@ -57,8 +57,8 @@ Once instantiated, its memory and code are cryptographically measured and isolat
 
 ## Attestation & Integrity Proofs
 
-Each TEE instance produces a **cryptographic attestation report** during initialization:
-- Verifies the enclave runs on **genuine, unmodified hardware** 
+Each TEE instance produces a cryptographic attestation report during initialization:
+- Verifies the enclave runs on genuine, unmodified hardware
 - The backend validates this attestation before any signing or export operations.  
 - If code or environment changes, the attestation fingerprint differs and trust is revoked automatically.
 
@@ -66,6 +66,6 @@ This mechanism provides verifiable proof that the wallet enclave is authentic, u
 
 ## Versioning & Update Lifecycle
 
-Enclave binaries are immutable at runtime. Updates or bug fixes require a **versioned redeploy** process:
+Enclave binaries are immutable at runtime. Updates or bug fixes require a versioned redeploy process:
 1. Build a new enclave image (with updated wallet logic).
-2. Deploy and verify its new **measurement hash** via attestation.
+2. Deploy and verify its new measurement hash via attestation.
