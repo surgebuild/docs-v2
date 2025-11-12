@@ -1,15 +1,17 @@
 ---
 title: Self Custody User Wallet
-description: Architecture and lifecycle of Surge's self-custodial wallet leveraging hardware-isolated Execution Environments for key generation, signing, attestation, and verifiable self-custody.
+description: Architecture and lifecycle of the user’s self-custodial wallet leveraging hardware-isolated execution environments for key generation, signing, attestation, and verifiable self-custody.
 ---
 import ZoomImage from "../../components/ZoomImage";
 
 # 🔐 Self Custody User Wallet
 
-The user wallet designed with **self-custody at its core**.
-This approach follows an institutional-grade security model similar to Coinbase’s enclave based wallet infrastructure, providing deterministic isolation and remote attestation guarantees.
+The user wallet is designed with **self-custody at its core**.
+Every wallet instance ensures that private keys are created, stored, and used exclusively under the authenticated user’s control.  
+This architecture grants the user full authority over signing actions, key export, and custody management.
 
-The enclave executes as a sealed runtime within the underlying infrastructure. Once instantiated, its memory and code are cryptographically measured and isolated even operators, administrators, or the host kernel cannot read, export, or modify a user’s private key.
+The signing environment executes as a sealed runtime within the underlying infrastructure. 
+Once instantiated, its memory and code are cryptographically measured and isolated even operators, administrators, or the host kernel cannot read, export, or modify a user’s private key.
 
 <ZoomImage
   src="/assets/enclave_arch.png"
@@ -29,37 +31,34 @@ The enclave executes as a sealed runtime within the underlying infrastructure. O
 - On first login, the instance queries the enclave for an existing keypair.  
 - If absent, the enclave **generates a new asymmetric keypair** internally.
 - The **public key** is returned and mapped as `{ userID, email, publicKey }`.
-- The **private key** remains sealed inside enclave memory, never exposed or serialized outside the boundary.
+- The **private key** remains sealed inside isolated memory and never exposed or serialized outside the boundary.
 
 ### 3. Transaction Signing Flow
 - The client submits a transaction payload with the active JWT.
 - The backend validates the session and relays `{ userID, txData, signatureRequestID }` to the enclave.
 - The enclave verifies request authenticity and authorization before signing.
-- Signing is executed inside the isolated enclave runtime using the internal key material.
-- The resulting signature is returned, the key never leaves secure memory.
+- Signing occurs inside the secure environment using the private key, only the signature is returned.
 
 ### 4. Controlled Key Export
-- Users may optionally export their private key for external self-custody.  
-- The backend re-prompts for OTP, then issues an export command to the enclave.  
-- The enclave decrypts and returns the key encrypted.  
+- A user may export their private key for external custody.
+- The system re-prompts for OTP and encrypts the exported key using a user defined passphrase.  
+- The encrypted key blob serves as a portable, user-controlled backup.
 
-## Self-Custody Model
+## Self-Custody Characteristics
 
 | Property | Enforcement |
 |-----------|-------------|
-| **Key Isolation** | Enforced by hardware boundary, inaccessible to OS or provider. |
-| **User Sovereignty** | Signing only under valid JWT session Controlled by the user. |
-| **Immutability** | Enclave code and memory are sealed post-deployment. |
+| **User Ownership** | All cryptographic operations originate from keys generated under the user’s control. |
+| **Key Isolation** | Keys are sealed inside protected compute environments, isolated from application and infrastructure layers. |
+| **Portability** | Encrypted key export allows migration and independent storage. |
 
-> The enclave acts as a hardware root of trust ensuring keys exist, operate independently of any application-layer control.
+## Hardware Backed Isolation
 
-
-## Attestation & Integrity Proofs
-
-Each TEE instance produces a cryptographic attestation report during initialization:
-- Verifies the enclave runs on genuine, unmodified hardware
-- The backend validates this attestation before any signing or export operations.  
-- If code or environment changes, the attestation fingerprint differs and trust is revoked automatically.
+Wallet key management operate within hardware-backed **trusted execution environments (TEEs)**.  
+Each instance produces a **cryptographic attestation report** at initialization:
+- Verifies that the environment runs on **genuine, unmodified hardware**.  
+- Ensures the loaded code matches the **approved wallet binary**.  
+- Any change in code or environment alters the attestation fingerprint and automatically revokes trust.
 
 This mechanism provides verifiable proof that the wallet enclave is authentic, unmodified, and operating in a known-good state.
 
@@ -68,3 +67,5 @@ This mechanism provides verifiable proof that the wallet enclave is authentic, u
 Enclave binaries are immutable at runtime. Updates or bug fixes require a versioned redeploy process:
 1. Build a new enclave image (with updated wallet logic).
 2. Deploy and verify its new measurement hash via attestation.
+
+This wallet architecture unifies user sovereignty, hardware-rooted security, and key portability, providing a deterministic self custodial foundation for Bitcoin-native credit infrastructure.
