@@ -94,7 +94,7 @@ export default defineConfig({
             ],
           },
           {
-            text: "Self Custody",
+            text: "Self Custody User Wallet",
             link: "/tech/self-custody-wallet",
           },
           {

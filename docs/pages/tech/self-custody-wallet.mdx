@@ -1,12 +1,12 @@
 ---
-title: Self Custody & Trusted Execution Enclave
-description: Architecture and lifecycle of Surge's self-custodial wallet leveraging hardware-isolated Trusted Execution Environments (TEE) for key generation, signing, attestation, and verifiable self-custody.
+title: Self Custody User Wallet
+description: Architecture and lifecycle of Surge's self-custodial wallet leveraging hardware-isolated Execution Environments for key generation, signing, attestation, and verifiable self-custody.
 ---
 import ZoomImage from "../../components/ZoomImage";
 
-# 🔐 Self Custody & Trusted Execution Enclave
+# 🔐 Self Custody User Wallet
 
-The user wallet implements a **self-custodial design** that isolates all cryptographic key operations within a hardware backed **Trusted Execution Environment (TEE)**.  
+The user wallet designed with **self-custody at its core**.
 This approach follows an institutional-grade security model similar to Coinbase’s enclave based wallet infrastructure, providing deterministic isolation and remote attestation guarantees.
 
 The enclave executes as a sealed runtime within the underlying infrastructure. Once instantiated, its memory and code are cryptographically measured and isolated even operators, administrators, or the host kernel cannot read, export, or modify a user’s private key.
@@ -25,17 +25,17 @@ The enclave executes as a sealed runtime within the underlying infrastructure. O
 - Upon successful verification, a short-lived **JWT session token**.  
 - This token is used to authorize enclave operations during its validity period.
 
-### 2. Deterministic Key Generation in TEE
+### 2. Deterministic Key Generation
 - On first login, the instance queries the enclave for an existing keypair.  
-- If absent, the enclave **generates a new asymmetric keypair** internally.  
-- The **public key** is returned and mapped as `{ userID, email, publicKey }`.  
+- If absent, the enclave **generates a new asymmetric keypair** internally.
+- The **public key** is returned and mapped as `{ userID, email, publicKey }`.
 - The **private key** remains sealed inside enclave memory, never exposed or serialized outside the boundary.
 
 ### 3. Transaction Signing Flow
-- The client submits a transaction payload with the active JWT.  
-- The backend validates the session and relays `{ userID, txData, signatureRequestID }` to the enclave.  
-- The enclave verifies request authenticity and authorization before signing.  
-- Signing is executed inside the isolated enclave runtime using the internal key material.  
+- The client submits a transaction payload with the active JWT.
+- The backend validates the session and relays `{ userID, txData, signatureRequestID }` to the enclave.
+- The enclave verifies request authenticity and authorization before signing.
+- Signing is executed inside the isolated enclave runtime using the internal key material.
 - The resulting signature is returned, the key never leaves secure memory.
 
 ### 4. Controlled Key Export
