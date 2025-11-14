@@ -1,7 +1,8 @@
 ---
 title: 💧 Liquidity Management
-description: Deterministic routing and liquidation flow for stablecoin settlement and BTC recovery.
+description: Deterministic routing, solvency flow, and LP incentive model for credit system.
 ---
+import ZoomImage from "../../components/ZoomImage";
 
 # 💧 Liquidity Management
 
@@ -34,9 +35,9 @@ For liquidation it absorbs undercollateralized debt using stablecoin liquidity a
 
 The Execution State Machine dynamically partitions liquidity between Credit Liquidity and Reserved Liquidity based on real-time collateral conditions.  
 
-## 3. Micro Liquidation Logic
+## 3. Liquidation Logic
 
-Micro Liquidations are **partial, iterative adjustments** of vault collateral designed to maintain solvency smoothly rather than abruptly.  
+Liquidations are **partial, iterative adjustments** of vault collateral designed to maintain solvency smoothly rather than abruptly.  
 Each iteration cancels a fraction of the vault’s debt and transfers a corresponding BTC slice to the Unified Liquidity Pool.
 
 ### Parameters
@@ -46,8 +47,8 @@ Each iteration cancels a fraction of the vault’s debt and transfers a correspo
 | \( B \) | Collateral BTC | 0.28483537 |
 | \( P \) | Current BTC price after drop | $69,000 |
 | \( D \) | Outstanding debt (USDC) | $11,200 |
-| \( \ MinCR \) | Liquidation threshold | 1.50 |
-| \( \RecCR \) | Recovery target after liquidation | 1.70 |
+| \( MinCR \) | Liquidation threshold | 1.50 |
+| \( RecCR \) | Recovery target after liquidation | 1.70 |
 | \( s \) | Unified liquidity pool discount | 0.05 |
 
 ### Step 1 - Check if liquidation is required
@@ -55,7 +56,7 @@ Each iteration cancels a fraction of the vault’s debt and transfers a correspo
 Calculate the current collateral ratio (CR) by dividing the collateral value (B × P) by the outstanding debt (D).
 
 If CR ≥ MinCR, do nothing.  
-Otherwise, proceed to compute the micro liquidation delta.
+Otherwise, proceed to compute the liquidation delta.
 
 
 ### Step 2 - Compute debt to cancel
@@ -82,21 +83,20 @@ After liquidation:
 
 Vault solvency is restored, and liquidation proceeds are distributed to the Unified Liquidity Pool.
 
-
-## 4. Numerical Example
+## 4. Numerical Example (10% Discount)
 
 | Metric | Before | After |
-|---------|---------|--------|
-| BTC Price | $70,000 | $63,000 |
+|--------|--------|--------|
+| BTC Price | 70,000 | 63,000 |
 | Collateral BTC | 0.2848 | 0.2355 |
-| Collateral Value | $20,000 | $14,832 |
-| CR | 198% | 151% |
-| ΔD (Debt canceled) | – | $8,151 |
-| BTC to Unified Liquidity Pool | – | 0.0499 |
-| Post CR | – | 151.7% |
-| Post LTV | – | 65.9% |
+| Collateral Value | 20,000 | 14,832 |
+| CR | 1.98 | 1.51 |
+| \( \Delta D \) | – | 8,151 |
+| BTC to Pool | – | 0.0499 |
+| Post CR | – | 1.517 |
+| Post LTV | – | 0.659 |
 
-The system cancels ~$8.1k of debt, sends 0.0499 BTC (discounted 5%) to the Unified Liquidity Pool, and restores the vault to its recovery CR target (~1.7× collateralization).
+The system cancels ~$8.1k of debt, transfers 0.0499 BTC (based on the pool discount parameter) to the Unified Liquidity Pool, and moves the vault toward its recovery CR target.
 
 ## 5. Post-Liquidation Flow
 
@@ -106,13 +106,42 @@ The system cancels ~$8.1k of debt, sends 0.0499 BTC (discounted 5%) to the Unifi
 4. **Re-Vaulting** - Remaining BTC automatically re-locked into a fresh dVault (same template, incremented nonce).
 5. **Ledger Update** - ESM emits `LiquidationExecuted` and updates vault state.
 
+## 6. LP Incentive Model
+Liquidity Providers (LPs) earn yield through multiple mechanisms,
+
+<ZoomImage
+  src="/assets/incentive_model.png"
+  alt="LPs Incentive Model"
+  width="100%"
+  className="mx-auto"
+/>
+
+### 6.1 Borrow Interest / Base Yield
+- Borrowers pay interest on outstanding debt.  
+- Interest flows into the Unified Liquidity Pool.  
+- LPs receive sLP share tokens that represent proportional ownership in the pool.  
+- sLP value increases as pool assets grow.
+
+### 6.2 Liquidation Discount / Performance Yield
+- The pool cancels a borrower’s debt using \( \Delta D \) USDC.
+- The pool receives \( BTC_pool \) at a fixed discount of 10%.
+- BTC is deposited into the LP Pool Vault (a Taproot vault controlled by the signer network).
+- sLP share accounting distributes discounted BTC gains to LPs.
+
+Since BTC is acquired below market price, the pool realizes an immediate mark-to-market gain.  
+This gain is reflected in sLP token value.
+
+LPs may redeem their share in either:
+- BTC (withdrawn from the LP Pool Vault), or  
+- USDC (selling BTC exposure back to the pool internally).
 
 ## 6. Design Outcome
-
 - **Continuous Solvency** - No full liquidations; risk is amortized.  
 - **Predictable Market Behavior** - Eliminates liquidation cascades.  
+- **LP incentives aligned with system stability** - interest yield + discounted collateral acquisition.
 - **Transparent Accounting** - Every liquidation step logged and replayable via on-chain events.  
 - **Institutional Stability** - Ensures system-wide CR remains deterministic and auditable.
+
 All pool balances and liquidation settlements are anchored in the Execution State Machine’s canonical state root, providing verifiable solvency proofs.
 
 ### Cross-Link
