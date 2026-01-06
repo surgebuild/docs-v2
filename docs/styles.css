@@ -277,7 +277,7 @@ img {
 }
 
 .gradientText {
-  background: linear-gradient(90deg, #f4431c 0%, #8e2710 50%);
+  background: linear-gradient(90deg, #FE7B17 0%, #8e2710 50%);
   -webkit-text-fill-color: transparent;
   -webkit-background-clip: text;
 }

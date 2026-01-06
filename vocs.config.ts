@@ -146,23 +146,23 @@ export default defineConfig({
       //     },
       //   ],
       // },
-      // {
-      //   text: "RESOURCES",
-      //   items: [
-      //     // {
-      //     //   text: "Quick Links",
-      //     //   link: "/resources/quick-links",
-      //     // },
-      //     {
-      //       text: "Media Kit",
-      //       link: "/resources/media-kit",
-      //     },
-      //     {
-      //       text: "Community Guidelines",
-      //       link: "/resources/community-guidelines",
-      //     },
-      //   ],
-      // },
+      {
+        text: "RESOURCES",
+        items: [
+          // {
+          //   text: "Quick Links",
+          //   link: "/resources/quick-links",
+          // },
+          {
+            text: "Media Kit",
+            link: "/resources/media-kit",
+          },
+          // {
+          //   text: "Community Guidelines",
+          //   link: "/resources/community-guidelines",
+          // },
+        ],
+      },
     ],
   },
   socials: [
