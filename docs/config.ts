@@ -26,9 +26,8 @@ function loadConfig(): AuthConfig {
       .filter(Boolean);
   }
 
-  // Parse lock screen setting - default to true since env vars aren't loading
-  const lockScreenEnabled =
-    envLockEnabled === "true" || envLockEnabled === undefined;
+  // Parse lock screen setting - default to false if not set
+  const lockScreenEnabled = envLockEnabled === "true";
 
   return {
     lockScreenEnabled,

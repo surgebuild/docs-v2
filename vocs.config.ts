@@ -120,47 +120,13 @@ export default defineConfig({
           },
         ],
       },
-      // {
-      //   text: "GUIDE",
-      //   items: [
-      //     {
-      //       text: "Demo",
-      //       link: "/guide/demo",
-      //     },
-      //     {
-      //       text: "Node Setup",
-      //       link: "/guide/surge-node-setup",
-      //     },
-      //   ],
-      // },
-      // {
-      //   text: "BITCOIN REPORTS",
-      //   items: [
-      //     {
-      //       text: "In-house Research",
-      //       link: "/bitcoin-reports/in-house-research",
-      //     },
-      //     {
-      //       text: "External Research",
-      //       link: "/bitcoin-reports/external-research",
-      //     },
-      //   ],
-      // },
       {
         text: "RESOURCES",
         items: [
-          // {
-          //   text: "Quick Links",
-          //   link: "/resources/quick-links",
-          // },
           {
             text: "Media Kit",
             link: "/resources/media-kit",
           },
-          // {
-          //   text: "Community Guidelines",
-          //   link: "/resources/community-guidelines",
-          // },
         ],
       },
     ],
@@ -174,9 +140,5 @@ export default defineConfig({
       icon: "x",
       link: "https://x.com/surge_credit",
     },
-    // {
-    //   icon: "telegram",
-    //   link: "https://t.me/surgebuild",
-    // },
   ],
 });
