@@ -7,22 +7,24 @@ import ZoomImage from "../../components/ZoomImage";
 
 
 # 🖼️ Product Overview
-Surge is a Bitcoin-native credit line powered by taproot-based UTXOs, where every credit line is a dedicated UTXO with two signers: the Bitcoiner and a decentralised signer network that manages liquidity and enforces loan logic.
+Surge is a Bitcoin-native credit line powered by taproot-based UTXOs, where every credit line is a dedicated UTXO with two signers: the Bitcoiner and a Decentralised Custody Network (DCN).
 
 ## How it Works
-Each Bitcoiner sends BTC to a unique dVault, a Taproot-based, programmable vault secured via a threshold signature network. 
+Each Bitcoiner sends BTC to a unique dVault, a Taproot-based, programmable vault. 
 This vault enforces three deterministic spending paths:
 
-1. **Voluntary Repayment:** If no credit is drawn, or once the borrower repays, they can withdraw BTC directly, without signer network intervention.
-2. **Liquidation:** If the loan health drops below safe thresholds, the signer network can co-sign a liquidation transaction, only when validated by external oracle attestations.
-3. **Time-Locked Recovery:** If the system becomes unresponsive or signer nodes go offline, the BTC becomes spendable by the user after a pre-set time lock.
+1. **Voluntary Repayment:** If no credit is drawn, or once the borrower repays, they can withdraw BTC directly, without signer network intervention. 
+2. **Liquidation:** If the credit line health drops below safe thresholds, the DCN can co-sign a liquidation transaction, only when validated by external oracle attestations.
+3. **Delinquent:** If the credit line is not paid off or rolled over at the end of term, the DCN can sign a liquidation transaction, BTC will be sold to cover debt + interest and the remained returned.
+4. **Transfer:** Bitcoiners may transfer loans to and from Surge's credit market. This requires signitures from the Bitcoiner, DCN, and a third party credit provider.
+5. **Time-Locked Recovery:** If the system becomes unresponsive or the DCN go offline, the BTC becomes spendable by the user after a pre-set time lock.
 
 This ensures that funds are always:
 - Non-custodial – user remains in control
 - Verifiably on-chain – visible and auditable at all times
-- Decentralized – signer network is distributed and economically aligned
+- Decentralized – DCN is distributed and economically aligned
 
-Once the BTC is locked, stablecoin liquidity is released from Ethereum-based pools (starting with USDC, USDT), sent directly to the borrower. 
+Once the BTC is locked, stablecoin liquidity is released from the Ethereum-based pool Base (starting with USDC, USDT), sent directly to the borrower's wallet. 
 It’s a peer-to-pool system where Bitcoiners tap liquidity, and LPs earn yield, with infrastructure ensuring safety and execution.
 
 <ZoomImage
@@ -35,8 +37,8 @@ It’s a peer-to-pool system where Bitcoiners tap liquidity, and LPs earn yield,
 ## Interface Suite
 
 Surge has three core interfaces, each designed for a key participant:
-- **Bitcoiners:** Access their credit line via Surge’s mobile app (iOS, Android; PWA coming soon). No paperwork, no middlemen, just verifiable BTC and instant stablecoin access.
-- **Liquidity Providers:** Contribute stablecoins into pools, earn fixed yields, and optionally run signer nodes to power the system and earn protocol fees.
-- **Network Verifiers & Builders:** Access technical data, audit trails, oracle feeds, system status, and open-source repos via surge.build, our transparency hub.
+- **Bitcoiners:** Access their credit line via Surge’s mobile app (iOS, Android; PWA coming soon) or via a distribution partner. No paperwork, just verifiable BTC and stablecoin access in less than 30 minutes.
+- **Liquidity Providers:** Contribute stablecoins into pools, earn fixed yields, and optionally run signer nodes in our DCN to power the system.
+- **Distributed Custody Network Members:** Access technical data, audit trails, oracle feeds, system status, and open-source repos via surge.build, our transparency hub.
 
-Surge is built ground-up for trust-minimized credit, where users verify everything on-chain, and no one can touch their Bitcoin without following predefined, public rules.
+Surge is built ground-up for trust-minimized credit and no one can touch their Bitcoin without following predefined, public rules.

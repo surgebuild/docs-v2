@@ -9,7 +9,7 @@ description: How Surge makes it easier for Bitcoiners
 ## Your Bitcoin, Your Terms.
 Access a Bitcoin-native Credit Line, without giving up full-custody. It’s built for everyday Bitcoiners who value sovereignty, transparency, and verifiable custody, not centralized black boxes.
 
-Your BTC stays in a unique, programmable Taproot vault, secured by a decentralized signer network using threshold Schnorr signatures. 
+Your BTC stays in a unique, programmable Taproot vault, secured by a Decentralized Custody Network using threshold Schnorr signatures. 
 It’s on-chain, auditable, and non-custodial, always.
 
 
@@ -19,14 +19,15 @@ Get started via mobile app on Android or iOS. Sign up with just an email + OTP. 
 
 ### 2. Request a Credit Line
 Specify your initial credit line amount with
-- Fixed interest rates (8–10% annually)
+- Fixed interest rates (8–11% annually)
+- Variable interest rates coming soon(6.9% target)
 - A 12-month term with flexible repayment
 - No need to draw full amount upfront, you control usage
 
 ### 3. Send Bitcoin
 - A unique Taproot address is generated per credit line
 - You deposit BTC at 50% LTV (e.g., send 0.1 BTC for $3K USDC credit)
-- After 3–6 confirmations, your credit line becomes active
+- After 3 confirmations, your credit line becomes active
 
 ### 4. Draw & Repay Flexibly
 - Withdraw stablecoins (USDC, USDT) to any address
@@ -37,20 +38,17 @@ Specify your initial credit line amount with
 ### 5. Stay Verifiably in Control
 Your BTC is never moved without:
 - Your signature, and
-- Signer network co-signing based on programmable vault logic
+- the Distributed Custody Network signiture based on programmable vault logic
 
-If the system fails or goes offline, your vault includes a time-locked refund path—returning your BTC to your wallet after expiration.
+If the system fails or goes offline, your vault includes a time-locked refund path—returning your BTC to your wallet after term expiration.
 
 ### 6. Liquidation, but Fair
-Liquidation doesn’t mean losing it all. Surge uses micro-liquidation, a rules-based process that only liquidates a portion of your BTC if collateral health declines.
+Liquidation with a rules-based process that only liquidates in extreme cases when BTC collateral health declines past 90%.
 - Triggered only when on-chain oracles (like BTC/USD price) report sustained volatility
 - Price feeds are transparent and open—you can verify exactly what data is being used
-- Liquidation happens incrementally via pre-committed vault logic, not via centralized decision-makers
+- Price feeds are double checked by DCN before liquidation begins
 
-This means no surprise wipeouts, no discretionary calls—just fair, on-chain enforcement.
-
-### 7. KYC (If Required)
-If you’re from a restricted jurisdiction, basic KYC may apply to meet compliance needs. Otherwise, most users can access Surge without KYC.
+This means no surprise wipeouts, no discretionary calls—just fair, on-chain enforcement with double checks.
 
 
 ## 🔍 Built for Transparency
