@@ -1,0 +1,49 @@
+---
+title: Credit Markets
+description: How Surge's credit markets work and why the multi-market design is better than alternatives.
+---
+
+# 📊 Credit Markets
+
+Surge's credit markets let borrowers and lenders meet on transparent, programmable terms. Instead of a single opaque pool or a custodial black box, Surge offers **variable** and **fixed-rate** markets where liquidity is shared, moved on demand, and always auditable.
+
+## How It Works
+
+### Variable and fixed markets
+
+- **Variable market** - The primary market. Borrowers pay a utilization-driven floating rate; lenders earn yield that moves with demand. All deposits land here first.
+- **Fixed-rate markets** - Optional tranches (e.g. 6%, 8%) where borrowers lock in a rate and lenders earn a fixed supply rate. Liquidity is **moved** from the variable pool when borrowers take fixed-rate loans and **moved back** on repay. There is no duplication or rehypothecation.
+
+Borrowers choose which market fits their needs. Lenders can opt in to fixed markets and control how much of their capital is exposed to each. One liquidity base, multiple rate options, and clear rules for how funds flow.
+
+### Cross-chain liquidity
+
+Stablecoins are deposited on any CCTPv2 supported network and routed to a unified marketplace. This creates a single, deep pool of liquidity instead of fragmented, thin markets across chains. Supply stays canonical and verifiable.
+
+## Why This Design
+
+### vs. Single-pool protocols
+
+Many lending protocols offer only one rate (either variable or fixed). Surge's multi-market design gives both: borrowers who want predictability can lock in a fixed rate; those who prefer flexibility use the variable market. Lenders earn from both, with explicit control over exposure.
+
+### vs. CeFi lending
+
+Traditional Bitcoin - backed lending is custodial and opaque. Users give up keys, visibility, and control. Surge's credit markets are non - custodial and on-chain: collateral stays in programmable dVaults, rates and utilization are verifiable, and no single party can move funds without the rules being satisfied.
+
+### vs. Speculative DeFi
+
+Yield in many DeFi protocols comes from token incentives, leveraged farming, or circular lending—not from real credit usage. Surge's credit markets are backed by actual Bitcoin-collateralized borrowing. LPs earn from interest paid by borrowers and (where applicable) from liquidation economics. Real assets, real demand, real yield.
+
+### vs. Fragmented liquidity
+
+Splitting liquidity across many isolated pools or chains reduces depth and increases slippage. Surge aggregates liquidity into a central credit market, with routing that keeps supply canonical and settlement deterministic. Deeper markets, better execution, and transparent accounting.
+
+---
+
+Surge's credit markets are built for Bitcoin-native finance: transparent, programmable, and aligned with real credit demand rather than speculation or custodial intermediation.
+
+### Cross-links
+
+- [For Liquidity Providers](/product/for-liquidity-providers) — LP perspective on variable vs fixed  
+- [Repayment](/tech/payment) — Normal closure path  
+- [Liquidation](/tech/dvaults-liquidation) — dVault liquidation path

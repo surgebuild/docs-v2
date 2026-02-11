@@ -6,9 +6,14 @@ import ZoomImage from "../../components/ZoomImage";
 
 # 🔐 Self Custody User Wallet
 
-The user wallet is designed with **self-custody at its core**.
+The Surge app today holds the borrower’s wallet and is designed with **self-custody at its core**.
 Every wallet instance ensures that private keys are created, stored, and used exclusively under the authenticated user’s control.  
-This architecture grants the user full authority over signing actions, key export, and custody management.
+
+This architecture grants the user full authority over 
+- signing actions
+- key export
+- stablecoin distribution
+- return address for various spend paths
 
 The signing environment executes as a sealed runtime within the underlying infrastructure. 
 Once instantiated, its memory and code are cryptographically measured and isolated even operators, administrators, or the host kernel cannot read, export, or modify a user’s private key.
@@ -68,4 +73,4 @@ Enclave binaries are immutable at runtime. Updates or bug fixes require a versio
 1. Build a new enclave image (with updated wallet logic).
 2. Deploy and verify its new measurement hash via attestation.
 
-This wallet architecture unifies user sovereignty, hardware-rooted security, and key portability, providing a deterministic self custodial foundation for Bitcoin-native credit infrastructure.
+This wallet architecture unifies user sovereignty, hardware-rooted security, and key portability, providing a deterministic self custodial foundation for Surge's Bitcoin-native credit market.

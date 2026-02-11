@@ -1,21 +1,24 @@
 ---
 title: Unilateral Exit
-description: Time-locked Taproot path allowing sovereign BTC exit if signers or execution layer fail
+description: Time-locked Taproot path allowing sovereign BTC exit if DCN or execution layer fail
 ---
 
 # ⏳ Unilateral Exit
 
-The **Unilateral Exit** (also called the *Timelock Exit Path*) is the final Taproot branch in every dVault. It guarantees that the vault owner can always recover their BTC, even if all signers or the Execution State Machine (ESM) become unavailable.
+The **Unilateral Exit** (also called the *Timelock Exit Path*) is the final Taproot branch in every dVault. It guarantees that the vault owner can always recover their BTC, even if all DCN members or the Execution State Machine (ESM) become unavailable.
 
 This path enforces **sovereignty at the script level** - not by protocol promises, but by Bitcoin’s native time-lock logic.
 
-## Why It Exists
-All other dVault paths (Repayment and Liquidation) require multi party coordination:
-- Repayment → borrower + signers co-sign.  
-- Liquidation → signer set executes based on oracle attestations.  
+Example Unilateral Exit Hypothetical
+    - Day 1 - Collateral is deposited and stablecoin is distributed
+    - Day 300 - EVM / DCN go offline
+    - Day 365 + 7 - Borrower can unilaterally withdraw all collateral without paying back principal + interest
 
-If those external systems fail - signers go offline, oracle data stops updating, or the ESM halts - the user still needs a guaranteed way to recover funds.  
-That’s what this Taproot leaf enforces: **after a fixed delay, the user can unilaterally spend the vault**.
+## Why It Exists
+All other dVault spend paths require multi party coordination:
+
+If those external systems fail - DCN go offline, oracle data stops updating, or the ESM halts - the user still needs a guaranteed way to recover funds.  
+That’s what this Taproot spend path enforces: **after a fixed delay, the user can unilaterally spend the vault**.
 
 ## Script Logic
 
@@ -29,3 +32,4 @@ AND(
     OP_DROP,
     OP_CHECKSIG(user_exit_key)
 )
+

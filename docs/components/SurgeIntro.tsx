@@ -33,7 +33,7 @@ export default function SurgeIntro() {
           Learn
         </p>
         <p className="border-b border-dashed border-[#6F7B8B] pb-4 text-base leading-5 text-[#6B7280]">
-          Bitcoin Native Credit Line
+          Bitcoin Native Credit Market
         </p>
       </div>
       <div className="flex flex-col gap-y-[10px] w-full mt-7">

@@ -1,0 +1,31 @@
+---
+title: Delinquency
+description: How dVaults handle missed payments and delinquent positions
+---
+
+# 🎯 Deterministic Liquidation for Locked Bitcoin
+
+*dVaults* are Taproot-based Bitcoin vaults that enforce deterministic liquidation and non-custodial collateral management. Each vault encodes three spend paths:
+1. **Repay** - borrower + DCN authorization.  
+2. **Liquidate** - DCN-only authorization when collateral falls below the minimum ratio.  
+3. **Delinquency** - DCN-only authorization when credit line is not paid off or extended at end of term.  
+4. **Transfer** - borrower + DCN + third party authorization when borrower requests loan transfer out of Surge Credit Market.  
+5. **Escape** - borrower-only fallback after a time-based lock (censorship safety).
+
+Each path references a **pre-committed PSBT template** defined at vault creation.
+
+## Delinquency Flow
+Just before the time based lock is hit, the ESM checks if the credit line is fully paid off:
+1. The ESM emits a `DelinquencyTriggered` event. 
+2. The coordination middleware publishes the corresponding liquidation instruction.
+3. DCN members reconstruct the PSBT based on committed vault parameters.
+4. The DCN signs and broadcasts the transaction to Bitcoin.
+5. Liquidated BTC is routed to the **DCN** while a dutch auction is started on the EVM layer. 
+6. The dutch auction returns stablecoins which replace the principal + debt of the line of credit being liquidated.
+7. Remaining BTC is **re-locked** into a new dVault UTXO under the same script conditions with an incremented nonce.
+
+## Key Guarantees
+- **Non-Custodial:** BTC remains locked in Taproot vaults on Bitcoin, only user + DCN or timelock can move funds.  
+- **Deterministic:** All state transitions and PSBTs are reproducible and verifiable across signers.  
+- **Censorship-Safe:** Borrowers can always reclaim funds through the Escape path after timelock expiry.  
+- **Market Segregated Risk:** Delinquency proceeds flow into the each market based on where the delinquent credit line came from, reconciling BTC collateral and stablecoin liabilities within the Execution State Machine’s deterministic ledger.

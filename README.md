@@ -1,6 +1,6 @@
 # Surge Docs
 
-This is the documentation for Surge - a Bitcoin-native credit line. 
+This is the documentation for Surge - a Bitcoin-native credit market. 
 
 ## Running Locally
 

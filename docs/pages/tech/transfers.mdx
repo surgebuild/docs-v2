@@ -1,0 +1,27 @@
+---
+title: Transfers
+description: How loan transfers between Surge and third-party marketplaces work via borrower, DCN, and third-party signing.
+---
+
+# 🔄 Transfers
+
+The **Transfer** path allows a borrower to move a credit facility (or collateral) to or from a third-party marketplace. This path is encoded as a spend condition that requires **three-way authorization**: the borrower, the Decentralised Custody Network (DCN), and the third-party marketplace (or its designated signer).
+
+The exact on-chain encoding and coordination flows are not yet finalised; what follows is a generic description of the intended process.
+
+## Transfer flow (generic)
+
+1. **Borrower request** — The borrower initiates a transfer (e.g. moving the loan out of Surge’s credit market into another marketplace, or the reverse).
+2. **Coordination** — The Execution State Machine (or a coordination layer) validates the request and prepares the transfer instruction. The third-party marketplace is notified and confirms willingness to accept (or release) the position.
+3. **Multi-party signing** — The required parties participate in a signing round:
+   - **Borrower** — Authorises the move of their collateral or facility.
+   - **DCN** — Authorises the spend from the dVault (or the release of Surge’s claim) in line with the transfer terms.
+   - **Third-party marketplace** — Authorises acceptance (or release) of the position on their side.
+4. **Settlement** — Once all required signatures are collected, the Bitcoin transaction (if any) is broadcast and the execution-layer state is updated so both systems reflect the new ownership or location of the facility.
+
+Settlement details (e.g. PSBT construction, messaging between Surge and the third party) will be defined as the feature is built out.
+
+## Key points
+
+- **Three-way coordination:** A transfer is only valid when the borrower, the DCN, and the third-party marketplace have all authorised it. No single party can move the facility unilaterally.
+- **Design in progress:** Specific flows, APIs, and on-chain script details are still to be defined. This page will be updated as the transfer path is implemented.

@@ -6,9 +6,11 @@ description: Bitcoin Taproot vaults that enforce deterministic liquidation and n
 # 🎯 Deterministic Liquidation for Locked Bitcoin
 
 *dVaults* are Taproot-based Bitcoin vaults that enforce deterministic liquidation and non-custodial collateral management. Each vault encodes three spend paths:
-1. **Repay** - borrower + signer authorization.  
-2. **Liquidate** - signer-only authorization when collateral falls below the minimum ratio.  
-3. **Escape** - borrower-only fallback after a time-based lock (censorship safety).
+1. **Repay** - borrower + DCN authorization.  
+2. **Liquidate** - DCN-only authorization when collateral falls below the minimum ratio.  
+3. **Delinquency** - DCN-only authorization when credit line is not paid off or extended at end of term.  
+4. **Transfer** - borrower + DCN + third party authorization when borrower requests loan transfer out of Surge Credit Market.  
+5. **Escape** - borrower-only fallback after a time-based lock (censorship safety).
 
 Each path references a **pre-committed PSBT template** defined at vault creation.
 
@@ -18,15 +20,15 @@ Liquidations are **triggered by the Execution State Machine (ESM)**, which emits
 A deterministic coordination program (middleware) runs on EVM-compatible infrastructure.
 - Tracks vault collateral, debt, and oracle state.  
 - Emits deterministic liquidation instructions (“liquidate 0.02 BTC lot”).  
-- Cannot move BTC directly, it only attests valid liquidation conditions to the **signer quorum**.  
-- Every state change is verifiable and reproducible across signers.
+- Cannot move BTC directly, it only attests valid liquidation conditions to the **DCN**.  
+- Every state change is verifiable and reproducible across members of the DCN.
 
-This middleware acts as an *execution oracle* that coordinates signer actions without custodial control or discretionary intervention.
+This middleware acts as an *execution oracle* that coordinates DCN actions without custodial control or discretionary intervention.
 
-## Signer Verification 
-Each signer independently validates before co-signing:
+## Distributed Custody Network Verification 
+Each DCN member independently validates before co-signing:
 - Verify that inputs correspond to the correct dVault UTXO and MAST leaf.  
-- Ensure outputs are not controlled by signers.  
+- Ensure outputs are not controlled by DCN members.  
 - Confirm input parameters align with pre-committed liquidation rules.  
 - Check that oracle data remains within deviation limits.  
 - Verify that the escape timelock has not expired.
@@ -36,14 +38,15 @@ If any rule fails, **no signature is produced** preventing arbitrary spending.
 When `CR < MCR (Minimum Collateral Ratio)`:
 1. The ESM emits a `LiquidationTriggered(vaultId)` event. 
 2. The coordination middleware publishes the corresponding liquidation instruction.
-3. Signers reconstruct the PSBT based on committed vault parameters.
-4. The signer quorum co-sign and broadcasts the transaction to Bitcoin.
-5. Liquidated BTC is routed to the **Unified Liquidity Pool**, which cancels an equivalent amount of stablecoin debt to restore solvency.
-6. Remaining BTC is **re-locked** into a new dVault UTXO under the same script conditions with an incremented nonce.
-This process enables **micro-lot liquidation**, minimizing borrower losses and preventing cascading liquidations during volatility.
+3. DCN members reconstruct the PSBT based on committed vault parameters.
+4. The DCN signs and broadcasts the transaction to Bitcoin.
+5. Liquidated BTC is routed to the **DCN** while a dutch auction is started on the EVM layer. 
+6. The dutch auction returns stablecoins which replace the principal + debt of the line of credit being liquidated.
+7. Remaining BTC is **re-locked** into a new dVault UTXO under the same script conditions with an incremented nonce.
+This process can also enable **micro-lot liquidation**, minimizing borrower losses and preventing cascading liquidations during volatility.
 
 ## Key Guarantees
-- **Non-Custodial:** BTC remains locked in Taproot vaults on Bitcoin, only user + signer quorum or timelock can move funds.  
+- **Non-Custodial:** BTC remains locked in Taproot vaults on Bitcoin, only user + DCN or timelock can move funds.  
 - **Deterministic:** All state transitions and PSBTs are reproducible and verifiable across signers.  
 - **Censorship-Safe:** Borrowers can always reclaim funds through the Escape path after timelock expiry.  
-- **Unified Liquidity:** Liquidation proceeds flow directly into the Unified Liquidity Pool, reconciling BTC collateral and stablecoin liabilities within a single deterministic ledger.
+- **Market Segregated Risk:** Liquidation proceeds flow into the each market based on where the liquidated credit line came from, reconciling BTC collateral and stablecoin liabilities within the Execution State Machine’s deterministic ledger.

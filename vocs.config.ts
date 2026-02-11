@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export default defineConfig({
-  description: "Bitcoin Native Credit Line. Secure Bitcoin collateral system with Taproot UTXOs, Decentralized Signers, and Credit line infrastructure.",
+  description: "Bitcoin Native Credit Market. Secure Bitcoin collateral system with Taproot UTXOs, Decentralized Signers, and credit market infrastructure.",
   logoUrl: {
     light: "/logo/surge-icon-rec-light.svg",
     dark: "/logo/surge-icon-rec-dark.svg",
@@ -19,7 +19,7 @@ export default defineConfig({
     accentColor: "#f4431b",
     // colorScheme: "dark",
   },
-  title: "Surge - Bitcoin-native Credit Line",
+  title: "Surge - Bitcoin-native Credit Market",
   sidebar: {
     "/": [
       {
@@ -60,6 +60,10 @@ export default defineConfig({
                 link: "/product/for-liquidity-providers",
               },
               {
+                text: "For Distribution Partners",
+                link: "/product/for-distribution-partners",
+              },
+              {
                 text: "For Everyone",
                 link: "/product/for-everyone",
               },
@@ -88,6 +92,14 @@ export default defineConfig({
                 link: "/tech/dvaults-liquidation",
               },
               {
+                text: "Delinquency",
+                link: "/tech/delinquency",
+              },
+              {
+                text: "Transfers",
+                link: "/tech/transfers",
+              },
+              {
                 text: "Unilateral Exit",
                 link: "/tech/exit",
               },
@@ -98,8 +110,8 @@ export default defineConfig({
             link: "/tech/self-custody-wallet",
           },
           {
-            text: "Threshold Schnorr",
-            link: "/tech/schnorr",
+            text: "Distributed Custody Network",
+            link: "/tech/distributed-custody-network",
           },
           {
             text: "Execution State Machine",
@@ -107,8 +119,8 @@ export default defineConfig({
           },
 
           {
-            text: "Liquidity Management",
-            link: "/tech/liquidity-pools",
+            text: "Credit Markets",
+            link: "/tech/credit-markets",
           },
           {
             text: "Oracle System",
