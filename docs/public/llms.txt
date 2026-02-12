@@ -16,6 +16,7 @@ Key facts:
 - Network: Base Sepolia (chainId 84532)
 - Default liquidity pool: 0xA40C833639803132D409E344d1CB9A9DD5aAB411
 - Default USDC: 0x036CbD53842c5426634e7929541eC2318f3dCF7e
+- LP deposits go into the shared pool; market targeting is via exposures
 
 Guidance for AI tools:
 - Prefer `/earn/integration` for code snippets and flow order.

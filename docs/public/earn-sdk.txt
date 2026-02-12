@@ -23,9 +23,11 @@ Read APIs:
 Write APIs:
 - approveMaxUsdc({ account?, waitForReceipt? })
 - deposit({ amountUsdc, account?, waitForReceipt? })
+- depositAsLp({ amountUsdc, account?, approveIfNeeded?, exposureUpdates?, waitForReceipt? })
 - withdrawByUsdc({ amountUsdc, account, waitForReceipt? })
 - withdrawByLpTokens({ lpTokens, account?, waitForReceipt? })
 - setExposure({ marketId, exposurePercent, account?, waitForReceipt? })
+- setExposures({ updates, account?, waitForReceipt? })
 
 Activity APIs:
 - listDepositEvents({ user?, fromBlock?, toBlock?, includeTimestamps?, limit? })
@@ -43,6 +45,10 @@ Deposit flow:
 2) approveMaxUsdc if needed
 3) deposit with waitForReceipt true
 4) refresh market/portfolio/activity views
+
+Fixed/variable targeting:
+- Users always deposit to the shared pool as LPs
+- Set market exposures before deposit to steer allocation to fixed or variable markets
 
 Withdraw flow:
 - For amount in USDC: withdrawByUsdc

@@ -31,9 +31,11 @@ Read Methods
 Write Methods
 - approveMaxUsdc
 - deposit
+- depositAsLp
 - withdrawByUsdc
 - withdrawByLpTokens
 - setExposure
+- setExposures
 
 Event/Activity Methods
 - listDepositEvents
@@ -50,6 +52,7 @@ Recommended UX flow for invest
 - Read USDC balance first
 - Validate amount <= wallet USDC
 - Check allowance and approve max when needed
+- Optionally set exposures first for fixed/variable targeting
 - Submit deposit and wait for receipt
 - Refresh portfolio and activity after confirmation
 

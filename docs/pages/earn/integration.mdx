@@ -7,6 +7,11 @@ description: End-to-end guide for integrating Surge Earn market listing and depo
 
 This page is intentionally concise so wallet teams and AI tools can integrate quickly.
 
+Important behavior:
+
+- LPs deposit into the shared pool (not directly into a single market contract).
+- Market routing is controlled with exposure settings (`setExposure` / `setExposures`).
+
 ## 1) Install
 
 ```bash
@@ -63,6 +68,17 @@ if (allowance === 0n) {
 }
 
 await earn.deposit({ amountUsdc, account: address, waitForReceipt: true });
+```
+
+Target a fixed market allocation in one flow:
+
+```ts
+await earn.depositAsLp({
+  account: address,
+  amountUsdc: "100",
+  exposureUpdates: [{ marketId: 2, exposurePercent: 100 }],
+  waitForReceipt: true,
+});
 ```
 
 ## 5) Withdraw flow
