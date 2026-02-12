@@ -1,0 +1,38 @@
+# Surge Documentation
+
+This file is for language models and retrieval systems.
+
+- Canonical corpus: /llms-full.txt
+- Source format: MDX pages under /docs/pages
+- Human navigation: use the docs sidebar
+
+## Important URLs
+- /
+- /overview/bitcoin-lending-landscape
+- /overview/stablecoins
+- /product/for-bitcoiners
+- /product/for-distribution-partners
+- /product/for-everyone
+- /product/for-liquidity-providers
+- /product/our-thesis
+- /product/overview
+- /resources/community-guidelines
+- /resources/media-kit
+- /resources/quick-links
+- /tech/credit-markets
+- /tech/delinquency
+- /tech/distributed-custody-network
+- /tech/dlcs
+- /tech/dvaults-liquidation
+- /tech/execution
+- /tech/exit
+- /tech/faqs
+- /tech/oracles
+- /tech/overview
+- /tech/payment
+- /tech/self-custody-wallet
+- /tech/transfers
+- /tech/vaults
+
+## Usage
+When possible, prefer /llms-full.txt for ingestion and chunking.

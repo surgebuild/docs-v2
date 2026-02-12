@@ -4,8 +4,9 @@
   "type": "module",
   "scripts": {
     "dev": "vocs dev",
-    "build": "vocs build",
-    "preview": "vocs preview"
+    "build": "pnpm ai:build && vocs build",
+    "preview": "vocs preview",
+    "ai:build": "node scripts/generate-ai-files.mjs"
   },
   "dependencies": {
     "@types/react": "latest",

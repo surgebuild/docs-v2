@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# AI-friendly corpus endpoints
+Allow: /llms.txt
+Allow: /llms-full.txt
