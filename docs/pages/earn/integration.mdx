@@ -5,21 +5,15 @@ description: End-to-end guide for integrating Surge Earn market listing and depo
 
 # Earn SDK Integration Guide
 
-This guide shows how to integrate Surge Earn into a web wallet or dApp using TypeScript, JavaScript, and React.
+This page is intentionally concise so wallet teams and AI tools can integrate quickly.
 
-## 1) Install dependencies
-
-```bash
-npm install @surge/earn-sdk viem
-```
-
-For React hooks:
+## 1) Install
 
 ```bash
-npm install react
+npm install @surgecredit/earn-sdk@latest viem
 ```
 
-## 2) Create clients
+## 2) Initialize SDK
 
 ```ts
 import { createWalletClient, custom } from "viem";
@@ -28,7 +22,7 @@ import {
   SurgeEarnClient,
   SURGE_BASE_SEPOLIA_CONFIG,
   createSurgeEarnPublicClient,
-} from "@surge/earn-sdk";
+} from "@surgecredit/earn-sdk";
 
 const publicClient = createSurgeEarnPublicClient("https://sepolia.base.org", baseSepolia);
 
@@ -44,49 +38,26 @@ export const earn = new SurgeEarnClient({
 });
 ```
 
-## 3) List markets for wallet users
-
-```ts
-const markets = await earn.listMarkets();
-
-// Example rendering payload:
-// {
-//   id,
-//   displayName,
-//   marketType,
-//   supplyApr,
-//   borrowApr,
-//   totalAssets,
-//   utilization,
-//   maxLtv,
-// }
-```
-
-## 4) Read wallet position
+## 3) Read markets and user state
 
 ```ts
 const address = "0xYourWalletAddress";
 
-const [position, exposures] = await Promise.all([
+const [markets, position, exposures, usdcBalance] = await Promise.all([
+  earn.listMarkets(),
   earn.getUserPosition(address),
   earn.getUserExposures(address),
+  earn.getWalletUsdcBalance(address),
 ]);
 ```
 
-## 5) Deposit flow
-
-The standard flow is:
-
-1. Check current USDC allowance.
-2. If low, approve max.
-3. Submit deposit.
+## 4) Deposit flow (wallet invest)
 
 ```ts
 const address = "0xYourWalletAddress";
-const amountUsdc = "150";
+const amountUsdc = "100";
 
 const allowance = await earn.getAllowance(address);
-
 if (allowance === 0n) {
   await earn.approveMaxUsdc({ account: address, waitForReceipt: true });
 }
@@ -94,161 +65,49 @@ if (allowance === 0n) {
 await earn.deposit({ amountUsdc, account: address, waitForReceipt: true });
 ```
 
-## 6) Withdraw flow
-
-Withdraw by USDC amount (SDK computes LP tokens):
+## 5) Withdraw flow
 
 ```ts
 await earn.withdrawByUsdc({
-  amountUsdc: "50",
+  amountUsdc: "25",
   account: "0xYourWalletAddress",
   waitForReceipt: true,
 });
 ```
 
-Or withdraw by explicit LP token amount:
+## 6) Activity feed
 
 ```ts
-await earn.withdrawByLpTokens({
-  lpTokens: "10.25",
-  account: "0xYourWalletAddress",
-  waitForReceipt: true,
+const activity = await earn.getUserActivity("0xYourWalletAddress", {
+  includeTimestamps: true,
+  limit: 25,
 });
 ```
 
-## 7) Exposure update flow (fixed markets)
-
-```ts
-await earn.setExposure({
-  marketId: 2,
-  exposurePercent: 35,
-  account: "0xYourWalletAddress",
-  waitForReceipt: true,
-});
-```
-
-## 8) React hooks
+## 7) React hooks (optional)
 
 ```tsx
-import { useEarnActivity, useEarnMarkets, useEarnPortfolio } from "@surge/earn-sdk/react";
+import { useEarnActivity, useEarnMarkets, useEarnPortfolio } from "@surgecredit/earn-sdk/react";
 
 function EarnView({ client, address }: { client: any; address: `0x${string}` }) {
-  const { data: markets, loading } = useEarnMarkets(client, { pollIntervalMs: 15000 });
+  const { data: markets } = useEarnMarkets(client, { pollIntervalMs: 15000 });
   const { data: portfolio } = useEarnPortfolio(client, address);
   const { data: activity } = useEarnActivity(client, { user: address, limit: 10, pollIntervalMs: 15000 });
 
-  if (loading) return <div>Loading markets...</div>;
-
   return (
     <div>
-      <h2>Markets: {markets.length}</h2>
-      <h3>Current Value: {portfolio.position?.currentValue ?? 0}</h3>
-      <h4>Recent Activity: {activity.length}</h4>
+      <div>Markets: {markets.length}</div>
+      <div>Current Value: {portfolio.position?.currentValue ?? 0}</div>
+      <div>Recent Activity: {activity.length}</div>
     </div>
   );
 }
 ```
 
-## 9) Test wallet example
-
-A ready-to-run sample app is available in `surge-earn-sdk/examples/test-wallet`.
-
-It includes:
-
-- Mnemonic create/import
-- Mnemonic persistence across page refresh
-- Base Sepolia address preview
-- Base Sepolia USDC balance display
-- Faucet helper panel (copy address + ETH/USDC links)
-- Invest flow (approve + deposit via SDK)
-- Market listing and recent activity feed
-
-## 10) MetaMask connect helpers (UI-ready)
-
-```ts
-import { createWalletClient, custom } from "viem";
-import { baseSepolia } from "viem/chains";
-import {
-  SurgeEarnClient,
-  SURGE_BASE_SEPOLIA_CONFIG,
-  createSurgeEarnPublicClient,
-} from "@surge/earn-sdk";
-
-async function connectMetaMaskForEarn() {
-  if (!window.ethereum) throw new Error("MetaMask not installed");
-
-  const [account] = await window.ethereum.request({ method: "eth_requestAccounts" });
-  const chainIdHex = await window.ethereum.request({ method: "eth_chainId" });
-
-  if (Number(chainIdHex) !== baseSepolia.id) {
-    await window.ethereum.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: "0x14a34" }],
-    });
-  }
-
-  const publicClient = createSurgeEarnPublicClient("https://sepolia.base.org", baseSepolia);
-  const walletClient = createWalletClient({
-    chain: baseSepolia,
-    transport: custom(window.ethereum),
-  });
-
-  return {
-    account,
-    earn: new SurgeEarnClient({
-      publicClient,
-      walletClient,
-      config: SURGE_BASE_SEPOLIA_CONFIG,
-    }),
-  };
-}
-
-export async function approveAndDeposit(amountUsdc: string) {
-  const { account, earn } = await connectMetaMaskForEarn();
-  const allowance = await earn.getAllowance(account);
-  if (allowance === 0n) {
-    await earn.approveMaxUsdc({ account, waitForReceipt: true });
-  }
-  await earn.deposit({ amountUsdc, account, waitForReceipt: true });
-}
-
-export async function withdrawUsdc(amountUsdc: string) {
-  const { account, earn } = await connectMetaMaskForEarn();
-  await earn.withdrawByUsdc({ amountUsdc, account, waitForReceipt: true });
-}
-```
-
-## 11) Activity feed (deposit/withdraw history)
-
-```ts
-const activity = await earn.getUserActivity("0xYourWalletAddress", {
-  fromBlock: 0n,
-  includeTimestamps: true,
-  limit: 25,
-});
-
-// item shape:
-// {
-//   type: "deposit" | "withdraw",
-//   amount,
-//   lpTokens,
-//   txHash,
-//   blockNumber,
-//   timestamp
-// }
-```
-
-You can also query globally:
-
-```ts
-const deposits = await earn.listDepositEvents({ fromBlock: 0n, limit: 100 });
-const withdrawals = await earn.listWithdrawEvents({ fromBlock: 0n, limit: 100 });
-```
-
 ## Integration checklist
 
-- Ensure wallet is connected to Base Sepolia (`chainId: 84532`).
-- Use a reliable Base Sepolia RPC endpoint.
-- Confirm USDC decimals are 6.
-- Wait for transaction receipts before refreshing portfolio state.
-- Display explorer links for all write transactions.
+- Wallet network is Base Sepolia (`chainId: 84532`)
+- Reliable Base Sepolia RPC configured
+- USDC token decimals treated as 6
+- Wait for transaction receipts before refreshing UI
+- Show tx hash and explorer link after write actions

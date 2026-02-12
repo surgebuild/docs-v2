@@ -3,7 +3,7 @@ Surge Docs - LLM Full Context (Earn SDK)
 This file provides a compact but complete model-friendly context for Surge Earn SDK integration.
 
 Overview
-- SDK package: @surge/earn-sdk
+- SDK package: @surgecredit/earn-sdk
 - Target users: wallet teams and frontend web apps
 - Primary network: Base Sepolia
 - Use cases: market listing, user position reads, deposits, withdrawals, exposure settings, activity feed
@@ -15,7 +15,7 @@ Network Defaults
 
 Setup Example
 1) Install dependencies:
-   npm install @surge/earn-sdk viem
+   npm install @surgecredit/earn-sdk@latest viem
 2) Build public client:
    createSurgeEarnPublicClient("https://sepolia.base.org", baseSepolia)
 3) Optional wallet client for writes

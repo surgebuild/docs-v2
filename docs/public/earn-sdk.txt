@@ -1,7 +1,7 @@
 Surge Earn SDK - Plain Text Integration Guide
 
 Install:
-npm install @surge/earn-sdk viem
+npm install @surgecredit/earn-sdk@latest viem
 
 Default network:
 - Base Sepolia (chainId: 84532)

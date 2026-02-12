@@ -5,7 +5,7 @@ description: Integrate Surge Earn markets into wallet and web applications.
 
 # Earn SDK Overview
 
-`@surge/earn-sdk` is a JavaScript/TypeScript SDK for wallet teams and frontend apps that want to integrate Surge earn markets on Base Sepolia.
+`@surgecredit/earn-sdk` is a JavaScript/TypeScript SDK for wallet teams and frontend apps that want to integrate Surge earn markets on Base Sepolia.
 
 ## What the SDK gives you
 
@@ -13,7 +13,7 @@ description: Integrate Surge Earn markets into wallet and web applications.
 - User position reads (`getUserPosition`) including deposited value and LP token balance.
 - Exposure reads (`getUserExposures`) to show per-market allocation and target exposure.
 - Transaction helpers for approve, deposit, withdraw, and exposure updates.
-- React hooks (`@surge/earn-sdk/react`) for easy frontend state integration.
+- React hooks (`@surgecredit/earn-sdk/react`) for easy frontend state integration.
 
 ## Default network configuration
 
@@ -27,7 +27,7 @@ You can override both addresses if you deploy to a new environment.
 ## Install
 
 ```bash
-npm install @surge/earn-sdk viem
+npm install @surgecredit/earn-sdk@latest viem
 ```
 
 ## Quick start
@@ -38,7 +38,7 @@ import {
   SurgeEarnClient,
   SURGE_BASE_SEPOLIA_CONFIG,
   createSurgeEarnPublicClient,
-} from "@surge/earn-sdk";
+} from "@surgecredit/earn-sdk";
 
 const publicClient = createSurgeEarnPublicClient("https://sepolia.base.org", baseSepolia);
 
