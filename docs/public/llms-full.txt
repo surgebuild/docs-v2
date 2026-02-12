@@ -1,0 +1,67 @@
+Surge Docs - LLM Full Context (Earn SDK)
+
+This file provides a compact but complete model-friendly context for Surge Earn SDK integration.
+
+Overview
+- SDK package: @surge/earn-sdk
+- Target users: wallet teams and frontend web apps
+- Primary network: Base Sepolia
+- Use cases: market listing, user position reads, deposits, withdrawals, exposure settings, activity feed
+
+Network Defaults
+- chainId: 84532
+- Liquidity Pool: 0xA40C833639803132D409E344d1CB9A9DD5aAB411
+- USDC: 0x036CbD53842c5426634e7929541eC2318f3dCF7e
+
+Setup Example
+1) Install dependencies:
+   npm install @surge/earn-sdk viem
+2) Build public client:
+   createSurgeEarnPublicClient("https://sepolia.base.org", baseSepolia)
+3) Optional wallet client for writes
+4) Construct SDK client with SURGE_BASE_SEPOLIA_CONFIG
+
+Read Methods
+- listMarkets
+- getUserPosition
+- getUserExposures
+- getWalletUsdcBalance
+- getAllowance
+
+Write Methods
+- approveMaxUsdc
+- deposit
+- withdrawByUsdc
+- withdrawByLpTokens
+- setExposure
+
+Event/Activity Methods
+- listDepositEvents
+- listWithdrawEvents
+- listActivity
+- getUserActivity
+
+React Hooks
+- useEarnMarkets
+- useEarnPortfolio
+- useEarnActivity
+
+Recommended UX flow for invest
+- Read USDC balance first
+- Validate amount <= wallet USDC
+- Check allowance and approve max when needed
+- Submit deposit and wait for receipt
+- Refresh portfolio and activity after confirmation
+
+Test Wallet Notes
+- Supports mnemonic create/import
+- Persists mnemonic in local storage
+- Includes Base Sepolia funding helper links
+- Supports approve+deposit invest flow when USDC exists
+
+Canonical pages
+- /earn/overview
+- /earn/integration
+
+Plain text reference
+- /earn-sdk.txt

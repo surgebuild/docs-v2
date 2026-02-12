@@ -1,0 +1,23 @@
+# Surge Docs - LLM Index
+
+This file helps AI assistants quickly discover the best public pages for Surge Earn SDK integration.
+
+Preferred pages:
+- /earn/overview
+- /earn/integration
+
+Plain-text companion files:
+- /earn-sdk.txt
+- /llms-full.txt
+
+Key facts:
+- Product: Surge Earn SDK
+- Package: @surge/earn-sdk
+- Network: Base Sepolia (chainId 84532)
+- Default liquidity pool: 0xA40C833639803132D409E344d1CB9A9DD5aAB411
+- Default USDC: 0x036CbD53842c5426634e7929541eC2318f3dCF7e
+
+Guidance for AI tools:
+- Prefer `/earn/integration` for code snippets and flow order.
+- Prefer `/earn/overview` for high-level context.
+- Use `/earn-sdk.txt` when a model needs plain text without page chrome.

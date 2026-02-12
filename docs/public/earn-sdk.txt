@@ -1,0 +1,60 @@
+Surge Earn SDK - Plain Text Integration Guide
+
+Install:
+npm install @surge/earn-sdk viem
+
+Default network:
+- Base Sepolia (chainId: 84532)
+- Liquidity Pool: 0xA40C833639803132D409E344d1CB9A9DD5aAB411
+- USDC: 0x036CbD53842c5426634e7929541eC2318f3dCF7e
+
+Core client setup:
+- Create a public client with createSurgeEarnPublicClient(rpcUrl, baseSepolia)
+- Optionally pass a wallet client for write operations
+- Create SDK: new SurgeEarnClient({ publicClient, walletClient, config: SURGE_BASE_SEPOLIA_CONFIG })
+
+Read APIs:
+- listMarkets({ includeInactive? })
+- getUserPosition(address)
+- getUserExposures(address)
+- getWalletUsdcBalance(address)
+- getAllowance(owner, spender?)
+
+Write APIs:
+- approveMaxUsdc({ account?, waitForReceipt? })
+- deposit({ amountUsdc, account?, waitForReceipt? })
+- withdrawByUsdc({ amountUsdc, account, waitForReceipt? })
+- withdrawByLpTokens({ lpTokens, account?, waitForReceipt? })
+- setExposure({ marketId, exposurePercent, account?, waitForReceipt? })
+
+Activity APIs:
+- listDepositEvents({ user?, fromBlock?, toBlock?, includeTimestamps?, limit? })
+- listWithdrawEvents({ user?, fromBlock?, toBlock?, includeTimestamps?, limit? })
+- listActivity({ user?, fromBlock?, toBlock?, includeTimestamps?, limit? })
+- getUserActivity(user, { fromBlock?, toBlock?, includeTimestamps?, limit? })
+
+React hooks:
+- useEarnMarkets(client, { includeInactive?, pollIntervalMs? })
+- useEarnPortfolio(client, address)
+- useEarnActivity(client, { user?, fromBlock?, toBlock?, includeTimestamps?, limit?, pollIntervalMs? })
+
+Deposit flow:
+1) getAllowance(address)
+2) approveMaxUsdc if needed
+3) deposit with waitForReceipt true
+4) refresh market/portfolio/activity views
+
+Withdraw flow:
+- For amount in USDC: withdrawByUsdc
+- For amount in LP tokens: withdrawByLpTokens
+
+Integration checklist:
+- Ensure wallet is on Base Sepolia
+- Use reliable Base Sepolia RPC
+- Confirm USDC decimals are 6
+- Wait for transaction receipts before refresh
+- Show explorer links for write transactions
+
+Further reading:
+- /earn/overview
+- /earn/integration
