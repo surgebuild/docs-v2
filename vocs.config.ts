@@ -92,10 +92,6 @@ export default defineConfig({
                 link: "/tech/dvaults-liquidation",
               },
               {
-                text: "Delinquency",
-                link: "/tech/delinquency",
-              },
-              {
                 text: "Transfers",
                 link: "/tech/transfers",
               },
