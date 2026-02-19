@@ -17,8 +17,8 @@ This vault enforces three deterministic spending paths:
 2. **Liquidation:** 
   - If the credit line’s health drops below a predefined threshold, the DCN will sign a liquidation transaction, only when validated by multiple external oracle attestations.
   - If the credit line is not paid off or rolled over at the end of term, the DCN can sign a liquidation transaction. BTC will be sold to cover debt + interest and the remainder returned.
-3. **Transfer:** Bitcoiners may transfer loans to and from Surge's credit market. This requires signitures from the Bitcoiner, DCN, and a third party credit provider.
-4. **Time-Locked Recovery:** If the system becomes unresponsive or the DCN go offline, the BTC becomes spendable by the borrower after a pre-set time lock.
+3. **Transfer:** Bitcoiners may transfer loans to and from Surge's credit market. This requires signatures from the Bitcoiner, DCN, and a third party credit provider.
+4. **Time-Locked Recovery:** If the system becomes unresponsive or the DCN goes offline, the BTC becomes spendable by the borrower after a pre-set time lock.
 
 This ensures that funds are always:
 - Non-custodial – borrower shares control with the DCN 

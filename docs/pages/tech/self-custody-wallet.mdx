@@ -29,7 +29,7 @@ Once instantiated, its memory and code are cryptographically measured and isolat
 
 ### 1. Email Login & Session Initialization
 - The user authenticates using **email + OTP**.  
-- Upon successful verification, a short-lived **JWT session token**.  
+- Upon successful verification, a short-lived **JWT session token** is issued.  
 - This token is used to authorize enclave operations during its validity period.
 
 ### 2. Deterministic Key Generation
@@ -59,7 +59,7 @@ Once instantiated, its memory and code are cryptographically measured and isolat
 
 ## Hardware Backed Isolation
 
-Wallet key management operate within hardware-backed **trusted execution environments (TEEs)**.  
+Wallet key management operates within hardware-backed **trusted execution environments (TEEs)**.  
 Each instance produces a **cryptographic attestation report** at initialization:
 - Verifies that the environment runs on **genuine, unmodified hardware**.  
 - Ensures the loaded code matches the **approved wallet binary**.  

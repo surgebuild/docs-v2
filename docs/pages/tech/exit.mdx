@@ -11,13 +11,13 @@ This path enforces **sovereignty at the script level** - not by protocol promise
 
 Example Unilateral Exit Hypothetical
     - Day 1 - Collateral is deposited and stablecoin is distributed
-    - Day 300 - EVM / DCN go offline
+    - Day 300 - EVM / DCN goes offline
     - Day 365 + 7 - Borrower can unilaterally withdraw all collateral without paying back principal + interest
 
 ## Why It Exists
 All other dVault spend paths require multi party coordination:
 
-If those external systems fail - DCN go offline, oracle data stops updating, or the ESM halts - the user still needs a guaranteed way to recover funds.  
+If those external systems fail - DCN goes offline, oracle data stops updating, or the ESM halts - the user still needs a guaranteed way to recover funds.  
 That’s what this Taproot spend path enforces: **after a fixed delay, the user can unilaterally spend the vault**.
 
 ## Script Logic

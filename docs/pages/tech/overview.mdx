@@ -10,7 +10,7 @@ Surge is a Bitcoin-native credit market built on **programmable Taproot vaults**
 
 Each dVault locks BTC under predefined scripted conditions that allow repayment, liquidation, delinquency, transfer, and unilateral exit. All logic is enforced by Bitcoin script, no wrapped assets or no custodians.
 
-A dVault is co-manged by the user and the Distributed Custody Network. 
+A dVault is co-managed by the user and the Distributed Custody Network. 
 - **The User**, who provides BTC as collateral
 - **The Distributed Custody Network**, a decentralized set of threshold signers that validate state transitions. 
 
@@ -25,9 +25,9 @@ Both must provide Schnorr signatures to authorize any movement of BTC, ensuring 
 
 Surge uses an Execution State Machine (ESM) to coordinate vault logic and monitor collateral health. The ESM functions as a deterministic coordination layer operated by distributed custody nodes. It observes Bitcoin vault data, oracle price feed, and distributed custody proofs, then produces verifiable state commitments when spend conditions are satisfied.
 
-When a vault’s collateral ratio (CR) drops below its per market safety threshold, the **liquidation path** activates automatically.  BTC is spent to the DCN, which starts and dutch auction process. The procceeds from the auction return to the market from which the credit line was liquidated.  
+When a vault’s collateral ratio (CR) drops below its per market safety threshold, the **liquidation path** activates automatically.  BTC is spent to the DCN, which starts a dutch auction process. The proceeds from the auction return to the market from which the credit line was liquidated.  
 
-When a vault’s term expired and the credit line is not fully repaid, the **delinquency path** activates automatically.  BTC is spent to the DCN, which starts and dutch auction process. The procceeds from the auction return to the market from which the credit line was liquidated. Any remaining BTC is returned to the borrower.  
+When a vault’s term expired and the credit line is not fully repaid, the **delinquency path** activates automatically.  BTC is spent to the DCN, which starts a dutch auction process. The proceeds from the auction return to the market from which the credit line was liquidated. Any remaining BTC is returned to the borrower.  
 
 Other paths **repayment** and **time locked recovery (Unilateral exit)** are enforced directly through Taproot conditions, ensuring execution by code, not trust. 
 
