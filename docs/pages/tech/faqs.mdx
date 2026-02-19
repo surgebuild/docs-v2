@@ -42,4 +42,11 @@ BTC stays in your dVault, which no single entity can spend. Even if signers go o
 If a signer misbehaves, Lin22 generates cryptographic proof identifying who failed, allowing to exclude signer for next requests, slashing and signer rotation without relying on the coordinator
 
 </details>
+---
+<details>
+<summary>**What's the difference between variable and fixed rate?**</summary>
+
+**Variable rate** comes from the floating-rate market: the borrow rate moves with utilization. **Fixed rate** comes from dedicated fixed-rate tranches (e.g. 6%, 8%): you lock in a set rate for your loan. Liquidity is *moved* between the variable pool and fixed markets when borrowers take or repay fixed-rate loans—it isn't duplicated. LPs can opt in to fixed markets and set allocation limits. See [Credit Markets](/tech/credit-markets) for the full picture, or the [Surge Multi-Market Lending Pool](https://surgehq.notion.site/Surge-Multi-Market-Lending-Pool-2fc232deac9080218404ea7605e713c6) (Notion) for a design deep-dive.
+
+</details>
 
