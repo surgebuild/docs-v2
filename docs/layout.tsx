@@ -11,15 +11,15 @@ type LayoutProps = {
 };
 
 export default function Layout({ children }: LayoutProps) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   // Check if lock screen is enabled from config
   const lockScreenEnabled = authConfig.lockScreenEnabled;
 
+  const [isAuthenticated, setIsAuthenticated] = useState(!lockScreenEnabled);
+  const [isLoading, setIsLoading] = useState(lockScreenEnabled);
+
   useEffect(() => {
     if (!lockScreenEnabled) {
-      setIsAuthenticated(true);
-      setIsLoading(false);
+      // Already handled by initial state, but keep for safety if config changes dynamically
       return;
     }
 
