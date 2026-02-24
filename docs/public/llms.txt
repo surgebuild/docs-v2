@@ -21,13 +21,11 @@ This file helps AI assistants quickly discover the best public pages for Surge i
 - [💰 For Liquidity Providers](/product/for-liquidity-providers)
 - [🔭  Our Thesis](/product/our-thesis)
 - [🖼️ Product Overview](/product/overview)
-- [<h1>🚨 COMMUNITY GUIDELINES 🚨 </h1> <br />](/resources/community-guidelines)
 - [Branding and Logos [Bitcoin-native Credit Market]](/resources/media-kit)
 - [Quick Links](/resources/quick-links)
 
 ### Technology & Architecture
 - [👥 Distributed Custody Network](/tech/distributed-custody-network)
-- [⚡ Why DLCs Don’t Work for Surge](/tech/dlcs)
 - [🎯 Deterministic Liquidation for Locked Bitcoin](/tech/dvaults-liquidation)
 - [⚙️ Execution State Machine](/tech/execution)
 - [⏳ Unilateral Exit](/tech/exit)

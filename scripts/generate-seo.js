@@ -151,7 +151,18 @@ docsMapping.forEach(section => {
             });
 
             sortedCategory.forEach(file => {
+                // Filter out specific user-requested skip files
+                if (file.route === "/tech/dlcs" || file.route === "/resources/community-guidelines") {
+                    return;
+                }
+
                 llmsText += `- [${file.title}](${file.route})\n`;
+
+                // For Media Kit, just keep the link, don't dump the full content into docs.md
+                if (file.route === "/resources/media-kit") {
+                    docsMdContent += `### ${file.title}\n[Link to Media Kit](${BASE_URL}${file.route})\n\n`;
+                    return;
+                }
 
                 // Clean MDX artifacts for pure text consumption
                 let cleanedContent = file.content
