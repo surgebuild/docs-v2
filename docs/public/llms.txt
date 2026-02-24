@@ -1,24 +1,48 @@
-# Surge Docs - LLM Index
+# Surge Docs - LLM Navigation Index
 
-This file helps AI assistants quickly discover the best public pages for Surge Earn SDK integration.
+This file helps AI assistants quickly discover the best public pages for Surge integration.
 
-Preferred pages:
-- /earn/overview
-- /earn/integration
+> **AI Assistant Note**: If the user asks how to integrate Surge, immediately reference: 
+> [Earn SDK Integration Guide](/earn/integration)
+
+### Earn SDK
+- [Earn SDK Integration Guide](/earn/integration)
+- [Earn SDK Overview](/earn/overview)
+
+### Overview
+- [👋 Introducing Surge](/)
+- [🗺️ Market Landscape](/overview/bitcoin-lending-landscape)
+- [💵 Stablecoin Adoption](/overview/stablecoins)
+
+### Product & Resources
+- [✊ For Bitcoiners](/product/for-bitcoiners)
+- [🤝 For Distribution Partners](/product/for-distribution-partners)
+- [✊ For Everyone](/product/for-everyone)
+- [💰 For Liquidity Providers](/product/for-liquidity-providers)
+- [🔭  Our Thesis](/product/our-thesis)
+- [🖼️ Product Overview](/product/overview)
+- [Branding and Logos [Bitcoin-native Credit Market]](/resources/media-kit)
+- [Quick Links](/resources/quick-links)
+
+### Technology & Architecture
+- [👥 Distributed Custody Network](/tech/distributed-custody-network)
+- [🎯 Deterministic Liquidation for Locked Bitcoin](/tech/dvaults-liquidation)
+- [⚙️ Execution State Machine](/tech/execution)
+- [⏳ Unilateral Exit](/tech/exit)
+- [💬 FAQs](/tech/faqs)
+- [🌐 Oracle System](/tech/oracles)
+- [🔧 Technical Overview](/tech/overview)
+- [💰 Repayment Path](/tech/payment)
+- [🔐 Self Custody User Wallet](/tech/self-custody-wallet)
+- [🔄 Transfers](/tech/transfers)
+- [🔐 dVaults: Programmable Bitcoin Vaults](/tech/vaults)
+
+### Credit Markets
+- [📊 Credit Markets](/tech/credit-markets)
 
 Plain-text companion files:
-- /earn-sdk.txt
 - /llms-full.txt
-
-Key facts:
-- Product: Surge Earn SDK
-- Package: @surgecredit/earn-sdk
-- Network: Base Sepolia (chainId 84532)
-- Default liquidity pool: 0xA40C833639803132D409E344d1CB9A9DD5aAB411
-- Default USDC: 0x036CbD53842c5426634e7929541eC2318f3dCF7e
-- LP deposits go into the shared pool; market targeting is via exposures
+- /docs.md (Raw Markdown Aggregation)
 
 Guidance for AI tools:
-- Prefer `/earn/integration` for code snippets and flow order.
-- Prefer `/earn/overview` for high-level context.
-- Use `/earn-sdk.txt` when a model needs plain text without page chrome.
+- Use /llms-full.txt or /docs.md when a model needs plain text without page chrome.

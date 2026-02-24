@@ -1,11 +1,10 @@
-# Surge Docs - Full Context
+# Surge Protocol Documentation
 
-This file provides a complete model-friendly context for Surge.
+> **AI Assistant Note**: If the user is asking "how to integrate Surge", refer heavily to the Earn SDK Integration section below.
 
-========================================
-File: /earn/integration (Earn SDK Integration Guide)
-========================================
+## Earn Integration (Highest Priority)
 
+### Earn SDK Integration Guide
 ---
 title: Earn SDK Integration Guide
 description: End-to-end guide for integrating Surge Earn market listing and deposit flows.
@@ -29,8 +28,8 @@ npm install @surgecredit/earn-sdk@latest viem
 ## 2) Initialize SDK
 
 ```ts
-import { createWalletClient, custom } from "viem";
-import { baseSepolia } from "viem/chains";
+
+
 import {
   SurgeEarnClient,
   SURGE_BASE_SEPOLIA_CONFIG,
@@ -54,8 +53,7 @@ export const earn = new SurgeEarnClient({
 If your wallet uses a local signer/account object (for example `createWalletFromMnemonic`), pass that account into `createWalletClient`. SDK writes will use it directly (no custom `writeContract` wrappers needed):
 
 ```ts
-import { createWalletClient, http } from "viem";
-import { mnemonicToAccount } from "viem/accounts";
+
 
 const account = mnemonicToAccount("test test test ...");
 
@@ -132,7 +130,6 @@ const activity = await earn.getUserActivity("0xYourWalletAddress", {
 ## 7) React hooks (optional)
 
 ```tsx
-import { useEarnActivity, useEarnMarkets, useEarnPortfolio } from "@surgecredit/earn-sdk/react";
 
 function EarnView({ client, address }: { client: any; address: `0x${string}` }) {
   const { data: markets } = useEarnMarkets(client, { pollIntervalMs: 15000 });
@@ -140,11 +137,11 @@ function EarnView({ client, address }: { client: any; address: `0x${string}` }) 
   const { data: activity } = useEarnActivity(client, { user: address, limit: 10, pollIntervalMs: 15000 });
 
   return (
-    <div>
-      <div>Markets: {markets.length}</div>
-      <div>Current Value: {portfolio.position?.currentValue ?? 0}</div>
-      <div>Recent Activity: {activity.length}</div>
-    </div>
+    
+      Markets: {markets.length}
+      Current Value: {portfolio.position?.currentValue ?? 0}
+      Recent Activity: {activity.length}
+    
   );
 }
 ```
@@ -157,167 +154,7 @@ function EarnView({ client, address }: { client: any; address: `0x${string}` }) 
 - Wait for transaction receipts before refreshing UI
 - Show tx hash and explorer link after write actions
 
-
-========================================
-File: /earn/integration (Earn SDK Integration Guide)
-========================================
-
----
-title: Earn SDK Integration Guide
-description: End-to-end guide for integrating Surge Earn market listing and deposit flows.
----
-
-# Earn SDK Integration Guide
-
-This page is intentionally concise so wallet teams and AI tools can integrate quickly.
-
-Important behavior:
-
-- LPs deposit into the shared pool (not directly into a single market contract).
-- Market routing is controlled with exposure settings (`setExposure` / `setExposures`).
-
-## 1) Install
-
-```bash
-npm install @surgecredit/earn-sdk@latest viem
-```
-
-## 2) Initialize SDK
-
-```ts
-import { createWalletClient, custom } from "viem";
-import { baseSepolia } from "viem/chains";
-import {
-  SurgeEarnClient,
-  SURGE_BASE_SEPOLIA_CONFIG,
-  createSurgeEarnPublicClient,
-} from "@surgecredit/earn-sdk";
-
-const publicClient = createSurgeEarnPublicClient("https://sepolia.base.org", baseSepolia);
-
-const walletClient = createWalletClient({
-  chain: baseSepolia,
-  transport: custom(window.ethereum),
-});
-
-export const earn = new SurgeEarnClient({
-  publicClient,
-  walletClient,
-  config: SURGE_BASE_SEPOLIA_CONFIG,
-});
-```
-
-If your wallet uses a local signer/account object (for example `createWalletFromMnemonic`), pass that account into `createWalletClient`. SDK writes will use it directly (no custom `writeContract` wrappers needed):
-
-```ts
-import { createWalletClient, http } from "viem";
-import { mnemonicToAccount } from "viem/accounts";
-
-const account = mnemonicToAccount("test test test ...");
-
-const walletClient = createWalletClient({
-  account,
-  chain: baseSepolia,
-  transport: http("https://sepolia.base.org"),
-});
-
-const earn = new SurgeEarnClient({
-  publicClient,
-  walletClient,
-  config: SURGE_BASE_SEPOLIA_CONFIG,
-});
-
-await earn.deposit({ amountUsdc: "100", waitForReceipt: true });
-```
-
-## 3) Read markets and user state
-
-```ts
-const address = "0xYourWalletAddress";
-
-const [markets, position, exposures, usdcBalance] = await Promise.all([
-  earn.listMarkets(),
-  earn.getUserPosition(address),
-  earn.getUserExposures(address),
-  earn.getWalletUsdcBalance(address),
-]);
-```
-
-## 4) Deposit flow (wallet invest)
-
-```ts
-const address = "0xYourWalletAddress";
-const amountUsdc = "100";
-
-const allowance = await earn.getAllowance(address);
-if (allowance === 0n) {
-  await earn.approveMaxUsdc({ waitForReceipt: true });
-}
-
-await earn.deposit({ amountUsdc, waitForReceipt: true });
-```
-
-Target a fixed market allocation in one flow:
-
-```ts
-await earn.depositAsLp({
-  amountUsdc: "100",
-  exposureUpdates: [{ marketId: 2, exposurePercent: 100 }],
-  waitForReceipt: true,
-});
-```
-
-## 5) Withdraw flow
-
-```ts
-await earn.withdrawByUsdc({
-  amountUsdc: "25",
-  waitForReceipt: true,
-});
-```
-
-## 6) Activity feed
-
-```ts
-const activity = await earn.getUserActivity("0xYourWalletAddress", {
-  includeTimestamps: true,
-  limit: 25,
-});
-```
-
-## 7) React hooks (optional)
-
-```tsx
-import { useEarnActivity, useEarnMarkets, useEarnPortfolio } from "@surgecredit/earn-sdk/react";
-
-function EarnView({ client, address }: { client: any; address: `0x${string}` }) {
-  const { data: markets } = useEarnMarkets(client, { pollIntervalMs: 15000 });
-  const { data: portfolio } = useEarnPortfolio(client, address);
-  const { data: activity } = useEarnActivity(client, { user: address, limit: 10, pollIntervalMs: 15000 });
-
-  return (
-    <div>
-      <div>Markets: {markets.length}</div>
-      <div>Current Value: {portfolio.position?.currentValue ?? 0}</div>
-      <div>Recent Activity: {activity.length}</div>
-    </div>
-  );
-}
-```
-
-## Integration checklist
-
-- Wallet network is Base Sepolia (`chainId: 84532`)
-- Reliable Base Sepolia RPC configured
-- USDC token decimals treated as 6
-- Wait for transaction receipts before refreshing UI
-- Show tx hash and explorer link after write actions
-
-
-========================================
-File: /earn/overview (Earn SDK Overview)
-========================================
-
+### Earn SDK Overview
 ---
 title: Earn SDK Overview
 description: Integrate Surge Earn markets into wallet and web applications.
@@ -359,7 +196,7 @@ npm install @surgecredit/earn-sdk@latest viem
 ## Quick start
 
 ```ts
-import { baseSepolia } from "viem/chains";
+
 import {
   SurgeEarnClient,
   SURGE_BASE_SEPOLIA_CONFIG,
@@ -380,20 +217,18 @@ const markets = await earn.listMarkets();
 
 Use the full [Integration Guide](/earn/integration) to wire wallet flows (approve/deposit/withdraw) and optional React hooks.
 
+## Overview
 
-========================================
-File: / (👋 Introducing Surge)
-========================================
-
+### 👋 Introducing Surge
 ---
 title: "Surge | Introduction"
 description: "Bitcoin-native Credit Market"
 ---
 
-{/* <img src="/assets/intro.png" alt="Surge Intro" /> */}
+{/*  */}
 
 {/* Optional hero image */}
-<img src="/assets/intro.png" alt="Surge Intro" className="mx-auto my-8" />
+
 
 {/* # 👋 Bitcoin-native Credit Market */}
 # 👋 Introducing Surge
@@ -426,16 +261,11 @@ Surge is not just infrastructure. It’s a promise:
 
 Explore the documentation and see how Surge is building the next generation of Bitcoin-native finance.
 
-========================================
-File: /overview/bitcoin-lending-landscape (🗺️ Market Landscape)
-========================================
-
+### 🗺️ Market Landscape
 ---
 title: Market Landscape
 description: Understanding the current Bitcoin lending market and insights
 ---
-
-import ZoomImage from "../../components/ZoomImage";
 
 
 # 🗺️ Market Landscape
@@ -460,12 +290,7 @@ While adoption is growing, their programmability and UX are still limited compar
 This market is sizable, with WBTC being the dominant wrapped asset, followed by cbBTC, BTCb, tBTC, and others. These models use custodians like BitGo to lock BTC and mint wrapped versions for use in ecosystems like Ethereum or Base. 
 While the smart contracts live on these chains, the BTC itself is held by third parties, making it difficult to classify as true DeFi from a Bitcoin perspective.
 
-<ZoomImage
-  src="/assets/cefi.png"
-  alt="The visual below highlights key players across each category"
-  width="100%"
-  className="mx-auto"
-/>
+
 
 ## Key Insights from the Market Analysis
 
@@ -481,12 +306,7 @@ We’ve created a new visual map that charts Bitcoin-backed lending platforms ac
 - X-Axis: Market Focus from HNWIs to Grassroots Bitcoiners
 - Y-Axis: Custody Model from Full Custody to Self-Custody
 
-<ZoomImage
-  src="/assets/market_map.png"
-  alt="This view helps understand how players position themselves in terms of accessibility and transparency."
-  width="100%"
-  className="mx-auto"
-/>
+
 
 ## We also introduce a new category
 Surge doesn’t just fit into the existing categories - it reimagines the model entirely:
@@ -499,20 +319,14 @@ It’s not a CeFi platform. It’s not DeFi built elsewhere. It’s a **Bitcoin-
 
 ## Resources
 - [Bitcoin Lending Platforms Comparison Table](https://surgehq.notion.site/263232deac9080e3a6a3f9f040047105?v=263232deac90803bbf49000c80e4431b)  
-- [In-depth Breakdown: Bitcoin-backed Lending Market](https://onchainbitcoin.substack.com/p/bitcoin-lending-landscape)  
+- [In-depth Breakdown: Bitcoin-backed Lending Market](https://onchainbitcoin.substack.com/p/bitcoin-lending-landscape)
 
-
-
-========================================
-File: /overview/stablecoins (💵 Stablecoin Adoption)
-========================================
-
+### 💵 Stablecoin Adoption
 ---
 title: Stablecoin Adoption
 description: Understanding the massive opportunity in stablecoin adoption and Bitcoin's role
 ---
 
-import ZoomImage from "../../components/ZoomImage";
 
 # 💵 Stablecoin Adoption
 
@@ -528,12 +342,7 @@ They’re onboarding millions, replacing legacy rails, and acting as a bridge be
 The stablecoin market has reached $288 billion today, and is projected to hit $2 trillion by 2028, according to the U.S. Treasury.
 This isn’t just growth, it’s a macro transformation.
 
-<ZoomImage
-  src="/assets/stablecoin_adoption.png"
-  alt="Stablecoin Supply growth over years"
-  width="100%"
-  className="mx-auto"
-/>
+
 
 ## What Stablecoins enable
 - **Low-cost global payments:** They shrink the gap between transaction and settlement.
@@ -570,10 +379,9 @@ That’s what Surge is here to build.
 ## Resources
 [Stablecoin adoption stats](https://stablecoins.asxn.xyz/)
 
-========================================
-File: /product/for-bitcoiners (✊ For Bitcoiners)
-========================================
+## Product
 
+### ✊ For Bitcoiners
 ---
 title: For Bitcoiners
 description: How Surge makes it easier for Bitcoiners
@@ -644,10 +452,7 @@ Unlike traditional loans, Surge’s credit market offers flexible credit:
 
 Surge is for Bitcoiners who believe in holding their keys and want access to liquidity without selling their future.
 
-========================================
-File: /product/for-distribution-partners (🤝 For Distribution Partners)
-========================================
-
+### 🤝 For Distribution Partners
 ---
 title: Distribution Partners
 description: How distribution partners can plug into Surge's permissionless system to white-label borrow and earn products.
@@ -693,11 +498,7 @@ Use cases: savings apps, treasury products, or any distributor that wants “ear
 
 If you’re building a borrow or earn product and want to use Surge’s permissionless credit market under your own brand, reach out via [surge.build](https://surge.build) or the links in [Resources](/resources/quick-links).
 
-
-========================================
-File: /product/for-everyone (✊ For Everyone)
-========================================
-
+### ✊ For Everyone
 ---
 title: Everyone
 description: It’s for everyone who cares about building open, verifiable, and trust-minimized systems on Bitcoin.
@@ -732,12 +533,7 @@ All of this will be published at [surge.build](https://surge.build): your window
 
 >Because if it’s not verifiable, it’s not Bitcoin.
 
-
-
-========================================
-File: /product/for-liquidity-providers (💰 For Liquidity Providers)
-========================================
-
+### 💰 For Liquidity Providers
 ---
 title: Liquidity Providers
 description: How surge benefits the Liquidity providers and Market makers holding stablecoins and looking for yield
@@ -796,10 +592,7 @@ Unlike ETH-centric DeFi or risky alt-L2 plays, Surge offers Bitcoin-first, credi
 
 Surge brings yield back to the fundamentals: real users, real assets, and verifiable on-chain logic, not token games or circular lending.
 
-========================================
-File: /product/our-thesis (🔭  Our Thesis)
-========================================
-
+### 🔭  Our Thesis
 ---
 title: Our Thesis
 description: Surge's core philosophy and principles
@@ -820,16 +613,11 @@ Surge is building something fundamentally different: a Bitcoin-native credit mar
 With dVaults (programmable Bitcoin vaults), market-driven terms, and a decentralized signer network, Bitcoiners can borrow stablecoins without giving up custody, trust, or transparency. 
 It’s a credit system designed for Bitcoiners, not institutions. Built on-chain. Aligned with the ethos.
 
-========================================
-File: /product/overview (🖼️ Product Overview)
-========================================
-
+### 🖼️ Product Overview
 ---
 title: Product Overview
 description: Surge is a Bitcoin-native credit market powered by programmable dVaults, enabling Bitcoiners, stablecoin LPs, and infra providers to collaborate in a non-custodial, transparent system.
 ---
-
-import ZoomImage from "../../components/ZoomImage";
 
 
 # 🖼️ Product Overview
@@ -854,12 +642,7 @@ This ensures that funds are always:
 Once the BTC is locked, stablecoin liquidity is released from the Ethereum-based smart contract (USDC supported, USDT coming soon), sent directly to the borrower's self custodied wallet. 
 The smart contracts implement multiple markets where Bitcoiners can tap liquidity, and LPs earn yield, with infrastructure ensuring safety and execution. The different markets can offer both **variable** (floating) and **fixed-rate** markets.
 
-<ZoomImage
-  src="/assets/overview_2.png"
-  alt="Overview"
-  width="100%"
-  className="mx-auto"
-/>
+
 
 ## Interface Suite
 
@@ -870,203 +653,10 @@ Surge has three core interfaces, each designed for a key participant:
 
 Surge is built ground-up for trust-minimized credit and no one can touch their Bitcoin without following predefined, public rules.
 
-========================================
-File: /resources/community-guidelines (<h1>🚨 COMMUNITY GUIDELINES 🚨 </h1> <br />)
-========================================
+### Branding and Logos [Bitcoin-native Credit Market]
+[Link to Media Kit](https://docs.surge.build/resources/media-kit)
 
-
-# <h1>🚨 COMMUNITY GUIDELINES 🚨 </h1> <br />
-
-Becoming a true Surgant 🐜 involves creating a respectful and energized atmosphere together with the team. Here are the ground rules:⚡ Kindness and Respect ⚡
-
-Treat everyone with respect and kindness. Absolutely no harassment, witch hunting, sexism, racism, or hate speech will be tolerated.
-
-🔌 **No Advertising or Spam** 🔌 <br/>
-No spam or self-promotion (server invites, advertisements, etc.) without permission from a staff member. This includes DMing fellow members.
-
-🚫 **No Offensive Content** 🚫 <br/>
-No age-restricted, obscene, or offensive content. This includes text, images, or links featuring nudity, sex, hard violence, or other graphically disturbing content.
-
-💡 **No Requests for Money or Tokens** 💡 <br/>
-No member of the team will ask for money or offer tokens for sale. If you receive any such messages, report them to the Surge admins or team members for appropriate action.
-
-🌐 **No Speculations** 🌐 <br/>
-Discussion or speculation regarding airdrops, ICO/IEO, or trading is not allowed and will be deleted.
-
-🔋 **No Impersonation and Logo Usage** 🔋 <br/>
-Do not use the name "Surge" or the name of any other third-party platform in a username that may impersonate a team member. Do not use the Surge logo as your avatar.
-
-📄 **Partnerships with Surge** 📄 <br/>
-Interested in partnering with Surge? Please fill out our partnership form for review and approval. DMing team members regarding partnerships without prior submission will be considered spam.
-
-🔒 **Security Consciousness** 🔒 <br/>
-Be security conscious, Surgants! All your possible answers are in the docs.
-
-- No member of the TEAM will DM you first.
-- All TEAM admins have a verified Surge badge.
-- Avoid any links that pose as SUPPORT or TICKETS.
-- Do not reply to any DMs claiming to be support or offer help.
-- Turn off message requests in settings to stop scammers from sending you a DM.
-
-
-========================================
-File: /resources/media-kit (Branding and Logos [Bitcoin-native Credit Market])
-========================================
-
----
-title: Surge | Branding and Logos
-description: Surge Brand Kit and Logos
----
-
-
-
-<div style={{
-  backgroundColor: '#FDDDD6',
-  borderRadius: '12px',
-  padding: '72px 40px',
-  marginBottom: '24px'
-}}>
-  <h1 style={{
-    color: '#FE7B17',
-    fontSize: '36px',
-    fontWeight: '700',
-    margin: '0',
-    letterSpacing: '-0.5px'
-  }}>Brand Guide</h1>
-</div>
-
-# Branding and Logos [Bitcoin-native Credit Market]
-
-## Specification
-
-- **Theme Color**
-  - HEX: <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}><span style={{ display: 'inline-block', width: '16px', height: '16px', backgroundColor: '#FE7B17', borderRadius: '3px', verticalAlign: 'middle' }}></span>#FE7B17</span>
-  - RGB: 254, 123, 23
-  - HSB: 26, 91, 100
-
-## Download Brand Pack (including SVGs)
-
-- [Surge Branding Logos.zip](https://surge.sfo3.cdn.digitaloceanspaces.com/assets/Surge%20Branding%20Logos.zip)
-
-## Regular Logos
-
-surge-full-primary-light:
-
-![surge-full-primary-black.png](https://surge.sfo3.cdn.digitaloceanspaces.com/assets/Surge%20Branding%20Logos/docs-only/surge-full-primary-light.png)
-
-surge-full-primary-dark:
-
-![surge-full-primary-black.png](https://surge.sfo3.cdn.digitaloceanspaces.com/assets/Surge%20Branding%20Logos/docs-only/surge-full-primary-dark.png)
-
-surge-full-monogram-light:
-
-![surge-full-primary-black.png](https://surge.sfo3.cdn.digitaloceanspaces.com/assets/Surge%20Branding%20Logos/docs-only/surge-full-monogram-light.png)
-
-surge-full-monogram-dark:
-
-![surge-full-primary-black.png](https://surge.sfo3.cdn.digitaloceanspaces.com/assets/Surge%20Branding%20Logos/docs-only/surge-full-monogram-dark.png)
-
-surge-icon-light:
-
-![surge-full-primary-black.png](https://surge.sfo3.cdn.digitaloceanspaces.com/assets/Surge%20Branding%20Logos/docs-only/surge-icon-light.png)
-
-surge-icon-dark:
-
-![surge-full-primary-black.png](https://surge.sfo3.cdn.digitaloceanspaces.com/assets/Surge%20Branding%20Logos/docs-only/surge-icon-dark.png)
-
-surge-icon-mono-light:
-
-![surge-full-primary-black.png](https://surge.sfo3.cdn.digitaloceanspaces.com/assets/Surge%20Branding%20Logos/docs-only/surge-icon-mono-light.png)
-
-surge-icon-mono-dark:
-
-![surge-full-primary-black.png](https://surge.sfo3.cdn.digitaloceanspaces.com/assets/Surge%20Branding%20Logos/docs-only/surge-icon-mono-dark.png)
-
-{/* surge-superstack-full-light:
-
-![surge-full-primary-black.png](https://surge.sfo3.cdn.digitaloceanspaces.com/assets/Surge%20Branding%20Logos/docs-only/surge-superstack-full-light.png)
-
-surge-superstack-full-dark:
-
-![surge-full-primary-black.png](https://surge.sfo3.cdn.digitaloceanspaces.com/assets/Surge%20Branding%20Logos/docs-only/surge-superstack-full-dark.png)
-
-surge-superstack-mono-full-light:
-
-![surge-full-primary-black.png](https://surge.sfo3.cdn.digitaloceanspaces.com/assets/Surge%20Branding%20Logos/docs-only/surge-superstack-mono-full-light.png)
-
-surge-superstack-mono-full-dark:
-
-![surge-full-primary-black.png](https://surge.sfo3.cdn.digitaloceanspaces.com/assets/Surge%20Branding%20Logos/docs-only/surge-superstack-mono-full-dark.png)
-
-clearspace-surge-superstack-full-primary:
-
-![surge-full-primary-black.png](https://surge.sfo3.cdn.digitaloceanspaces.com/assets/Surge%20Branding%20Logos/docs-only/clearspace-surge-superstack-full-primary.png)
-
-surge-superstack-do-not-misuse: */}
-
-{/* ![surge-full-primary-black.png](https://surge.sfo3.cdn.digitaloceanspaces.com/assets/Surge%20Branding%20Logos/docs-only/surge-superstack-do-not-misuse.png) */}
-
-## Colours
-
-<div style={{ 
-  display: 'grid', 
-  gridTemplateColumns: 'repeat(3, 1fr)', 
-  gap: '24px', 
-  padding: '32px', 
-  backgroundColor: '#f5f5f5', 
-  borderRadius: '12px',
-  marginTop: '16px'
-}}>
-  {/* Orange */}
-  <div>
-    <div style={{ 
-      width: '100%', 
-      aspectRatio: '1', 
-      backgroundColor: '#FE7B17', 
-      borderRadius: '8px',
-      marginBottom: '16px'
-    }} />
-    <p style={{ color: '#FE7B17', fontWeight: '600', fontSize: '18px', margin: '0 0 8px 0' }}>Orange</p>
-    <p style={{ margin: '0', fontSize: '14px', color: '#333' }}>#FE7B17</p>
-    <p style={{ margin: '0', fontSize: '14px', color: '#666' }}>RGB (254, 123, 23)</p>
-  </div>
-  
-  {/* Black */}
-  <div>
-    <div style={{ 
-      width: '100%', 
-      aspectRatio: '1', 
-      backgroundColor: '#2F1401', 
-      borderRadius: '8px',
-      marginBottom: '16px'
-    }} />
-    <p style={{ color: '#2F1401', fontWeight: '600', fontSize: '18px', margin: '0 0 8px 0' }}>Black</p>
-    <p style={{ margin: '0', fontSize: '14px', color: '#333' }}>#2F1401</p>
-    <p style={{ margin: '0', fontSize: '14px', color: '#666' }}>RGB (47, 20, 1)</p>
-  </div>
-  
-  {/* White */}
-  <div>
-    <div style={{ 
-      width: '100%', 
-      aspectRatio: '1', 
-      backgroundColor: '#FFFFFF', 
-      borderRadius: '8px',
-      marginBottom: '16px',
-      border: '1px solid #e0e0e0'
-    }} />
-    <p style={{ color: '#333', fontWeight: '600', fontSize: '18px', margin: '0 0 8px 0' }}>White</p>
-    <p style={{ margin: '0', fontSize: '14px', color: '#333' }}>#FFFFFF</p>
-    <p style={{ margin: '0', fontSize: '14px', color: '#666' }}>RGB (255,255,255)</p>
-  </div>
-</div>
-
-
-========================================
-File: /resources/quick-links (Quick Links)
-========================================
-
-
+### Quick Links
 # Quick Links
 
 Website: [https://surge.build](https://surge.build)
@@ -1079,71 +669,13 @@ LinkedIn:  [https://linkedin.com/company/surgebuild](https://www.linkedin.com/co
 
 Blog: [https://surge.build/blog](https://surge.build/blog)
 
+## Architecture & Core Tech
 
-========================================
-File: /tech/credit-markets (📊 Credit Markets)
-========================================
-
----
-title: Credit Markets
-description: How Surge's credit markets work and why the multi-market design is better than alternatives.
----
-
-# 📊 Credit Markets
-
-Surge's credit markets let borrowers and lenders meet on transparent, programmable terms. Instead of a single opaque pool or a custodial black box, Surge offers **variable** and **fixed-rate** markets where liquidity is shared, moved on demand, and always auditable.
-
-## How It Works
-
-### Variable and fixed markets
-
-- **Variable market** - The primary market. Borrowers pay a utilization-driven floating rate; lenders earn yield that moves with demand. All deposits land here first.
-- **Fixed-rate markets** - Optional tranches (e.g. 6%, 8%) where borrowers lock in a rate and lenders earn a fixed supply rate. Liquidity is **moved** from the variable pool when borrowers take fixed-rate loans and **moved back** on repay. There is no duplication or rehypothecation.
-
-Borrowers choose which market fits their needs. Lenders can opt in to fixed markets and control how much of their capital is exposed to each. One liquidity base, multiple rate options, and clear rules for how funds flow.
-
-### Cross-chain liquidity
-
-Stablecoins are deposited on any CCTPv2 supported network and routed to a unified marketplace. This creates a single, deep pool of liquidity instead of fragmented, thin markets across chains. Supply stays canonical and verifiable.
-
-## Why This Design
-
-### vs. Single-pool protocols
-
-Many lending protocols offer only one rate (either variable or fixed). Surge's multi-market design gives both: borrowers who want predictability can lock in a fixed rate; those who prefer flexibility use the variable market. Lenders earn from both, with explicit control over exposure.
-
-### vs. CeFi lending
-
-Traditional Bitcoin - backed lending is custodial and opaque. Users give up keys, visibility, and control. Surge's credit markets are non - custodial and on-chain: collateral stays in programmable dVaults, rates and utilization are verifiable, and no single party can move funds without the rules being satisfied.
-
-### vs. Speculative DeFi
-
-Yield in many DeFi protocols comes from token incentives, leveraged farming, or circular lending—not from real credit usage. Surge's credit markets are backed by actual Bitcoin-collateralized borrowing. LPs earn from interest paid by borrowers and (where applicable) from liquidation economics. Real assets, real demand, real yield.
-
-### vs. Fragmented liquidity
-
-Splitting liquidity across many isolated pools or chains reduces depth and increases slippage. Surge aggregates liquidity into a central credit market, with routing that keeps supply canonical and settlement deterministic. Deeper markets, better execution, and transparent accounting.
-
----
-
-Surge's credit markets are built for Bitcoin-native finance: transparent, programmable, and aligned with real credit demand rather than speculation or custodial intermediation.
-
-### Cross-links
-
-- [For Liquidity Providers](/product/for-liquidity-providers) — LP perspective on variable vs fixed  
-- [Repayment](/tech/payment) — Normal closure path  
-- [Liquidation](/tech/dvaults-liquidation) — dVault liquidation path
-
-
-========================================
-File: /tech/distributed-custody-network (👥 Distributed Custody Network)
-========================================
-
+### 👥 Distributed Custody Network
 ---
 title: Distributed Custody Network
 description: Distributed Schnorr signing for Taproot vault control.
 ---
-import ZoomImage from "../../components/ZoomImage";
 
 # 👥 Distributed Custody Network
 
@@ -1151,12 +683,7 @@ Surge implements **Lindell 2022 Multiparty Schnorr Signing (Lin22)** a threshold
 
 It enables quorum-based gated spending of Taproot vaults (dVaults) without revealing the signer structure or compromising on-chain efficiency.
 
-<ZoomImage
-  src="/assets/user-signer.png"
-  alt="Signer"
-  width="100%"
-  className="mx-auto"
-/>
+
 
 ## Why Threshold Schnorr Signatures Essential for dVaults
 
@@ -1172,12 +699,7 @@ Surge prioritizes **reliability, accountability, and verifiability** over lowest
 - **Identifiable Misbehavior** - Each signer provides Fischlin Zero-Knowledge Proofs (ZKPs). If a signer cheats or aborts, the network obtains cryptographic evidence, enabling automated slashing and signer rotation.  
 - **Privacy Preserving** - The final aggregated signature is a standard Taproot compatible Schnorr signature. Vault spends are indistinguishable from single signer spends.
 
-<ZoomImage
-  src="/assets/signers.png"
-  alt="Malicious Signer"
-  width="70%"
-  className="mx-auto"
-/>
+
 
 Unlike FROST, where a single malicious signer can halt the session, Lin22 identifies and proves who misbehaved. Even if a round fails, it records cryptographic proof, keeping vault operations auditable and recoverable.
 
@@ -1226,52 +748,7 @@ Surge adopts Lin22 Threshold Schnorr Signatures because resilience and verifiabi
 - [Simple Three-Round Multiparty Schnorr Signing with Full Simulatability](https://eprint.iacr.org/2022/374.pdf)
 - [Cure53 Audit Report: Coinbase cb-mpc Library](https://github.com/coinbase/cb-mpc/blob/master/docs/cure53-audit.pdf)
 
-
-========================================
-File: /tech/dlcs (⚡ Why DLCs Don’t Work for Surge)
-========================================
-
----
-title: DLCs
-description: Why Discreet Log Contracts don’t fit Surge’s persistent vault model.
----
-
-# ⚡ Why DLCs Don’t Work for Surge
-
-Discreet Log Contracts (DLCs) are a clever way to make Bitcoin respond to external data like the BTC/USD price - by letting an oracle decide which outcome becomes valid. That works well for **single-event contracts** (like “if BTC > $60k, pay Alice”), but Surge vaults are long-lived financial state machines. They need to handle multiple transactions - repayments, partial liquidations, and timeouts - from same vault address. 
-
-## 1. Outcome Explosion  
-In a DLC, every possible oracle result must be **predefined** with its own payout path. For lending, this means mapping *every* potential liquidation price to a unique address.  
-Example:
-```
-Outcome 1 → 110000k
-Outcome 2 → 109000k
-...
-Outcome 10 → 100100k ✅ (Sweep)
-```
-In a live system with continuous BTC price updates, the number of outcomes grows exponentially. Surge vaults need a **continuous collateral ratio**, not a finite list of precomputed addresses.
-
-## 2. One Keypath per Outcome  
-DLCs work by revealing a single keypath - the one matching the oracle’s outcome. Once that path is used, we can’t reuse the same address after the first event.  
-
-## 3. Non-Persistent Lifecycle  
-When a DLC settles, the address is “burned” - funds are swept, and the contract ends. A dVault keeps the same Taproot tree until final closure. Each dVault encodes its logic from the start.
-
-## Summary
-
-| Concept | DLC | dVault |
-|----------|-----|--------|
-| Outcome model | Discrete, precomputed | Continuous, protocol-driven |
-| Keypath usage | One per outcome | Multiple reusable paths |
-| Lifecycle | Single-use | Persistent |
-| Oracle role | Executes payout | Attests to state |
-| Address model | Burns on settle | Lives until closure |
-
-
-========================================
-File: /tech/dvaults-liquidation (🎯 Deterministic Liquidation for Locked Bitcoin)
-========================================
-
+### 🎯 Deterministic Liquidation for Locked Bitcoin
 ---
 title: Deterministic Liquidation
 description: Bitcoin Taproot vaults that enforce deterministic liquidation and non-custodial collateral management
@@ -1334,10 +811,7 @@ Just before the time based lock is hit, the ESM checks if the credit line is ful
 - **Censorship-Safe:** Borrowers can always reclaim funds through the Escape path after timelock expiry.  
 - **Market Segregated Risk:** Liquidation proceeds flow into each market based on where the liquidated credit line came from, reconciling BTC collateral and stablecoin liabilities within the Execution State Machine’s deterministic ledger.
 
-========================================
-File: /tech/execution (⚙️ Execution State Machine)
-========================================
-
+### ⚙️ Execution State Machine
 ---
 title: Execution State Machine
 description: Deterministic contract layer coordinating BTC vault state, signer authorization, and collateral enforcement.
@@ -1390,10 +864,7 @@ This guarantees **programmatic enforcement of BTC custody**, BTC moves only when
 See [Deterministic Liquidation](/tech/dvaults-liquidation) for details on PSBT based execution and signer coordination.
 :::
 
-========================================
-File: /tech/exit (⏳ Unilateral Exit)
-========================================
-
+### ⏳ Unilateral Exit
 ---
 title: Unilateral Exit
 description: Time-locked Taproot path allowing sovereign BTC exit if DCN or execution layer fail
@@ -1429,12 +900,7 @@ AND(
     OP_CHECKSIG(user_exit_key)
 )
 
-
-
-========================================
-File: /tech/faqs (💬 FAQs)
-========================================
-
+### 💬 FAQs
 ---
 title: FAQs
 description: Common questions about Surge's Bitcoin native architecture and design choices.
@@ -1442,57 +908,50 @@ description: Common questions about Surge's Bitcoin native architecture and desi
 
 # 💬 FAQs
 
-<details>
-<summary>**Why not use DLCs (Discreet Log Contracts)?**</summary>
+
+**Why not use DLCs (Discreet Log Contracts)?**
 
 DLCs are single-use oracle contracts designed for event-based payouts. Surge vaults are persistent and programmable, supporting recurring actions like borrow, repay, and partial liquidation.
 DLCs can’t maintain live vault states or multi-party control, so Surge uses Taproot + MAST scripts for reusable native logic. 
 Read more [here](/tech/dlcs)
 
-</details>
+
 ---
-<details>
-<summary>**Why not use a single key path instead of MAST spend paths?**</summary>
+
+**Why not use a single key path instead of MAST spend paths?**
 
 A single key path exposes all logic under one aggregated key, reducing flexibility and privacy.  
 **MAST** allows each spend condition - repayment, liquidation, and escape to exist as a separate branch, revealing only the one used and keeping other logic hidden.
 
-</details>
+
 ---
-<details>
-<summary>**What makes Surge non-custodial?**</summary>
+
+**What makes Surge non-custodial?**
 
 Even if signers go offline or refuse to cooperate, users can still unilaterally recover BTC after a timelock using the Escape Hatch path. The non-custodial guarantee comes directly from Bitcoin script.
 
-</details>
+
 ---
-<details>
-<summary>**Who controls the BTC?**</summary>
+
+**Who controls the BTC?**
 
 BTC stays in your dVault, which no single entity can spend. Even if signers go offline, the escape hatch lets you unilaterally recover it.
-</details>
+
 ---
-<details>
-<summary>**Why does Surge use Lin22 instead of FROST?**</summary>
+
+**Why does Surge use Lin22 instead of FROST?**
 
 **Lin22** provides stronger fault tolerance and accountability.  
 If a signer misbehaves, Lin22 generates cryptographic proof identifying who failed, allowing to exclude signer for next requests, slashing and signer rotation without relying on the coordinator
 
-</details>
+
 ---
-<details>
-<summary>**What's the difference between variable and fixed rate?**</summary>
+
+**What's the difference between variable and fixed rate?**
 
 **Variable rate** comes from the floating-rate market: the borrow rate moves with utilization. **Fixed rate** comes from dedicated fixed-rate tranches (e.g. 6%, 8%): you lock in a set rate for your loan. Liquidity is *moved* between the variable pool and fixed markets when borrowers take or repay fixed-rate loans—it isn't duplicated. LPs can opt in to fixed markets and set allocation limits. See [Credit Markets](/tech/credit-markets) for the full picture, or the [Surge Multi-Market Lending Pool](https://surgehq.notion.site/Surge-Multi-Market-Lending-Pool-2fc232deac9080218404ea7605e713c6) (Notion) for a design deep-dive.
 
-</details>
-
-
-
-========================================
-File: /tech/oracles (🌐 Oracle System)
-========================================
-
+### 🌐 Oracle System
 ---
 title: 🌐 Oracle System
 description: Protocol-native BTC/USD oracle integrated directly into the Execution State.
@@ -1537,16 +996,11 @@ The Oracle System emits canonical events:
 
 These events bind signer permissions and provide a complete audit trail for liquidation logic.
 
-
-========================================
-File: /tech/overview (🔧 Technical Overview)
-========================================
-
+### 🔧 Technical Overview
 ---
 title: Technical Overview
 description: Understanding Surge's Bitcoin custody, coordination program, and cross-chain liquidity.
 ---
-import ZoomImage from "../../components/ZoomImage";
 
 # 🔧 Technical Overview
 
@@ -1560,12 +1014,7 @@ A dVault is co-managed by the user and the Distributed Custody Network.
 
 Both must provide Schnorr signatures to authorize any movement of BTC, ensuring coordination without compromising user custody.
 
-<ZoomImage
-  src="/assets/arch_overview.png"
-  alt="Architecture Overview"
-  width="100%"
-  className="mx-auto"
-/>
+
 
 Surge uses an Execution State Machine (ESM) to coordinate vault logic and monitor collateral health. The ESM functions as a deterministic coordination layer operated by distributed custody nodes. It observes Bitcoin vault data, oracle price feed, and distributed custody proofs, then produces verifiable state commitments when spend conditions are satisfied.
 
@@ -1577,11 +1026,7 @@ Other paths **repayment** and **time locked recovery (Unilateral exit)** are enf
 
 The protocol’s liquidity layer is **multi-market**: a **variable** pool and **fixed-rate** markets, with liquidity moving between them on borrow and repay.
 
-
-========================================
-File: /tech/payment (💰 Repayment Path)
-========================================
-
+### 💰 Repayment Path
 ---
 title: Repayment
 description: Normal closure of a dVault enforced by Taproot script and threshold Schnorr signatures
@@ -1620,17 +1065,11 @@ AND(
 
 Repayment is the simplest — yet most important — path in Surge’s lifecycle, proving that Bitcoin can be used as dynamic collateral without leaving its native chain.
 
-
-
-========================================
-File: /tech/self-custody-wallet (🔐 Self Custody User Wallet)
-========================================
-
+### 🔐 Self Custody User Wallet
 ---
 title: Self Custody User Wallet
 description: Architecture and lifecycle of the user’s self-custodial wallet leveraging hardware-isolated execution environments for key generation, signing, attestation, and verifiable self-custody.
 ---
-import ZoomImage from "../../components/ZoomImage";
 
 # 🔐 Self Custody User Wallet
 
@@ -1646,12 +1085,7 @@ This architecture grants the user full authority over
 The signing environment executes as a sealed runtime within the underlying infrastructure. 
 Once instantiated, its memory and code are cryptographically measured and isolated even operators, administrators, or the host kernel cannot read, export, or modify a user’s private key.
 
-<ZoomImage
-  src="/assets/enclave_arch.png"
-  alt="Secure Enclave Architecture"
-  width="100%"
-  className="mx-auto"
-/>
+
 
 ## Authentication & Key Lifecycle
 
@@ -1703,11 +1137,7 @@ Enclave binaries are immutable at runtime. Updates or bug fixes require a versio
 
 This wallet architecture unifies user sovereignty, hardware-rooted security, and key portability, providing a deterministic self custodial foundation for Surge's Bitcoin-native credit market.
 
-
-========================================
-File: /tech/transfers (🔄 Transfers)
-========================================
-
+### 🔄 Transfers
 ---
 title: Transfers
 description: How loan transfers between Surge and third-party marketplaces work via borrower, DCN, and third-party signing.
@@ -1736,16 +1166,11 @@ Settlement details (e.g. PSBT construction, messaging between Surge and the thir
 - **Three-way coordination:** A transfer is only valid when the borrower, the DCN, and the third-party marketplace have all authorised it. No single party can move the facility unilaterally.
 - **Design in progress:** Specific flows, APIs, and on-chain script details are still to be defined. This page will be updated as the transfer path is implemented.
 
-
-========================================
-File: /tech/vaults (🔐 dVaults: Programmable Bitcoin Vaults)
-========================================
-
+### 🔐 dVaults: Programmable Bitcoin Vaults
 ---
 title: dVaults
 description: Taproot-based, MAST-committed spend programs that secure BTC
 ---
-import ZoomImage from "../../components/ZoomImage";
 
 # 🔐 dVaults: Programmable Bitcoin Vaults
 
@@ -1764,12 +1189,7 @@ Each dVault locks BTC under a single encoded public key (PT2R) with multiple pre
 
 All three branches are committed at vault creation. Only the executed path is revealed during a spend.
 
-<ZoomImage
-  src="/assets/dvault_taproot.png"
-  alt="dVault Taproot UTXO"
-  width="70%"
-  className="mx-auto"
-/>
+
 
 ## Script Structures
 
@@ -1817,4 +1237,61 @@ Each spend path is covered in detail in its own section:
 ## Security Anchors
 
 All dVaults derive from Bitcoin’s native enforcement logic. Every spend path is cryptographically pre-committed in Taproot, validated by threshold Schnorr signatures, and ultimately sovereign through the **Timelock Exit**. The Execution State Machine and signer set coordinate off-chain attestations, but **Bitcoin remains the only enforcement layer**.
+
+## Credit Markets
+
+### 📊 Credit Markets
+---
+title: Credit Markets
+description: How Surge's credit markets work and why the multi-market design is better than alternatives.
+---
+
+# 📊 Credit Markets
+
+Surge's credit markets let borrowers and lenders meet on transparent, programmable terms. Instead of a single opaque pool or a custodial black box, Surge offers **variable** and **fixed-rate** markets where liquidity is shared, moved on demand, and always auditable.
+
+## How It Works
+
+### Variable and fixed markets
+
+- **Variable market** - The primary market. Borrowers pay a utilization-driven floating rate; lenders earn yield that moves with demand. All deposits land here first.
+- **Fixed-rate markets** - Optional tranches (e.g. 6%, 8%) where borrowers lock in a rate and lenders earn a fixed supply rate. Liquidity is **moved** from the variable pool when borrowers take fixed-rate loans and **moved back** on repay. There is no duplication or rehypothecation.
+
+Borrowers choose which market fits their needs. Lenders can opt in to fixed markets and control how much of their capital is exposed to each. One liquidity base, multiple rate options, and clear rules for how funds flow.
+
+### Cross-chain liquidity
+
+Stablecoins are deposited on any CCTPv2 supported network and routed to a unified marketplace. This creates a single, deep pool of liquidity instead of fragmented, thin markets across chains. Supply stays canonical and verifiable.
+
+## Why This Design
+
+### vs. Single-pool protocols
+
+Many lending protocols offer only one rate (either variable or fixed). Surge's multi-market design gives both: borrowers who want predictability can lock in a fixed rate; those who prefer flexibility use the variable market. Lenders earn from both, with explicit control over exposure.
+
+### vs. CeFi lending
+
+Traditional Bitcoin - backed lending is custodial and opaque. Users give up keys, visibility, and control. Surge's credit markets are non - custodial and on-chain: collateral stays in programmable dVaults, rates and utilization are verifiable, and no single party can move funds without the rules being satisfied.
+
+### vs. Speculative DeFi
+
+Yield in many DeFi protocols comes from token incentives, leveraged farming, or circular lending—not from real credit usage. Surge's credit markets are backed by actual Bitcoin-collateralized borrowing. LPs earn from interest paid by borrowers and (where applicable) from liquidation economics. Real assets, real demand, real yield.
+
+### vs. Fragmented liquidity
+
+Splitting liquidity across many isolated pools or chains reduces depth and increases slippage. Surge aggregates liquidity into a central credit market, with routing that keeps supply canonical and settlement deterministic. Deeper markets, better execution, and transparent accounting.
+
+---
+
+Surge's credit markets are built for Bitcoin-native finance: transparent, programmable, and aligned with real credit demand rather than speculation or custodial intermediation.
+
+### Cross-links
+
+- [For Liquidity Providers](/product/for-liquidity-providers) — LP perspective on variable vs fixed  
+- [Repayment](/tech/payment) — Normal closure path  
+- [Liquidation](/tech/dvaults-liquidation) — dVault liquidation path
+
+## Miscellaneous
+
+*Content pending.*
 
