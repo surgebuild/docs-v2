@@ -1,10 +1,169 @@
 ---
-title: SDK
-description: TypeScript and Python SDKs for Surge earn. Coming soon.
+title: TypeScript SDK
+description: Integrate Surge earn deposits, withdrawals, APY and positions with the @surgecredit/earn-sdk TypeScript client. Base, USDC, non-custodial.
 ---
 
-# SDK
+# TypeScript SDK
 
-The Surge earn SDKs (TypeScript and Python) are coming soon. The packages are not published yet.
+<div style={{ opacity: 0.65, fontSize: "1.15em", marginBottom: "1.25rem" }}>
+Add a Surge earn opportunity to your app with a few lines of TypeScript.
+</div>
 
-To integrate today, use [Smart Contracts](/earn/contracts), which covers the full deposit, withdraw, and read flow with direct contract calls on Base.
+`@surgecredit/earn-sdk` wraps the earn side of Surge: your users deposit USDC into the shared pool on Base and earn the lending yield borrowers pay. It is non-custodial. You bring viem clients, the SDK builds the calls, the user signs in their own wallet. The SDK never holds keys.
+
+It is a thin, typed layer over the same contract surface documented in [Smart Contracts](/earn/contracts). Use the SDK if you work in TypeScript and want position, APY and liquidity reads plus safe deposit and withdraw helpers out of the box. Use the raw contract calls if you are in another language or want zero dependencies.
+
+Scope:
+
+- One asset: USDC (6 decimals).
+- Deposit and withdraw target the variable market (`marketId = 0`).
+- Networks: Base (mainnet) and Base Sepolia (`signet`).
+
+## Install
+
+```bash
+npm install @surgecredit/earn-sdk viem
+```
+
+## Quick start
+
+Create the client with a viem public client for reads and a wallet client for writes. Pick the network and the SDK resolves the pool and USDC addresses.
+
+```ts
+import { createWalletClient, custom } from "viem";
+import { base } from "viem/chains";
+import { SurgeEarnClient, createSurgeEarnPublicClient } from "@surgecredit/earn-sdk";
+
+const publicClient = createSurgeEarnPublicClient("https://mainnet.base.org", base);
+const walletClient = createWalletClient({ chain: base, transport: custom(window.ethereum) });
+
+const earn = new SurgeEarnClient({
+  publicClient,
+  walletClient,   // omit for a read-only client
+  network: "mainnet", // "signet" = Base Sepolia
+});
+
+const [market] = await earn.listMarkets();
+console.log(market.supplyApy, market.availableLiquidity);
+```
+
+The constructor checks that `publicClient` is on the configured chain, so a mainnet config over a testnet RPC fails fast instead of reading a wrong address.
+
+## Reads
+
+```ts
+await earn.listMarkets();             // MarketSnapshot[]: supplyApy, utilization, liquidity, LTV
+await earn.getUserPosition(address);  // { claimable, totalClaimable, withdrawableNow } in USDC
+await earn.getUserExposures(address); // per fixed-market exposure and allocation
+await earn.getWalletUsdcBalance(address);
+await earn.getAllowance(address);     // raw USDC allowance to the pool (bigint)
+```
+
+All amounts on snapshots and positions are plain decimal numbers of USDC. Rates and ratios are percentages, so `6.9` means 6.9 percent. `supplyApy` is the net lender rate after the protocol reserve cut.
+
+Position size is the claimable USDC the pool would pay out. There is no share token. `withdrawableNow` is the smaller of the user's claim and the market's available liquidity, which is what you should cap a "withdraw max" button to.
+
+## Deposit
+
+The pool needs a USDC allowance before it can pull funds. `depositWithApproval` handles both steps and approves only the deposit amount by default.
+
+```ts
+const address = "0xUserWallet";
+
+await earn.depositWithApproval({
+  amountUsdc: "100",
+  account: address,
+  waitForReceipt: true,
+});
+```
+
+Or run the two steps yourself:
+
+```ts
+await earn.approveUsdc({ account: address, amountUsdc: "100", waitForReceipt: true });
+await earn.deposit({ account: address, amountUsdc: "100", waitForReceipt: true });
+```
+
+`deposit` reads the wallet balance and allowance first and throws a typed error (`INSUFFICIENT_USDC_BALANCE` or `ALLOWANCE_REQUIRED`) rather than letting the transaction revert. Omit `amountUsdc` on `approveUsdc` for an unlimited allowance, but an exact approval is the safer default.
+
+## Withdraw
+
+`withdraw` takes a USDC amount, not shares. It is bounded by available liquidity, which can be below the user balance when utilization is high, so it pre-flights the claim and the liquidity and throws `INSUFFICIENT_POSITION` or `INSUFFICIENT_MARKET_LIQUIDITY` when needed.
+
+```ts
+await earn.withdraw({ account: address, amountUsdc: "50", waitForReceipt: true });
+
+// Full exit of the variable-market position:
+await earn.withdrawAll({ account: address, waitForReceipt: true });
+```
+
+Show `getUserPosition(address).withdrawableNow` next to a "withdraw max" control so users see what is available right now.
+
+## Fixed-market exposure (optional)
+
+Deposits land in the variable market. Fixed markets are funded from variable-market LPs who opt in with an exposure cap from 0 to 100 percent. Most integrations never touch this and leave everything in the variable market.
+
+```ts
+await earn.setExposure({ marketId: 1, exposurePercent: 100, account: address });
+await earn.setExposures({ updates: [{ marketId: 1, exposurePercent: 50 }], account: address });
+```
+
+Exposure applies to fixed markets only (`marketId >= 1`). Calling it on market 0 throws `INVALID_MARKET_ID`.
+
+## Errors
+
+Every error the SDK raises is a `SurgeEarnError` with a stable `code`, so you branch on the code instead of matching message strings. Errors from viem (RPC failures, user-rejected signatures) pass through unchanged.
+
+```ts
+import { SurgeEarnError } from "@surgecredit/earn-sdk";
+
+try {
+  await earn.withdraw({ account: address, amountUsdc });
+} catch (err) {
+  if (err instanceof SurgeEarnError && err.code === "INSUFFICIENT_MARKET_LIQUIDITY") {
+    // show the available-to-withdraw amount instead
+  }
+}
+```
+
+| Code | When |
+| --- | --- |
+| `INVALID_AMOUNT` | Amount is not a positive number |
+| `INSUFFICIENT_USDC_BALANCE` | Deposit exceeds the wallet's USDC balance |
+| `ALLOWANCE_REQUIRED` | Deposit exceeds the USDC allowance to the pool |
+| `INSUFFICIENT_POSITION` | Withdraw exceeds the user's claimable balance |
+| `INSUFFICIENT_MARKET_LIQUIDITY` | Withdraw exceeds available liquidity |
+| `INVALID_MARKET_ID` | Exposure set on a non-fixed market |
+| `INVALID_EXPOSURE` | Exposure percent outside 0 to 100 |
+| `WALLET_REQUIRED` | A write was called with no wallet client |
+| `ACCOUNT_UNRESOLVED` | No account passed and none on the wallet client |
+| `WRONG_CHAIN` | Public or wallet client on a different chain than the config |
+
+## React hooks
+
+```ts
+import { useEarnMarkets, useEarnPortfolio, useEarnActivity } from "@surgecredit/earn-sdk/react";
+
+const { data: markets } = useEarnMarkets(earn, { pollIntervalMs: 15000 });
+const { data: portfolio } = useEarnPortfolio(earn, address); // { position, exposures }
+const { data: activity } = useEarnActivity(earn, { user: address, includeTimestamps: true });
+```
+
+Each hook returns `{ data, loading, error, refresh }`.
+
+## Attribution
+
+To have the liquidity your app brings attributed to you, append your partner tag to the deposit calldata. The SDK builds the deposit as a direct call from the user's wallet, so the tag rides on the user's own transaction. See [Attribution](/earn/contracts#attribution) for how to get a partner id or map an existing ERC-8021 builder code.
+
+## Networks
+
+| network | chain | chainId | LiquidityPool |
+| --- | --- | --- | --- |
+| `mainnet` | Base | `8453` | `0xEE755F1BbcbF6e3260469D0f473522d71d3bdDda` |
+| `signet` | Base Sepolia | `84532` | `0xed9613914c004Db819C8f0994a7388770E932Ef0` |
+
+For advanced setups you can pass a full `config` object instead of `network`. See [Smart Contracts](/earn/contracts) for the raw addresses, ABIs, and the equivalent Python flow.
+
+<div style={{ opacity: 0.55, fontSize: "0.8em", marginTop: "3rem" }}>
+v0.2.0
+</div>
