@@ -132,11 +132,24 @@ export default defineConfig({
         text: "EARN",
         items: [
           {
-            text: "Integration",
+            text: "Smart Contracts",
             link: "/earn/contracts",
+          },
+          // TypeScript SDK page (/earn/sdk) is intentionally not linked here.
+          // It stays published and in the llms.txt AI context, just hidden from nav.
+        ],
+      },
+      {
+        text: "BORROW",
+        items: [
+          {
+            text: "Borrow SDK",
+            link: "/borrow/sdk",
           },
         ],
       },
+      // LIQUIDATIONS / Auction SDK page (/liquidations/sdk) is intentionally not
+      // linked in the sidebar. It stays published and in the llms.txt AI context.
       {
         text: "RESOURCES",
         items: [

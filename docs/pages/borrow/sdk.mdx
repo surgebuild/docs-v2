@@ -167,10 +167,10 @@ Pre-checked against the live LTV before the wallet is prompted - a draw over the
 
 ### Re-borrowing after full repayment
 
-While a loan is active, the position is locked to its market. Once it's **fully repaid** (debt is `0`), it no longer carries an active market, so the user can pick a new one before drawing again. Switch the market first, then borrow:
+While a credit line is active, the position is locked to its market. Once it's **fully repaid** (debt is `0`), it no longer carries an active market, so the user can pick a new one before drawing again. Switch the market first, then borrow:
 
 ```ts
-// only valid on a zero-debt position; the relayer rejects it while a loan is active
+// only valid on a zero-debt position; the relayer rejects it while a credit line is active
 await session.switchMarket({ positionId, marketId }); // { positionId, marketId, confirmed }
 await session.borrowMore({ positionId, amountUsd: "250" });
 ```
