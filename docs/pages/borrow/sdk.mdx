@@ -150,7 +150,7 @@ Use `getDepositStatus(depositId)` for a one-shot status check, or `getActiveDepo
 const position = await session.getPosition(positionId);
 // { positionId, isActive, marketId, collateralSats, debtUsd, principalUsd,
 //   interestUsd, ltvPercent, maxBorrowUsd, collateralValueUsd, debtValueUsd,
-//   maxLtvBps, loanExpiresAt, expired, exitBlock }
+//   maxLtvBps, healthFactorRaw, inLiquidation, exitBlock }
 
 const quote = await session.getBorrowQuote({ marketId, amountUsd: "500" });
 // { marketId, amountUsd, borrowRateApr, maxLtvBps }
@@ -231,7 +231,7 @@ await session.extendCreditLine({ positionId }); // { evmTxHash?, btcTxid, alread
 session.watchExtension(positionId, (u) => {/* … -> confirmed | finalized */});
 ```
 
-Throws `EXTENSION_ALREADY_PENDING` if one is already in flight. Drive the renewal prompt from `position.loanExpiresAt`, not a stored flag.
+Throws `EXTENSION_ALREADY_PENDING` if one is already in flight. Drive the renewal prompt from `position.isActive` (it goes `false` once the term ends), not a stored flag. There's no term-expiry timestamp on `Position`; `position.exitBlock` is the Bitcoin block height at which the term unlocks if you want to show when it lapses.
 
 ## Live activities
 
@@ -310,6 +310,7 @@ Every flow throws a typed `BorrowError` with a stable `.code` (plus `.status` an
 | `DEPOSIT_ALREADY_ACTIVE` | A deposit is already in flight - resume it instead |
 | `EXTENSION_ALREADY_PENDING` | An extension is already pending |
 | `LTV_EXCEEDED` | The borrow/withdraw would exceed the max loan-to-value |
+| `AMOUNT_BELOW_MINIMUM` | The borrow is under the `$5` minimum (`MIN_BORROW_USD`) - thrown before any signature |
 | `INSUFFICIENT_COLLATERAL` | The action would leave the position under-collateralized |
 | `INSUFFICIENT_USDC_BALANCE` | Not enough USDC in the wallet to repay |
 | `VAULT_NOT_CONFIRMED` | Acting before the collateral deposit has confirmed |
@@ -334,14 +335,14 @@ Pre-flight validation runs before the SDK calls your signer, so the wallet is ne
 Catching the code is enough to be safe, but the throw is a backstop rather than a UI. To avoid *offering* an action that will throw, read the state first:
 
 ```ts
-const p = await client.getPosition(positionId);
+const p = await session.getPosition(positionId);
 
 if (p.inLiquidation) {
-  // Nothing to do - the collateral is being seized. client.getLiquidation() for detail.
+  // Nothing to do - the collateral is being seized. session.getLiquidation() for detail.
 } else if (p.isActive) {
   // Live: draw / repay / withdraw as normal.
 } else if (p.collateralSats > 0n) {
-  await client.extendCreditLine({ positionId }); // renew the term, collateral intact
+  await session.extendCreditLine({ positionId }); // renew the term, collateral intact
 } else {
   // Closed with nothing left - open a new credit line with createDeposit().
 }
@@ -349,7 +350,7 @@ if (p.inLiquidation) {
 
 `isActive` tells you it's over; `collateralSats` tells you which remedy. Check `inLiquidation` first - it can be true on a still-active position, and it outranks everything.
 
-Don't gate on `position.expired` - it reports term status (has `loanExpiresAt` passed), not usability. The two come apart in both directions: a position can be past its term and still fully live, and a settled one keeps a future expiry date while being dead. Use `expired` to warn about a lapsing term; use `isActive` to decide what's allowed.
+Gate on `isActive`, not on a term timestamp. `isActive` is the usability signal - it's `false` once the term ends, the line is repaid and closed, or a liquidation settles, and drawing against any of those is refused. There's no separate term-expiry flag on `Position`; if you want to surface when the term lapses, read `position.exitBlock` (the Bitcoin block height at which it unlocks) - but decide what's *allowed* from `isActive`.
 
 ## Testing on signet
 
