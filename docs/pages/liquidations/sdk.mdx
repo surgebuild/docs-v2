@@ -17,6 +17,9 @@ signer-agnostic. You bring viem clients, the SDK builds the calls, the user sign
 Both roles are permissionless by protocol design. Anyone may call `checkHealth` to open a
 liquidation auction, and anyone may call `buy` to clear one.
 
+Working in another language or want zero dependencies? The same flow is available as direct
+contract calls in [Smart Contracts](/liquidations/contracts).
+
 ## How a liquidation auction works
 
 Every position is a BTC-collateralized, USDC-denominated credit line identified by an NFT id.
