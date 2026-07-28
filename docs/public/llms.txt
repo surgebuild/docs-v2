@@ -7,7 +7,7 @@ This file helps AI assistants quickly discover the best public pages for Surge i
 
 ### Earn SDK
 - [Smart Contracts](/earn/contracts)
-- [SDK](/earn/sdk)
+- [TypeScript SDK](/earn/sdk)
 
 ### Overview
 - [👋 Introduction](/)
@@ -49,6 +49,8 @@ This file helps AI assistants quickly discover the best public pages for Surge i
 ### Other
 - [Borrow SDK](/borrow/sdk)
 - [🏗️ Bitcoin-native Credit Infra](/credit-infra)
+- [Smart Contracts](/liquidations/contracts)
+- [Auction SDK](/liquidations/sdk)
 
 Plain-text companion files:
 - /llms-full.txt

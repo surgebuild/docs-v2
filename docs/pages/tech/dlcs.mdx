@@ -5,7 +5,7 @@ description: Why Discreet Log Contracts don’t fit Surge’s persistent vault m
 
 # ⚡ Why DLCs Don’t Work for Surge
 
-Discreet Log Contracts (DLCs) are a clever way to make Bitcoin respond to external data like the BTC/USD price - by letting an oracle decide which outcome becomes valid. That works well for **single-event contracts** (like “if BTC > $60k, pay Alice”), but Surge vaults are long-lived financial state machines. They need to handle multiple transactions - repayments, partial liquidations, and timeouts - from same vault address. 
+Discreet Log Contracts (DLCs) are a clever way to make Bitcoin respond to external data like the BTC/USD price - by letting an oracle decide which outcome becomes valid. That works well for **single-event contracts** (like “if BTC > $60k, pay Alice”), but Surge vaults are long-lived financial state machines. They need to handle multiple transactions - repayments, full liquidations (at 90% LTV), partial liquidations (on delinquency), and timeouts - from the same vault address. 
 
 ## 1. Outcome Explosion  
 In a DLC, every possible oracle result must be **predefined** with its own payout path. For lending, this means mapping *every* potential liquidation price to a unique address.  

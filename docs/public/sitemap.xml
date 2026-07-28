@@ -26,6 +26,16 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://docs.surge.credit/liquidations/contracts</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://docs.surge.credit/liquidations/sdk</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://docs.surge.credit/overview/bitcoin-lending-landscape</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
