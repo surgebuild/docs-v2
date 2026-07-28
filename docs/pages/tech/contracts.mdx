@@ -18,7 +18,7 @@ Key properties:
 - **Health checks are callable by relayers or anyone.** `checkHealth(positionId)` evaluates `CR` against policy thresholds and opens an auction when liquidation conditions are met.
 - **EIP-712 + EIP-3009 repayment.** `repayWithERC3009` accepts a pre-signed USDC `transferWithAuthorization` so repayments are gasless from the borrower's perspective.
 
-The manager enforces three risk parameters per position: a **Minimum Collateral Ratio** below which new borrow is blocked, a **liquidation threshold** at or below which a position becomes liquidatable, and a **liquidation penalty** applied to debt during auction settlement. The gap between `MinCR` and the liquidation threshold is the **health buffer** a borrower can spend on BTC-price decline before partial liquidation begins - a narrower buffer is more capital-efficient but raises the risk of liquidation cascades inside a single price move; a wider buffer is capital-inefficient given Bitcoin's historical intraday volatility.
+The manager enforces risk parameters per position: a **Minimum Collateral Ratio** below which new borrow is blocked, a **liquidation threshold at 90% LTV** at or above which a position becomes fully liquidatable, and a **liquidation penalty** applied during auction settlement. When LTV hits 90%, the **entire credit line** is liquidated in one event. Delinquency at term end triggers **partial liquidation** instead—proportional debt retirement with surplus BTC re-locked into the vault.
 
 
 ## Position Representation
@@ -42,9 +42,10 @@ Liquidation proceeds via a **Dutch auction** with fixed-price buyout semantics: 
 
 Auction lifecycle:
 
-1. `checkHealth(positionId)` call detects liquidation conditions for the positions and opens an auction if it reached below minimum collateral ratio.
-2. Buyers monitor the price curve and buys the auction at current price and retires proportional debt on the originating market (variable or fixed), applies penalty, and records settlement.
-3. If the auction expires without a buyer at the floor, the protocol exercises the floor price itself or the collateral is re-locked depending on market policy.
+1. **Undercollateralization (90% LTV):** `checkHealth(positionId)` opens a **full liquidation** auction. Proceeds retire the **full debt** on the originating market (variable or fixed), apply the penalty, and close the position.
+2. **Delinquency (term ended, unpaid):** the coordination layer opens a **partial liquidation** auction with a sized lot. Proceeds retire **proportional debt** and the penalty; surplus BTC is re-locked into the vault and the position continues.
+3. Buyers monitor the price curve and buy the auction at the current price.
+4. If the auction expires without a buyer at the floor, the protocol exercises the floor price itself.
 
 **Why Dutch.** Dutch auctions on a declining curve do not require active bidding to discover price; they surface the market-clearing price passively, which is what a liquidation needs under time pressure. The first buyer to see the price as favourable clears the auction.
 

@@ -59,7 +59,7 @@ After the delay elapses, the borrower can recover funds without DCN participatio
 3. **Monitoring.** Oracle price updates drive the position's live collateral ratio; worker processes track health and term.
 4. **Closure.** One of three leaves is executed:
    - **Repay** - proportional BTC released to the user's withdrawal address.
-   - **Liquidate** - BTC moves to the DCN-controlled sweep address, a Dutch auction runs on the EVM side against the market that issued the credit line, and any BTC surplus after debt settlement is re-locked into a Vault UTXO under the same scripts.
+   - **Liquidate** - At **90% LTV**, the full credit line is liquidated: collateral moves to the DCN-controlled sweep address, a Dutch auction runs on the EVM side against the market that issued the credit line, proceeds retire the full debt and penalty, and any BTC surplus after settlement is returned to the borrower. The position is closed. For **delinquency** (unpaid at term end), a partial liquidation applies instead: a sized lot is swept, proportional debt is retired, and any surplus BTC is re-locked into a Vault UTXO under the same scripts.
    - **Exit** - user alone spends after CSV expiry.
 
 ## Why This Is Safe

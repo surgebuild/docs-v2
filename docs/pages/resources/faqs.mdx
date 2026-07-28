@@ -8,7 +8,7 @@ description: Common questions about Surge's Bitcoin-native architecture and desi
 <details>
 <summary>**Why not use DLCs (Discreet Log Contracts)?**</summary>
 
-DLCs are single-use oracle contracts designed for event-based payouts. Surge's Vaults are persistent and programmable, supporting recurring actions like borrow, repay, partial liquidation, and unilateral exit.
+DLCs are single-use oracle contracts designed for event-based payouts. Surge's Vaults are persistent and programmable, supporting recurring actions like borrow, repay, full liquidation, partial liquidation (on delinquency), and unilateral exit.
 
 DLCs cannot maintain live vault state or multi-party control flows, so Surge uses **Taproot + MAST** scripts for reusable, native logic. Read more [here](/tech/dlcs).
 
@@ -78,9 +78,11 @@ Liquidity is **moved** between the variable pool and fixed markets when borrower
 <details>
 <summary>**What happens to my BTC if I get liquidated?**</summary>
 
-Liquidation does not seize your full collateral. The DCN spends only enough BTC from the Vault to cover the lot opened against your position; that BTC enters a [Dutch auction](/tech/dvaults-liquidation) on the EVM side, and proceeds retire the proportional debt plus the liquidation penalty in the **specific market** that issued your credit line.
+It depends on **why** the liquidation was triggered:
 
-Any BTC surplus after debt settlement is **re-locked into a Vault UTXO under the same scripts** - your position continues with reduced collateral and reduced debt rather than terminating. Partial-liquidation lots are sized to minimise borrower loss and dampen liquidation cascades.
+**Undercollateralization (90% LTV)** — Surge performs a **full liquidation**. The entire position is closed in one event. The DCN sweeps the Vault collateral to a Dutch [auction](/tech/dvaults-liquidation) on the EVM side. Proceeds retire the **full outstanding debt** plus the liquidation penalty in the **specific market** that issued your credit line. Any BTC remaining after debt and penalty settlement is returned to you.
+
+**Delinquency (unpaid at term end)** — Surge performs a **partial liquidation**. A sized lot of collateral is swept and auctioned; proceeds retire **proportional debt** and the penalty. Any BTC surplus is **re-locked into your Vault UTXO** under the same scripts—your position continues with reduced collateral and reduced debt rather than terminating.
 
 </details>
 ---
