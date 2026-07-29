@@ -213,10 +213,16 @@ const logs = await client.getContractEvents({
 });
 const ids = logs.map((l) => l.args.nftId as bigint);
 
-const a = await client.readContract({
+// getAuction returns 9 values positionally, so destructure — it is not an object
+const [active, , , , , , expiresAt, winnerEvm] = await client.readContract({
   address: cfg.auctionHouse, abi: auctionAbi, functionName: "getAuction", args: [nftId],
 });
-// buyable if a.active && a.winnerEvm == 0x0 && now <= a.expiresAt
+
+const now = BigInt(Math.floor(Date.now() / 1000));
+const buyable =
+  active &&
+  winnerEvm === "0x0000000000000000000000000000000000000000" &&
+  now <= expiresAt;
 ```
 
 ## Read the current price and quote profit
