@@ -138,8 +138,8 @@ AuctionHouse ABI below as `auctionAbi` (TypeScript) or `AUCTION_ABI` (Python).
       { "name": "btcAddress", "type": "bytes" }
     ], "outputs": [] },
   { "type": "event", "name": "LogAuctionCreated", "inputs": [
-      { "name": "nftId", "type": "uint256", "indexed": false },
-      { "name": "token", "type": "address", "indexed": false },
+      { "name": "nftId", "type": "uint256", "indexed": true },
+      { "name": "token", "type": "address", "indexed": true },
       { "name": "debtToPay", "type": "uint256", "indexed": false },
       { "name": "collateralSatsForSale", "type": "uint256", "indexed": false },
       { "name": "originalOwner", "type": "address", "indexed": false },
