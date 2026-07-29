@@ -239,7 +239,12 @@ const rateRaw = await client.readContract({
 });
 const btcPriceUsd = Number(formatUnits(rateRaw, 27));
 
-const collateralBtc = Number(collateralSats) / SATS_PER_BTC;
+// getAuction returns 9 values positionally; index 3 is collateralSatsForSale
+const [, , , collateralSatsForSale] = await client.readContract({
+  address: cfg.auctionHouse, abi: auctionAbi, functionName: "getAuction", args: [nftId],
+});
+
+const collateralBtc = Number(collateralSatsForSale) / SATS_PER_BTC;
 const collateralValueUsd = collateralBtc * btcPriceUsd;
 const netProfit = collateralValueUsd - priceUsdc - EST_BTC_FEE_USD;
 const profitable = netProfit >= collateralValueUsd * (TARGET_MARGIN_BPS / 10_000);
@@ -249,7 +254,10 @@ const profitable = netProfit >= collateralValueUsd * (TARGET_MARGIN_BPS / 10_000
 price_usdc = pool_price = auction.functions.getCurrentPrice(nft_id).call() / 1e6
 btc_price_usd = oracle.functions.getExchangeRateLiquidate().call() / 1e27
 
-collateral_btc = collateral_sats / SATS_PER_BTC
+# getAuction returns 9 values positionally; index 3 is collateralSatsForSale
+collateral_sats_for_sale = auction.functions.getAuction(nft_id).call()[3]
+
+collateral_btc = collateral_sats_for_sale / SATS_PER_BTC
 collateral_value_usd = collateral_btc * btc_price_usd
 net_profit = collateral_value_usd - price_usdc - EST_BTC_FEE_USD
 profitable = net_profit >= collateral_value_usd * (TARGET_MARGIN_BPS / 10_000)
