@@ -990,8 +990,8 @@ This vault enforces three deterministic spending paths:
 
 1. **Voluntary Repayment:** If no credit is drawn, or once the borrower repays, they can withdraw BTC directly, without signer network intervention. 
 2. **Liquidation:** 
-  - If the credit line reaches **90% LTV**, the DCN signs a **full liquidation** transaction—only when validated by multiple external oracle attestations. The entire credit line is closed in one event.
-  - If the credit line is not paid off or rolled over at the end of term, the DCN can sign a **partial liquidation** transaction. BTC is sold in a sized lot to cover debt + interest; any surplus is re-locked into the vault and the position continues with reduced collateral.
+  - If the credit line reaches **90% LTV**, the DCN signs a **full liquidation** transaction—only when validated by the chainlink oracle attestation. The entire credit line is closed in one event.
+  - If the credit line is not paid off or rolled over at the end of term, the DCN will sign a **partial liquidation** transaction. BTC is sold in a sized lot to cover debt + interest; any surplus is sent back into the borrower's now expired vault.
 3. **Transfer:** Bitcoiners may transfer loans to and from Surge's credit market. This requires signatures from the Bitcoiner, DCN, and a third party credit provider.
 4. **Time-Locked Recovery:** If the system becomes unresponsive or the DCN goes offline, the BTC becomes spendable by the borrower after a pre-set time lock.
 
@@ -1028,7 +1028,7 @@ description: Common questions about Surge's Bitcoin-native architecture and desi
 
 **Why not use DLCs (Discreet Log Contracts)?**
 
-DLCs are single-use oracle contracts designed for event-based payouts. Surge's Vaults are persistent and programmable, supporting recurring actions like borrow, repay, full liquidation (at 90% LTV), partial liquidation (on delinquency), and unilateral exit.
+DLCs are single-use oracle contracts designed for event-based payouts. Surge's Vaults are persistent and programmable, supporting recurring actions like borrow, repay, full liquidation, partial liquidation (on delinquency), and unilateral exit.
 
 DLCs cannot maintain live vault state or multi-party control flows, so Surge uses **Taproot + MAST** scripts for reusable, native logic. Read more [here](/tech/dlcs).
 
@@ -1401,7 +1401,7 @@ description: How the Liquidation path of a Vault is authorized, constructed, and
 
 A Vault commits three script leaves at creation: **Repayment**, **Liquidation**, and **Exit**. The Liquidation leaf is spent by the DCN when the Coordination Layer authorizes it for one of two reasons:
 
-1. **Undercollateralization** - the credit line reaches **90% LTV** (or breaches the liquidation threshold).
+1. **Undercollateralization** - the live collateral ratio has dropped below the liquidation threshold.
 2. **Delinquency** - the credit line has reached term without being fully repaid or extended.
 
 Both reasons spend the **same** Liquidation leaf. Delinquency is a different *trigger*, not a different script.
@@ -1853,7 +1853,7 @@ A **stablecoin liquidity layer**  routes USDC across chains so the pool stays ca
 4. **Position lives.** The relayer streams oracle price updates into the position's health calculation; workers monitor the collateral ratio against `MinCR` and the liquidation threshold.
 5. **Closure** happens on one of three Bitcoin spend paths:
    - **Repayment** (cooperative) - borrower repays USDC, the DCN co-signs a release of BTC to the borrower's withdrawal address.
-   - **Liquidation** (DCN, authorised) - at **90% LTV**, the DCN signs a full sweep to a Dutch auction and the position is closed; if the credit line is past term and unpaid, the DCN signs a partial sweep—proceeds retire proportional debt and any surplus BTC is re-locked into the vault.
+   - **Liquidation** (DCN, authorised) - collateral ratio breaches the liquidation threshold, or the credit line is past term and unpaid, the DCN signs a sweep to a Dutch auction, proceeds retire the originating market's debt.
    - **Unilateral Exit** (borrower alone, after CSV) - if everything else fails, the borrower spends the Exit leaf after a relative timelock and walks away with their BTC.
 
 ## Why Each Layer Exists
@@ -2691,9 +2691,9 @@ never hardcode it.
 | | Base Sepolia (testnet) | Base (mainnet) |
 | --- | --- | --- |
 | chainId | `84532` | `8453` |
-| AuctionHouse | `0xf5Ea942ee2C36B729B107011F034fF4b52dB41ce` | `0xE5Ff1E177dDE3FC33f5457855b14e6bD3B0C6566` |
+| AuctionHouse | `0x2373abCF75bCBeee90e6556dac04727777ae0b91` | `0xE5Ff1E177dDE3FC33f5457855b14e6bD3B0C6566` |
 | VaultManager | `0x4b6b3Ea5936d144A3edC783aFDfdcC1f95f1818e` | `0x0D5D12de1cC71060A38F25DD9d24DA1DD6eB705a` |
-| LiquidityPool | `0x540B6069B748531fB10994c4Ec91DaC96317a231` | `0xEE755F1BbcbF6e3260469D0f473522d71d3bdDda` |
+| LiquidityPool | `0xed9613914c004Db819C8f0994a7388770E932Ef0` | `0xEE755F1BbcbF6e3260469D0f473522d71d3bdDda` |
 | Oracle | `0x8172Db638e71382c4bD3d0ed425011a09c73642A` | `0x54DE003026dCa32E7cb28BDC79dDDcdB1bc1194D` |
 | USDC | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` |
 
@@ -2707,9 +2707,9 @@ scaled by 1e27. Public RPC endpoints are `https://sepolia.base.org` and
 export const SURGE_AUCTION = {
   84532: {
     name: "base-sepolia",
-    auctionHouse: "0xf5Ea942ee2C36B729B107011F034fF4b52dB41ce",
+    auctionHouse: "0x2373abCF75bCBeee90e6556dac04727777ae0b91",
     vaultManager: "0x4b6b3Ea5936d144A3edC783aFDfdcC1f95f1818e",
-    liquidityPool: "0x540B6069B748531fB10994c4Ec91DaC96317a231",
+    liquidityPool: "0xed9613914c004Db819C8f0994a7388770E932Ef0",
     oracle: "0x8172Db638e71382c4bD3d0ed425011a09c73642A",
     usdc: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
   },
@@ -2732,9 +2732,9 @@ export const SATS_PER_BTC = 100_000_000;
 SURGE_AUCTION = {
     84532: {
         "name": "base-sepolia",
-        "auctionHouse": "0xf5Ea942ee2C36B729B107011F034fF4b52dB41ce",
+        "auctionHouse": "0x2373abCF75bCBeee90e6556dac04727777ae0b91",
         "vaultManager": "0x4b6b3Ea5936d144A3edC783aFDfdcC1f95f1818e",
-        "liquidityPool": "0x540B6069B748531fB10994c4Ec91DaC96317a231",
+        "liquidityPool": "0xed9613914c004Db819C8f0994a7388770E932Ef0",
         "oracle": "0x8172Db638e71382c4bD3d0ed425011a09c73642A",
         "usdc": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
     },
@@ -2787,8 +2787,8 @@ AuctionHouse ABI (getAuction, getCurrentPrice, buy, LogAuctionCreated)
       { "name": "btcAddress", "type": "bytes" }
     ], "outputs": [] },
   { "type": "event", "name": "LogAuctionCreated", "inputs": [
-      { "name": "nftId", "type": "uint256", "indexed": false },
-      { "name": "token", "type": "address", "indexed": false },
+      { "name": "nftId", "type": "uint256", "indexed": true },
+      { "name": "token", "type": "address", "indexed": true },
       { "name": "debtToPay", "type": "uint256", "indexed": false },
       { "name": "collateralSatsForSale", "type": "uint256", "indexed": false },
       { "name": "originalOwner", "type": "address", "indexed": false },
@@ -2860,17 +2860,26 @@ const logs = await client.getContractEvents({
   address: cfg.auctionHouse, abi: auctionAbi, eventName: "LogAuctionCreated",
   fromBlock, toBlock, // step in  l.args.nftId as bigint);
 
-const a = await client.readContract({
+// getAuction returns 9 values positionally, so destructure — it is not an object
+const [active, , , , , , expiresAt, winnerEvm] = await client.readContract({
   address: cfg.auctionHouse, abi: auctionAbi, functionName: "getAuction", args: [nftId],
 });
-// buyable if a.active && a.winnerEvm == 0x0 && now = collateralValueUsd * (TARGET_MARGIN_BPS / 10_000);
+
+const now = BigInt(Math.floor(Date.now() / 1000));
+const buyable =
+  active &&
+  winnerEvm === "0x0000000000000000000000000000000000000000" &&
+  now = collateralValueUsd * (TARGET_MARGIN_BPS / 10_000);
 ```
 
 ```python [Python]
 price_usdc = pool_price = auction.functions.getCurrentPrice(nft_id).call() / 1e6
 btc_price_usd = oracle.functions.getExchangeRateLiquidate().call() / 1e27
 
-collateral_btc = collateral_sats / SATS_PER_BTC
+# getAuction returns 9 values positionally; index 3 is collateralSatsForSale
+collateral_sats_for_sale = auction.functions.getAuction(nft_id).call()[3]
+
+collateral_btc = collateral_sats_for_sale / SATS_PER_BTC
 collateral_value_usd = collateral_btc * btc_price_usd
 net_profit = collateral_value_usd - price_usdc - EST_BTC_FEE_USD
 profitable = net_profit >= collateral_value_usd * (TARGET_MARGIN_BPS / 10_000)
@@ -2945,35 +2954,31 @@ description: Integrate Surge Credit liquidation auctions with the @surgecredit/a
 # Auction SDK
 
 
-Bid on liquidated BTC collateral, or run a keeper, with a few lines of TypeScript.
+Bid on liquidated BTC collateral with a few lines of TypeScript.
 
 
-`@surgecredit/auction-sdk` wraps the Surge liquidation auctions on Base. Discover the
-Dutch auctions of BTC collateral, quote profitability against the on-chain oracle, buy
-collateral with USDC, and open auctions on unhealthy positions. It is non-custodial and
-signer-agnostic. You bring viem clients, the SDK builds the calls, the user signs.
+`@surgecredit/auction-sdk` surfaces the Surge positions up for auction on Base, and the calls
+to buy their collateral. It is non-custodial and signer-agnostic. You bring viem clients, the
+SDK builds the calls, the user signs.
 
-Both roles are permissionless by protocol design. Anyone may call `checkHealth` to open a
-liquidation auction, and anyone may call `buy` to clear one.
+Buying is permissionless by protocol design: anyone may call `buy` to clear an open auction.
+The flow is `listAuctions` to find them, `quoteBuy` to check whether one is worth taking,
+`buy` to clear it.
 
 Working in another language or want zero dependencies? The same flow is available as direct
 contract calls in [Smart Contracts](/liquidations/contracts).
 
 ## How a liquidation auction works
 
-Every position is a BTC-collateralized, USDC-denominated credit line identified by an NFT id.
+Every position is a BTC-collateralized, USDC-denominated credit line identified by a position id.
 
-1. When a position's collateral ratio falls below its market threshold, `checkHealth(nftId)`
-   opens a Dutch auction. The collateral for sale is fixed at open time, so a lower clearing
-   price buys the same BTC for less USDC.
-2. The price steps down toward a floor until the auction expires. Always read
-   `getCurrentPrice(nftId)` rather than assuming the curve.
-3. `buy(nftId, btcAddress)` pays the current price in USDC, retires the debt, and records
+1. When a position's collateral ratio falls below its market threshold, a Dutch auction opens
+   against it. The collateral for sale is fixed at open time, so a lower clearing price buys
+   the same BTC for less USDC.
+2. The price steps down at a fixed interval until it reaches a floor, a percentage of the
+   original debt. Always read `getCurrentPrice(positionId)` rather than assuming the curve.
+3. `buy(positionId, btcAddress)` pays the current price in USDC, retires the debt, and records
    your BTC address as the collateral recipient.
-
-BTC delivery is off-chain and not atomic. You pay USDC at purchase time, and the protocol's
-signer network broadcasts the Bitcoin payout to your address minutes to hours later. This is
-a trust assumption on the protocol operator, so size your exposure to it.
 
 ## Install
 
@@ -2997,39 +3002,98 @@ const auctions = new SurgeAuctionClient({
 });
 
 for (const a of await auctions.listAuctions()) {
-  const q = await auctions.quoteBuy(a.nftId, { estBtcDeliveryFeeUsd: 3, targetMarginBps: 300 });
-  console.log(a.nftId, q.priceUsdc, q.netProfitUsd, q.profitable);
+  console.log(a.positionId, a.currentPriceUsdc, a.collateralBtc);
 }
 ```
 
 ## Reads
 
 ```ts
-await auctions.listAuctions();          // AuctionSnapshot[], buyable only by default
-await auctions.getAuction(nftId);       // AuctionInfo | null
-await auctions.getCurrentPrice(nftId);  // { raw, usdc }
-await auctions.getOracleBtcPriceUsd();  // BTC/USD from the protocol oracle
-await auctions.quoteBuy(nftId, opts);   // BuyQuote: profitability at current price
-await auctions.isLiquidatable(nftId);   // mirrors the contract health test
+await auctions.listAuctions();            // AuctionSnapshot[], buyable only by default
+await auctions.getAuction(positionId);         // AuctionInfo | null
+await auctions.getCurrentPrice(positionId);    // { raw, usdc }
+await auctions.getOracleBtcPriceUsd();    // BTC/USD from the protocol oracle
+await auctions.quoteBuy(positionId, opts);     // BuyQuote: profitability at current price
 await auctions.getUsdcBalance(owner);
-await auctions.getAllowance(owner);     // raw USDC allowance to the AuctionHouse
+await auctions.getAllowance(owner);       // raw USDC allowance to the AuctionHouse
+await auctions.getAuctionHouseAddress();  // resolved from the VaultManager
+await auctions.getPositionContractAddress();
 ```
 
-`listAuctions` discovers auctions from `LogAuctionCreated` events and returns each with its
-current price. By default it returns only auctions that are buyable right now. Pass
-`{ onlyBuyable: false }` for all, and `{ lookbackBlocks }` to widen the scan.
+## Listing auctions
+
+`listAuctions` returns auctions with their current price, batched into a single round trip.
+
+```ts
+await auctions.listAuctions();                            // buyable: active and unwon
+await auctions.listAuctions({ onlyBuyable: false });      // include cleared and settled
+await auctions.listAuctions({ positionIds: [396, 415] }); // known ids, skips discovery
+await auctions.listAuctions({ includeMarketId: false });  // one less batched read
+```
+
+Each entry is an `AuctionSnapshot`:
+
+```ts
+{
+  positionId: string;
+  status: "open" | "purchased" | "settled";
+  currentPriceUsdc: number;
+  currentPriceRaw: bigint;
+  debtToPay: number;
+  collateralBtc: number;
+  collateralSats: bigint;
+  token: Address;
+  originalOwner: Address;
+  createdAt: number;
+  expiresAt: number;
+  expired: boolean;
+  active: boolean;
+  won: boolean;
+  winnerEvm: Address;
+  winnerBtcAddress: string | null;
+  marketId: string | null;
+}
+```
+
+Legacy positions report `marketId` as the `maxUint256` sentinel. Use the exported
+`isLegacyMarket` helper to detect it.
 
 ## Quote profitability
 
-`quoteBuy` values the collateral at the oracle BTC price and applies your margin gate. With
-no options, `profitable` just means the price is below collateral value.
+`quoteBuy` values the collateral at the oracle BTC price and applies your margin gate. With no
+options, `profitable` means the price is below collateral value. It is false for any auction
+you cannot actually buy, whatever the numbers say.
 
 ```ts
-const q = await auctions.quoteBuy(nftId, {
+const q = await auctions.quoteBuy(positionId, {
   estBtcDeliveryFeeUsd: 3, // assumed BTC miner fee per delivery
   targetMarginBps: 300,    // require 3% of collateral value as net profit
 });
 // q.collateralValueUsd, q.priceUsdc, q.netProfitUsd, q.requiredProfitUsd, q.profitable
+```
+
+`quoteBuy` is for one auction you are considering. It reads the auction, its price and the
+oracle on every call, so calling it in a loop refetches the same oracle price once per
+auction. To score a whole list, read the oracle once and reuse it with the exported
+`computeBuyEconomics` helper, which is pure and needs no network:
+
+```ts
+
+const btcPriceUsd = await auctions.getOracleBtcPriceUsd();
+
+const scored = (await auctions.listAuctions())
+  .filter((a) => a.currentPriceUsdc > 0) // skip auctions with no readable price
+  .map((a) => ({
+    positionId: a.positionId,
+    ...computeBuyEconomics({
+      priceUsdc: a.currentPriceUsdc,
+      collateralSats: a.collateralSats,
+      btcPriceUsd,
+      estBtcDeliveryFeeUsd: 3,
+      targetMarginBps: 300,
+    }),
+  }))
+  .filter((a) => a.profitable);
 ```
 
 ## Buy
@@ -3037,52 +3101,73 @@ const q = await auctions.quoteBuy(nftId, {
 ```ts
 const address = "0xBuyerWallet";
 
-// Approve USDC to the AuctionHouse once (exact amount, or omit for unlimited).
-await auctions.approveUsdc({ account: address, amountUsdc: "50", waitForReceipt: true });
+// Approve what this auction needs, plus 5% headroom. No-ops if already covered.
+await auctions.approveForBuy({ positionId, account: address, waitForReceipt: true });
 
 // Buy at the current price; seized BTC is sent to your Bitcoin address.
-await auctions.buy({ nftId, btcAddress: "bc1q...", account: address, waitForReceipt: true });
+await auctions.buy({ positionId, btcAddress: "bc1q...", account: address, waitForReceipt: true });
+```
+
+`approveForBuy` approves the current price plus `bufferBps` of slack, 500 (5%) by default, and
+returns `null` without sending anything if your allowance already covers it. `approveUsdc` is
+there for an exact or unlimited allowance instead:
+
+```ts
+await auctions.approveUsdc({ account: address, amountUsdc: "50" }); // exact
+await auctions.approveUsdc({ account: address });                   // unlimited
 ```
 
 `buy` pre-flights the auction state, your USDC balance and allowance, and validates the BTC
 address for the network, throwing a typed `SurgeAuctionError` instead of reverting. A
 wrong-network BTC address is rejected up front, since seized BTC sent to it is unspendable.
+The address is trimmed before both validation and encoding, so the two cannot disagree.
 
-## Open an auction (keeper)
+Base RPCs sometimes reject the gas estimate for `buy` with "exceeds max transaction gas
+limit". Pass an explicit limit to bypass the estimate:
 
 ```ts
-if (await auctions.isLiquidatable(nftId)) {
-  await auctions.checkHealth({ nftId, account: address, waitForReceipt: true });
-}
+await auctions.buy({ positionId, btcAddress: "bc1q...", gasLimit: 5_000_000n });
 ```
-
-`checkHealth` is permissionless. It pre-checks that the position is actually liquidatable so
-you do not spend gas on a no-op. Pass `skipPreflight: true` to send it unconditionally.
 
 ## Errors
 
 Every error the SDK raises is a `SurgeAuctionError` with a stable `code`, so you branch on
 the code instead of matching message strings.
 
+```ts
+
+try {
+  await auctions.buy({ positionId, btcAddress });
+} catch (err) {
+  if (err instanceof SurgeAuctionError && err.code === "AUCTION_ALREADY_WON") {
+    // someone cleared it first
+  }
+  throw err;
+}
+```
+
+Errors from viem pass through unchanged, so an RPC failure or a rejected signature is not a
+`SurgeAuctionError`.
+
 | Code | When |
 | --- | --- |
-| `INVALID_BTC_ADDRESS` | BTC address empty or wrong network |
-| `AUCTION_NOT_FOUND` | No auction for the position |
+| `INVALID_BTC_ADDRESS` | BTC address empty, malformed, or wrong network |
+| `AUCTION_NOT_FOUND` | Position was never auctioned |
 | `AUCTION_INACTIVE` | Auction is not active |
-| `AUCTION_EXPIRED` | Auction has passed its expiry |
 | `AUCTION_ALREADY_WON` | Someone else cleared it first |
 | `INSUFFICIENT_USDC_BALANCE` | Balance below the current price |
 | `ALLOWANCE_REQUIRED` | USDC allowance below the current price |
-| `NOT_LIQUIDATABLE` | `checkHealth` on a healthy position |
 | `INVALID_AMOUNT` | Non-positive approval amount |
+| `POSITION_CONTRACT_UNRESOLVED` | Could not resolve the position contract for discovery |
 | `WALLET_REQUIRED`, `ACCOUNT_UNRESOLVED`, `WRONG_CHAIN` | Signer / chain setup |
 
-## Networks
+## Next steps
 
-| network | chain | chainId | AuctionHouse |
-| --- | --- | --- | --- |
-| `mainnet` | Base | `8453` | `0xE5Ff1E177dDE3FC33f5457855b14e6bD3B0C6566` |
-| `signet` | Base Sepolia | `84532` | `0xf5Ea942ee2C36B729B107011F034fF4b52dB41ce` |
+That is the whole surface: list auctions, quote one, buy it. The SDK holds no keys and takes
+no custody, so the wallet you pass in stays yours throughout.
+
+Working in another language, or want zero dependencies? The same flow is available as direct
+contract calls in [Smart Contracts](/liquidations/contracts).
 
 
 v0.1.0
