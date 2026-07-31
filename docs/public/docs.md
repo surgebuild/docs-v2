@@ -3187,5 +3187,5 @@ Working in another language, or want zero dependencies? The same flow is availab
 contract calls in [Smart Contracts](/liquidations/contracts).
 
 
-v0.1.0
+v0.1.1
 
