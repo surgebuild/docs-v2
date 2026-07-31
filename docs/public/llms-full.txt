@@ -588,10 +588,10 @@ Pre-checked against the live LTV before the wallet is prompted - a draw over the
 
 ### Re-borrowing after full repayment
 
-While a loan is active, the position is locked to its market. Once it's **fully repaid** (debt is `0`), it no longer carries an active market, so the user can pick a new one before drawing again. Switch the market first, then borrow:
+While a credit line is active, the position is locked to its market. Once it's **fully repaid** (debt is `0`), it no longer carries an active market, so the user can pick a new one before drawing again. Switch the market first, then borrow:
 
 ```ts
-// only valid on a zero-debt position; the relayer rejects it while a loan is active
+// only valid on a zero-debt position; the relayer rejects it while a credit line is active
 await session.switchMarket({ positionId, marketId }); // { positionId, marketId, confirmed }
 await session.borrowMore({ positionId, amountUsd: "250" });
 ```
@@ -1187,19 +1187,178 @@ v0.0.1
 
 
 ========================================
-File: /earn/sdk (SDK)
+File: /earn/sdk (TypeScript SDK)
 ========================================
 
 ---
-title: SDK
-description: TypeScript and Python SDKs for Surge earn. Coming soon.
+title: TypeScript SDK
+description: Integrate Surge earn deposits, withdrawals, APY and positions with the @surgecredit/earn-sdk TypeScript client. Base, USDC, non-custodial.
 ---
 
-# SDK
+# TypeScript SDK
 
-The Surge earn SDKs (TypeScript and Python) are coming soon. The packages are not published yet.
+<div style={{ opacity: 0.65, fontSize: "1.15em", marginBottom: "1.25rem" }}>
+Add a Surge earn opportunity to your app with a few lines of TypeScript.
+</div>
 
-To integrate today, use [Smart Contracts](/earn/contracts), which covers the full deposit, withdraw, and read flow with direct contract calls on Base.
+`@surgecredit/earn-sdk` wraps the earn side of Surge: your users deposit USDC into the shared pool on Base and earn the lending yield borrowers pay. It is non-custodial. You bring viem clients, the SDK builds the calls, the user signs in their own wallet. The SDK never holds keys.
+
+It is a thin, typed layer over the same contract surface documented in [Smart Contracts](/earn/contracts). Use the SDK if you work in TypeScript and want position, APY and liquidity reads plus safe deposit and withdraw helpers out of the box. Use the raw contract calls if you are in another language or want zero dependencies.
+
+Scope:
+
+- One asset: USDC (6 decimals).
+- Deposit and withdraw target the variable market (`marketId = 0`).
+- Networks: Base (mainnet) and Base Sepolia (`signet`).
+
+## Install
+
+```bash
+npm install @surgecredit/earn-sdk viem
+```
+
+## Quick start
+
+Create the client with a viem public client for reads and a wallet client for writes. Pick the network and the SDK resolves the pool and USDC addresses.
+
+```ts
+import { createWalletClient, custom } from "viem";
+import { base } from "viem/chains";
+import { SurgeEarnClient, createSurgeEarnPublicClient } from "@surgecredit/earn-sdk";
+
+const publicClient = createSurgeEarnPublicClient("https://mainnet.base.org", base);
+const walletClient = createWalletClient({ chain: base, transport: custom(window.ethereum) });
+
+const earn = new SurgeEarnClient({
+  publicClient,
+  walletClient,   // omit for a read-only client
+  network: "mainnet", // "signet" = Base Sepolia
+});
+
+const [market] = await earn.listMarkets();
+console.log(market.supplyApy, market.availableLiquidity);
+```
+
+The constructor checks that `publicClient` is on the configured chain, so a mainnet config over a testnet RPC fails fast instead of reading a wrong address.
+
+## Reads
+
+```ts
+await earn.listMarkets();             // MarketSnapshot[]: supplyApy, utilization, liquidity, LTV
+await earn.getUserPosition(address);  // { claimable, totalClaimable, withdrawableNow } in USDC
+await earn.getUserExposures(address); // per fixed-market exposure and allocation
+await earn.getWalletUsdcBalance(address);
+await earn.getAllowance(address);     // raw USDC allowance to the pool (bigint)
+```
+
+All amounts on snapshots and positions are plain decimal numbers of USDC. Rates and ratios are percentages, so `6.9` means 6.9 percent. `supplyApy` is the net lender rate after the protocol reserve cut.
+
+Position size is the claimable USDC the pool would pay out. There is no share token. `withdrawableNow` is the smaller of the user's claim and the market's available liquidity, which is what you should cap a "withdraw max" button to.
+
+## Deposit
+
+The pool needs a USDC allowance before it can pull funds. `depositWithApproval` handles both steps and approves only the deposit amount by default.
+
+```ts
+const address = "0xUserWallet";
+
+await earn.depositWithApproval({
+  amountUsdc: "100",
+  account: address,
+  waitForReceipt: true,
+});
+```
+
+Or run the two steps yourself:
+
+```ts
+await earn.approveUsdc({ account: address, amountUsdc: "100", waitForReceipt: true });
+await earn.deposit({ account: address, amountUsdc: "100", waitForReceipt: true });
+```
+
+`deposit` reads the wallet balance and allowance first and throws a typed error (`INSUFFICIENT_USDC_BALANCE` or `ALLOWANCE_REQUIRED`) rather than letting the transaction revert. Omit `amountUsdc` on `approveUsdc` for an unlimited allowance, but an exact approval is the safer default.
+
+## Withdraw
+
+`withdraw` takes a USDC amount, not shares. It is bounded by available liquidity, which can be below the user balance when utilization is high, so it pre-flights the claim and the liquidity and throws `INSUFFICIENT_POSITION` or `INSUFFICIENT_MARKET_LIQUIDITY` when needed.
+
+```ts
+await earn.withdraw({ account: address, amountUsdc: "50", waitForReceipt: true });
+
+// Full exit of the variable-market position:
+await earn.withdrawAll({ account: address, waitForReceipt: true });
+```
+
+Show `getUserPosition(address).withdrawableNow` next to a "withdraw max" control so users see what is available right now.
+
+## Fixed-market exposure (optional)
+
+Deposits land in the variable market. Fixed markets are funded from variable-market LPs who opt in with an exposure cap from 0 to 100 percent. Most integrations never touch this and leave everything in the variable market.
+
+```ts
+await earn.setExposure({ marketId: 1, exposurePercent: 100, account: address });
+await earn.setExposures({ updates: [{ marketId: 1, exposurePercent: 50 }], account: address });
+```
+
+Exposure applies to fixed markets only (`marketId >= 1`). Calling it on market 0 throws `INVALID_MARKET_ID`.
+
+## Errors
+
+Every error the SDK raises is a `SurgeEarnError` with a stable `code`, so you branch on the code instead of matching message strings. Errors from viem (RPC failures, user-rejected signatures) pass through unchanged.
+
+```ts
+import { SurgeEarnError } from "@surgecredit/earn-sdk";
+
+try {
+  await earn.withdraw({ account: address, amountUsdc });
+} catch (err) {
+  if (err instanceof SurgeEarnError && err.code === "INSUFFICIENT_MARKET_LIQUIDITY") {
+    // show the available-to-withdraw amount instead
+  }
+}
+```
+
+| Code | When |
+| --- | --- |
+| `INVALID_AMOUNT` | Amount is not a positive number |
+| `INSUFFICIENT_USDC_BALANCE` | Deposit exceeds the wallet's USDC balance |
+| `ALLOWANCE_REQUIRED` | Deposit exceeds the USDC allowance to the pool |
+| `INSUFFICIENT_POSITION` | Withdraw exceeds the user's claimable balance |
+| `INSUFFICIENT_MARKET_LIQUIDITY` | Withdraw exceeds available liquidity |
+| `INVALID_MARKET_ID` | Exposure set on a non-fixed market |
+| `INVALID_EXPOSURE` | Exposure percent outside 0 to 100 |
+| `WALLET_REQUIRED` | A write was called with no wallet client |
+| `ACCOUNT_UNRESOLVED` | No account passed and none on the wallet client |
+| `WRONG_CHAIN` | Public or wallet client on a different chain than the config |
+
+## React hooks
+
+```ts
+import { useEarnMarkets, useEarnPortfolio, useEarnActivity } from "@surgecredit/earn-sdk/react";
+
+const { data: markets } = useEarnMarkets(earn, { pollIntervalMs: 15000 });
+const { data: portfolio } = useEarnPortfolio(earn, address); // { position, exposures }
+const { data: activity } = useEarnActivity(earn, { user: address, includeTimestamps: true });
+```
+
+Each hook returns `{ data, loading, error, refresh }`.
+
+## Attribution
+
+To have the liquidity your app brings attributed to you, append your partner tag to the deposit calldata. The SDK builds the deposit as a direct call from the user's wallet, so the tag rides on the user's own transaction. See [Attribution](/earn/contracts#attribution) for how to get a partner id or map an existing ERC-8021 builder code.
+
+## Networks
+
+| network | chain | chainId | LiquidityPool |
+| --- | --- | --- | --- |
+| `mainnet` | Base | `8453` | `0xEE755F1BbcbF6e3260469D0f473522d71d3bdDda` |
+| `signet` | Base Sepolia | `84532` | `0xed9613914c004Db819C8f0994a7388770E932Ef0` |
+
+For advanced setups you can pass a full `config` object instead of `network`. See [Smart Contracts](/earn/contracts) for the raw addresses, ABIs, and the equivalent Python flow.
+
+<div style={{ opacity: 0.55, fontSize: "0.8em", marginTop: "3rem" }}>
+v0.2.0
+</div>
 
 
 ========================================
@@ -1246,6 +1405,604 @@ A credit system designed for Bitcoiners, built on Bitcoin, aligned with its etho
 The rest of these docs walk through how that promise is kept - from the Bitcoin script that guards collateral, to the threshold cryptography that produces signatures without ever assembling a private key, to the markets where credit and yield are discovered.
 
 A good place to start is **[Bitcoin-native Credit Infra](/credit-infra)** - the two-layer model that separates Surge's apps from the protocol underneath, and explains who stewards the whole thing.
+
+
+========================================
+File: /liquidations/contracts (Smart Contracts)
+========================================
+
+---
+title: Smart Contracts
+description: Integrate Surge liquidation auctions with direct contract calls on Base. Discover Dutch auctions, buy BTC collateral with USDC, and open auctions. Non-custodial.
+---
+
+# Smart Contracts
+
+<div style={{ opacity: 0.65, fontSize: "1.15em", marginBottom: "1.25rem" }}>
+Bid on liquidated BTC collateral, or run a keeper, with direct contract calls on Base.
+</div>
+
+This is the no-dependency path. The [Auction SDK](/liquidations/sdk) wraps exactly these
+calls in TypeScript; the fragments below are enough to ship a full discover, quote, and buy
+flow in any language.
+
+Both roles are permissionless by protocol design. Anyone may call `checkHealth` to open a
+liquidation auction on an unhealthy position, and anyone may call `buy` to clear one. It is
+fully non-custodial: you build the transactions, the user signs them in their own wallet.
+
+## How a liquidation auction works
+
+Every position is a BTC-collateralized, USDC-denominated credit line identified by an NFT id.
+
+1. When a position's collateral ratio falls below its market threshold, `checkHealth(nftId)`
+   opens a Dutch auction. The collateral for sale is fixed at open time, so a lower clearing
+   price buys the same BTC for less USDC.
+2. The price steps down toward a floor until the auction expires. Always read
+   `getCurrentPrice(nftId)` rather than assuming the curve.
+3. `buy(nftId, btcAddress)` pays the current price in USDC, retires the debt, and records
+   your BTC address as the collateral recipient.
+
+BTC delivery is off-chain and not atomic. You pay USDC at purchase time, and the protocol's
+signer network broadcasts the Bitcoin payout to your address minutes to hours later. This is
+a trust assumption on the protocol operator, so size your exposure to it.
+
+## Networks and addresses
+
+Key your config by `chainId` so switching networks switches addresses with no code branch.
+The market provider for the health check is read on-chain from `markets(marketId)`, so you
+never hardcode it.
+
+| | Base Sepolia (testnet) | Base (mainnet) |
+| --- | --- | --- |
+| <span style={{ fontWeight: 600 }}>chainId</span> | `84532` | `8453` |
+| <span style={{ fontWeight: 600 }}>AuctionHouse</span> | `0x2373abCF75bCBeee90e6556dac04727777ae0b91` | `0xE5Ff1E177dDE3FC33f5457855b14e6bD3B0C6566` |
+| <span style={{ fontWeight: 600 }}>VaultManager</span> | `0x4b6b3Ea5936d144A3edC783aFDfdcC1f95f1818e` | `0x0D5D12de1cC71060A38F25DD9d24DA1DD6eB705a` |
+| <span style={{ fontWeight: 600 }}>LiquidityPool</span> | `0xed9613914c004Db819C8f0994a7388770E932Ef0` | `0xEE755F1BbcbF6e3260469D0f473522d71d3bdDda` |
+| <span style={{ fontWeight: 600 }}>Oracle</span> | `0x8172Db638e71382c4bD3d0ed425011a09c73642A` | `0x54DE003026dCa32E7cb28BDC79dDDcdB1bc1194D` |
+| <span style={{ fontWeight: 600 }}>USDC</span> | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` |
+
+USDC is the settlement asset (6 decimals). The oracle returns the BTC/USD liquidation rate
+scaled by 1e27. Public RPC endpoints are `https://sepolia.base.org` and
+`https://mainnet.base.org`; use a dedicated endpoint in production.
+
+:::code-group
+
+```ts [TypeScript]
+export const SURGE_AUCTION = {
+  84532: {
+    name: "base-sepolia",
+    auctionHouse: "0x2373abCF75bCBeee90e6556dac04727777ae0b91",
+    vaultManager: "0x4b6b3Ea5936d144A3edC783aFDfdcC1f95f1818e",
+    liquidityPool: "0xed9613914c004Db819C8f0994a7388770E932Ef0",
+    oracle: "0x8172Db638e71382c4bD3d0ed425011a09c73642A",
+    usdc: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+  },
+  8453: {
+    name: "base",
+    auctionHouse: "0xE5Ff1E177dDE3FC33f5457855b14e6bD3B0C6566",
+    vaultManager: "0x0D5D12de1cC71060A38F25DD9d24DA1DD6eB705a",
+    liquidityPool: "0xEE755F1BbcbF6e3260469D0f473522d71d3bdDda",
+    oracle: "0x54DE003026dCa32E7cb28BDC79dDDcdB1bc1194D",
+    usdc: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  },
+} as const;
+
+export const USDC_DECIMALS = 6;
+export const ORACLE_DECIMALS = 27;
+export const SATS_PER_BTC = 100_000_000;
+```
+
+```python [Python]
+SURGE_AUCTION = {
+    84532: {
+        "name": "base-sepolia",
+        "auctionHouse": "0x2373abCF75bCBeee90e6556dac04727777ae0b91",
+        "vaultManager": "0x4b6b3Ea5936d144A3edC783aFDfdcC1f95f1818e",
+        "liquidityPool": "0xed9613914c004Db819C8f0994a7388770E932Ef0",
+        "oracle": "0x8172Db638e71382c4bD3d0ed425011a09c73642A",
+        "usdc": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+    },
+    8453: {
+        "name": "base",
+        "auctionHouse": "0xE5Ff1E177dDE3FC33f5457855b14e6bD3B0C6566",
+        "vaultManager": "0x0D5D12de1cC71060A38F25DD9d24DA1DD6eB705a",
+        "liquidityPool": "0xEE755F1BbcbF6e3260469D0f473522d71d3bdDda",
+        "oracle": "0x54DE003026dCa32E7cb28BDC79dDDcdB1bc1194D",
+        "usdc": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    },
+}
+
+USDC_DECIMALS = 6
+ORACLE_DECIMALS = 27
+SATS_PER_BTC = 100_000_000
+```
+
+:::
+
+## Minimal ABI
+
+These fragments are the complete set an auction integration calls. The examples load the
+AuctionHouse ABI below as `auctionAbi` (TypeScript) or `AUCTION_ABI` (Python).
+
+<details>
+<summary style={{ cursor: "pointer", fontWeight: 600 }}>AuctionHouse ABI (getAuction, getCurrentPrice, buy, LogAuctionCreated)</summary>
+
+```json
+[
+  { "type": "function", "name": "getCurrentPrice", "stateMutability": "view",
+    "inputs": [{ "name": "nftId", "type": "uint256" }],
+    "outputs": [{ "name": "currentPrice", "type": "uint256" }] },
+  { "type": "function", "name": "getAuction", "stateMutability": "view",
+    "inputs": [{ "name": "nftId", "type": "uint256" }],
+    "outputs": [
+      { "name": "active", "type": "bool" },
+      { "name": "token", "type": "address" },
+      { "name": "debtToPay", "type": "uint256" },
+      { "name": "collateralSatsForSale", "type": "uint256" },
+      { "name": "originalOwner", "type": "address" },
+      { "name": "createdAt", "type": "uint256" },
+      { "name": "expiresAt", "type": "uint256" },
+      { "name": "winnerEvm", "type": "address" },
+      { "name": "winnerBtcAddress", "type": "bytes" }
+    ] },
+  { "type": "function", "name": "buy", "stateMutability": "nonpayable",
+    "inputs": [
+      { "name": "nftId", "type": "uint256" },
+      { "name": "btcAddress", "type": "bytes" }
+    ], "outputs": [] },
+  { "type": "event", "name": "LogAuctionCreated", "inputs": [
+      { "name": "nftId", "type": "uint256", "indexed": true },
+      { "name": "token", "type": "address", "indexed": true },
+      { "name": "debtToPay", "type": "uint256", "indexed": false },
+      { "name": "collateralSatsForSale", "type": "uint256", "indexed": false },
+      { "name": "originalOwner", "type": "address", "indexed": false },
+      { "name": "expiresAt", "type": "uint256", "indexed": false } ] }
+]
+```
+
+</details>
+
+<details>
+<summary style={{ cursor: "pointer", fontWeight: 600 }}>VaultManager ABI (checkHealth + health reads)</summary>
+
+```json
+[
+  { "type": "function", "name": "checkHealth", "stateMutability": "nonpayable",
+    "inputs": [{ "name": "nftId", "type": "uint256" }], "outputs": [] },
+  { "type": "function", "name": "getCollateralRatio", "stateMutability": "view",
+    "inputs": [{ "name": "nftId", "type": "uint256" }],
+    "outputs": [{ "name": "cr", "type": "uint256" }] },
+  { "type": "function", "name": "positionMarket", "stateMutability": "view",
+    "inputs": [{ "type": "uint256" }], "outputs": [{ "type": "uint256" }] },
+  { "type": "function", "name": "getLegacyParams", "stateMutability": "view",
+    "inputs": [],
+    "outputs": [
+      { "name": "minCR", "type": "uint256" },
+      { "name": "liqThreshold", "type": "uint256" },
+      { "name": "liqPenalty", "type": "uint256" }
+    ] }
+]
+```
+
+</details>
+
+<details>
+<summary style={{ cursor: "pointer", fontWeight: 600 }}>Oracle + LiquidityPool + USDC</summary>
+
+```json
+[
+  { "type": "function", "name": "getExchangeRateLiquidate", "stateMutability": "view",
+    "inputs": [], "outputs": [{ "type": "uint256" }] },
+  { "type": "function", "name": "markets", "stateMutability": "view",
+    "inputs": [{ "type": "uint256" }],
+    "outputs": [
+      { "name": "provider", "type": "address" }, { "name": "token", "type": "address" },
+      { "name": "active", "type": "bool" }, { "name": "totalSupplyShares", "type": "uint256" },
+      { "name": "totalSupplyAssets", "type": "uint256" }, { "name": "totalPhysicalSupply", "type": "uint256" },
+      { "name": "totalBorrowShares", "type": "uint256" }, { "name": "totalBorrowAssets", "type": "uint256" },
+      { "name": "totalPhysicalBorrow", "type": "uint256" }, { "name": "supplyExchangeRate", "type": "uint256" },
+      { "name": "borrowExchangeRate", "type": "uint256" }, { "name": "protocolEarnings", "type": "uint256" },
+      { "name": "protocolEarningsAvailable", "type": "uint256" }, { "name": "originationFeeBps", "type": "uint256" },
+      { "name": "reserveRateBps", "type": "uint256" }, { "name": "maxLtvBps", "type": "uint256" },
+      { "name": "liquidationThresholdBps", "type": "uint256" }, { "name": "lastAccrueTime", "type": "uint256" }
+    ] }
+]
+```
+
+For USDC use any standard ERC-20 ABI (`approve`, `allowance`, `balanceOf`); it is built into
+viem as `erc20Abi`.
+
+</details>
+
+## Discover auctions
+
+Scan `LogAuctionCreated` for position ids, then read each with `getAuction`. Public Base RPCs
+cap `eth_getLogs` at 2000 blocks per request, so scan in chunks.
+
+```ts [TypeScript]
+const logs = await client.getContractEvents({
+  address: cfg.auctionHouse, abi: auctionAbi, eventName: "LogAuctionCreated",
+  fromBlock, toBlock, // step in <= 2000-block windows
+});
+const ids = logs.map((l) => l.args.nftId as bigint);
+
+// getAuction returns 9 values positionally, so destructure — it is not an object
+const [active, , , , , , expiresAt, winnerEvm] = await client.readContract({
+  address: cfg.auctionHouse, abi: auctionAbi, functionName: "getAuction", args: [nftId],
+});
+
+const now = BigInt(Math.floor(Date.now() / 1000));
+const buyable =
+  active &&
+  winnerEvm === "0x0000000000000000000000000000000000000000" &&
+  now <= expiresAt;
+```
+
+## Read the current price and quote profit
+
+`getCurrentPrice` is the live Dutch price in USDC. Value the collateral at the oracle rate and
+apply your own margin.
+
+:::code-group
+
+```ts [TypeScript]
+import { formatUnits } from "viem";
+
+const priceRaw = await client.readContract({
+  address: cfg.auctionHouse, abi: auctionAbi, functionName: "getCurrentPrice", args: [nftId],
+});
+const priceUsdc = Number(formatUnits(priceRaw, 6));
+
+const rateRaw = await client.readContract({
+  address: cfg.oracle, abi: oracleAbi, functionName: "getExchangeRateLiquidate",
+});
+const btcPriceUsd = Number(formatUnits(rateRaw, 27));
+
+// getAuction returns 9 values positionally; index 3 is collateralSatsForSale
+const [, , , collateralSatsForSale] = await client.readContract({
+  address: cfg.auctionHouse, abi: auctionAbi, functionName: "getAuction", args: [nftId],
+});
+
+const collateralBtc = Number(collateralSatsForSale) / SATS_PER_BTC;
+const collateralValueUsd = collateralBtc * btcPriceUsd;
+const netProfit = collateralValueUsd - priceUsdc - EST_BTC_FEE_USD;
+const profitable = netProfit >= collateralValueUsd * (TARGET_MARGIN_BPS / 10_000);
+```
+
+```python [Python]
+price_usdc = pool_price = auction.functions.getCurrentPrice(nft_id).call() / 1e6
+btc_price_usd = oracle.functions.getExchangeRateLiquidate().call() / 1e27
+
+# getAuction returns 9 values positionally; index 3 is collateralSatsForSale
+collateral_sats_for_sale = auction.functions.getAuction(nft_id).call()[3]
+
+collateral_btc = collateral_sats_for_sale / SATS_PER_BTC
+collateral_value_usd = collateral_btc * btc_price_usd
+net_profit = collateral_value_usd - price_usdc - EST_BTC_FEE_USD
+profitable = net_profit >= collateral_value_usd * (TARGET_MARGIN_BPS / 10_000)
+```
+
+:::
+
+The oracle rate is the protocol's liquidation rate, not the spot price you would sell BTC at,
+so "profitable" is relative to that basis. Because delivery lands hours after purchase, BTC
+price can move against you in between. Both are real risks; see the security notes.
+
+## Buy
+
+Approve USDC to the AuctionHouse, then buy. The BTC address is passed as UTF-8 bytes. Validate
+it against the network first: a wrong-network payout address means the seized BTC is unspendable.
+
+:::code-group
+
+```ts [TypeScript]
+import { parseUnits, toHex } from "viem";
+
+// 1) approve (exact price, or a working-capital cap). Spender = AuctionHouse.
+await wallet.writeContract({
+  address: cfg.usdc, abi: erc20Abi, functionName: "approve",
+  args: [cfg.auctionHouse, priceRaw],
+});
+
+// 2) buy at the current price; btc address as UTF-8 bytes
+await wallet.writeContract({
+  address: cfg.auctionHouse, abi: auctionAbi, functionName: "buy",
+  args: [nftId, toHex(btcAddress)],
+});
+```
+
+```python [Python]
+# 1) approve, spender = AuctionHouse
+usdc.functions.approve(cfg["auctionHouse"], price_raw).build_transaction({...})
+
+# 2) buy; btc address as UTF-8 bytes
+auction.functions.buy(nft_id, btc_address.encode("utf-8")).build_transaction({...})
+```
+
+:::
+
+Read the current price and your USDC balance right before you send, and clamp to the live
+price; the auction is competitive, so a buy can lose to a faster bidder even after a clean
+pre-flight.
+
+## Open an auction (keeper)
+
+`checkHealth(nftId)` opens a Dutch auction on an unhealthy position and is permissionless. It
+is a no-op or reverts if the position is healthy, so pre-check to save gas. The health test is
+the collateral ratio (scaled so 1e16 = 100%) against the position market's threshold.
+
+```ts [TypeScript]
+const cr = await client.readContract({
+  address: cfg.vaultManager, abi: vaultAbi, functionName: "getCollateralRatio", args: [nftId],
+});
+const marketId = await client.readContract({
+  address: cfg.vaultManager, abi: vaultAbi, functionName: "positionMarket", args: [nftId],
+});
+// threshold: legacy market (marketId == MAX_UINT256) uses getLegacyParams().liqThreshold;
+// otherwise (10000*10000) / markets(marketId).liquidationThresholdBps
+const liquidatable = cr !== 0n && cr < crThresholdBps * 10n ** 12n;
+
+if (liquidatable) {
+  await wallet.writeContract({
+    address: cfg.vaultManager, abi: vaultAbi, functionName: "checkHealth", args: [nftId],
+  });
+}
+```
+
+## Security and operational notes
+
+- **BTC delivery is a trust assumption.** You pay USDC now and the signer network delivers BTC
+  later. Size exposure accordingly.
+- **Price risk between buy and delivery.** BTC can move against you before the payout confirms.
+- **Oracle basis.** Profit is measured against the liquidation oracle, not your exit venue.
+- **Approvals.** Approve the exact amount you plan to spend, spender = AuctionHouse, from a
+  dedicated wallet funded only with working capital and gas.
+- **Competition.** Buying is permissionless and races other bidders; a stale pre-flight just
+  means a revert, never a loss.
+- **Dust economics.** Every win needs its own BTC delivery with its own fee, so skip auctions
+  whose margin does not clear your fee plus target.
+
+For a TypeScript wrapper of all of the above, use the [Auction SDK](/liquidations/sdk). For an
+end-to-end keeper you can deploy, see the reference `surge-liquidation-bot`.
+
+<div style={{ opacity: 0.55, fontSize: "0.8em", marginTop: "3rem" }}>
+v0.1.0
+</div>
+
+
+========================================
+File: /liquidations/sdk (Auction SDK)
+========================================
+
+---
+title: Auction SDK
+description: Integrate Surge Credit liquidation auctions with the @surgecredit/auction-sdk TypeScript client. Discover Dutch auctions, quote profit, buy BTC collateral with USDC on Base.
+---
+
+# Auction SDK
+
+<div style={{ opacity: 0.65, fontSize: "1.15em", marginBottom: "1.25rem" }}>
+Bid on liquidated BTC collateral with a few lines of TypeScript.
+</div>
+
+`@surgecredit/auction-sdk` surfaces the Surge positions up for auction on Base, and the calls
+to buy their collateral. It is non-custodial and signer-agnostic. You bring viem clients, the
+SDK builds the calls, the user signs.
+
+Buying is permissionless by protocol design: anyone may call `buy` to clear an open auction.
+The flow is `listAuctions` to find them, `quoteBuy` to check whether one is worth taking,
+`buy` to clear it.
+
+Working in another language or want zero dependencies? The same flow is available as direct
+contract calls in [Smart Contracts](/liquidations/contracts).
+
+## How a liquidation auction works
+
+Every position is a BTC-collateralized, USDC-denominated credit line identified by a position id.
+
+1. When a position's collateral ratio falls below its market threshold, a Dutch auction opens
+   against it. The collateral for sale is fixed at open time, so a lower clearing price buys
+   the same BTC for less USDC.
+2. The price steps down at a fixed interval until it reaches a floor, a percentage of the
+   original debt. Always read `getCurrentPrice(positionId)` rather than assuming the curve.
+3. `buy(positionId, btcAddress)` pays the current price in USDC, retires the debt, and records
+   your BTC address as the collateral recipient.
+
+## Install
+
+```bash
+npm install @surgecredit/auction-sdk viem
+```
+
+## Quick start
+
+```ts
+import { createWalletClient, custom } from "viem";
+import { base } from "viem/chains";
+import { SurgeAuctionClient, createSurgeAuctionPublicClient } from "@surgecredit/auction-sdk";
+
+const publicClient = createSurgeAuctionPublicClient("https://mainnet.base.org", base);
+const walletClient = createWalletClient({ chain: base, transport: custom(window.ethereum) });
+
+const auctions = new SurgeAuctionClient({
+  publicClient,
+  walletClient,       // omit for a read-only client
+  network: "mainnet", // "signet" = Base Sepolia
+});
+
+for (const a of await auctions.listAuctions()) {
+  console.log(a.positionId, a.currentPriceUsdc, a.collateralBtc);
+}
+```
+
+## Reads
+
+```ts
+await auctions.listAuctions();            // AuctionSnapshot[], buyable only by default
+await auctions.getAuction(positionId);         // AuctionInfo | null
+await auctions.getCurrentPrice(positionId);    // { raw, usdc }
+await auctions.getOracleBtcPriceUsd();    // BTC/USD from the protocol oracle
+await auctions.quoteBuy(positionId, opts);     // BuyQuote: profitability at current price
+await auctions.getUsdcBalance(owner);
+await auctions.getAllowance(owner);       // raw USDC allowance to the AuctionHouse
+await auctions.getAuctionHouseAddress();  // resolved from the VaultManager
+await auctions.getPositionContractAddress();
+```
+
+## Listing auctions
+
+`listAuctions` returns auctions with their current price, batched into a single round trip.
+
+```ts
+await auctions.listAuctions();                            // buyable: active and unwon
+await auctions.listAuctions({ onlyBuyable: false });      // include cleared and settled
+await auctions.listAuctions({ positionIds: [396, 415] }); // known ids, skips discovery
+await auctions.listAuctions({ includeMarketId: false });  // one less batched read
+```
+
+Each entry is an `AuctionSnapshot`:
+
+```ts
+{
+  positionId: string;
+  status: "open" | "purchased" | "settled";
+  currentPriceUsdc: number;
+  currentPriceRaw: bigint;
+  debtToPay: number;
+  collateralBtc: number;
+  collateralSats: bigint;
+  token: Address;
+  originalOwner: Address;
+  createdAt: number;
+  expiresAt: number;
+  expired: boolean;
+  active: boolean;
+  won: boolean;
+  winnerEvm: Address;
+  winnerBtcAddress: string | null;
+  marketId: string | null;
+}
+```
+
+Legacy positions report `marketId` as the `maxUint256` sentinel. Use the exported
+`isLegacyMarket` helper to detect it.
+
+## Quote profitability
+
+`quoteBuy` values the collateral at the oracle BTC price and applies your margin gate. With no
+options, `profitable` means the price is below collateral value. It is false for any auction
+you cannot actually buy, whatever the numbers say.
+
+```ts
+const q = await auctions.quoteBuy(positionId, {
+  estBtcDeliveryFeeUsd: 3, // assumed BTC miner fee per delivery
+  targetMarginBps: 300,    // require 3% of collateral value as net profit
+});
+// q.collateralValueUsd, q.priceUsdc, q.netProfitUsd, q.requiredProfitUsd, q.profitable
+```
+
+`quoteBuy` is for one auction you are considering. It reads the auction, its price and the
+oracle on every call, so calling it in a loop refetches the same oracle price once per
+auction. To score a whole list, read the oracle once and reuse it with the exported
+`computeBuyEconomics` helper, which is pure and needs no network:
+
+```ts
+import { computeBuyEconomics } from "@surgecredit/auction-sdk";
+
+const btcPriceUsd = await auctions.getOracleBtcPriceUsd();
+
+const scored = (await auctions.listAuctions())
+  .filter((a) => a.currentPriceUsdc > 0) // skip auctions with no readable price
+  .map((a) => ({
+    positionId: a.positionId,
+    ...computeBuyEconomics({
+      priceUsdc: a.currentPriceUsdc,
+      collateralSats: a.collateralSats,
+      btcPriceUsd,
+      estBtcDeliveryFeeUsd: 3,
+      targetMarginBps: 300,
+    }),
+  }))
+  .filter((a) => a.profitable);
+```
+
+## Buy
+
+```ts
+const address = "0xBuyerWallet";
+
+// Approve what this auction needs, plus 5% headroom. No-ops if already covered.
+await auctions.approveForBuy({ positionId, account: address, waitForReceipt: true });
+
+// Buy at the current price; seized BTC is sent to your Bitcoin address.
+await auctions.buy({ positionId, btcAddress: "bc1q...", account: address, waitForReceipt: true });
+```
+
+`approveForBuy` approves the current price plus `bufferBps` of slack, 500 (5%) by default, and
+returns `null` without sending anything if your allowance already covers it. `approveUsdc` is
+there for an exact or unlimited allowance instead:
+
+```ts
+await auctions.approveUsdc({ account: address, amountUsdc: "50" }); // exact
+await auctions.approveUsdc({ account: address });                   // unlimited
+```
+
+`buy` pre-flights the auction state, your USDC balance and allowance, and validates the BTC
+address for the network, throwing a typed `SurgeAuctionError` instead of reverting. A
+wrong-network BTC address is rejected up front, since seized BTC sent to it is unspendable.
+The address is trimmed before both validation and encoding, so the two cannot disagree.
+
+Base RPCs sometimes reject the gas estimate for `buy` with "exceeds max transaction gas
+limit". Pass an explicit limit to bypass the estimate:
+
+```ts
+await auctions.buy({ positionId, btcAddress: "bc1q...", gasLimit: 5_000_000n });
+```
+
+## Errors
+
+Every error the SDK raises is a `SurgeAuctionError` with a stable `code`, so you branch on
+the code instead of matching message strings.
+
+```ts
+import { SurgeAuctionError } from "@surgecredit/auction-sdk";
+
+try {
+  await auctions.buy({ positionId, btcAddress });
+} catch (err) {
+  if (err instanceof SurgeAuctionError && err.code === "AUCTION_ALREADY_WON") {
+    // someone cleared it first
+  }
+  throw err;
+}
+```
+
+Errors from viem pass through unchanged, so an RPC failure or a rejected signature is not a
+`SurgeAuctionError`.
+
+| Code | When |
+| --- | --- |
+| `INVALID_BTC_ADDRESS` | BTC address empty, malformed, or wrong network |
+| `AUCTION_NOT_FOUND` | Position was never auctioned |
+| `AUCTION_INACTIVE` | Auction is not active |
+| `AUCTION_ALREADY_WON` | Someone else cleared it first |
+| `INSUFFICIENT_USDC_BALANCE` | Balance below the current price |
+| `ALLOWANCE_REQUIRED` | USDC allowance below the current price |
+| `INVALID_AMOUNT` | Non-positive approval amount |
+| `POSITION_CONTRACT_UNRESOLVED` | Could not resolve the position contract for discovery |
+| `WALLET_REQUIRED`, `ACCOUNT_UNRESOLVED`, `WRONG_CHAIN` | Signer / chain setup |
+
+## Next steps
+
+That is the whole surface: list auctions, quote one, buy it. The SDK holds no keys and takes
+no custody, so the wallet you pass in stays yours throughout.
+
+Working in another language, or want zero dependencies? The same flow is available as direct
+contract calls in [Smart Contracts](/liquidations/contracts).
+
+<div style={{ opacity: 0.55, fontSize: "0.8em", marginTop: "3rem" }}>
+v0.1.0
+</div>
 
 
 ========================================
