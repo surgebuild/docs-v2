@@ -2668,14 +2668,15 @@ fully non-custodial: you build the transactions, the user signs them in their ow
 
 ## How a liquidation auction works
 
-Every position is a BTC-collateralized, USDC-denominated credit line identified by an NFT id.
+Every position is a BTC-collateralized, USDC-denominated credit line identified by a position id.
 
-1. When a position's collateral ratio falls below its market threshold, `checkHealth(nftId)`
+1. When a position's collateral ratio falls below its market threshold, `checkHealth(positionId)`
    opens a Dutch auction. The collateral for sale is fixed at open time, so a lower clearing
    price buys the same BTC for less USDC.
-2. The price steps down toward a floor until the auction expires. Always read
-   `getCurrentPrice(nftId)` rather than assuming the curve.
-3. `buy(nftId, btcAddress)` pays the current price in USDC, retires the debt, and records
+2. The price steps down at a fixed interval until it reaches a floor, a percentage of the
+   original debt, and stays there. Always read `getCurrentPrice(positionId)` rather than assuming
+   the curve.
+3. `buy(positionId, btcAddress)` pays the current price in USDC, retires the debt, and records
    your BTC address as the collateral recipient.
 
 BTC delivery is off-chain and not atomic. You pay USDC at purchase time, and the protocol's
@@ -2861,28 +2862,42 @@ const logs = await client.getContractEvents({
   fromBlock, toBlock, // step in  l.args.nftId as bigint);
 
 // getAuction returns 9 values positionally, so destructure — it is not an object
-const [active, , , , , , expiresAt, winnerEvm] = await client.readContract({
-  address: cfg.auctionHouse, abi: auctionAbi, functionName: "getAuction", args: [nftId],
+const [active, , , , , , , winnerEvm] = await client.readContract({
+  address: cfg.auctionHouse, abi: auctionAbi, functionName: "getAuction", args: [positionId],
 });
 
-const now = BigInt(Math.floor(Date.now() / 1000));
-const buyable =
-  active &&
-  winnerEvm === "0x0000000000000000000000000000000000000000" &&
-  now = collateralValueUsd * (TARGET_MARGIN_BPS / 10_000);
+const buyable = active && winnerEvm === "0x0000000000000000000000000000000000000000";
+```
+
+`buy` checks only `active`, `winnerEvm` and a non-empty BTC address, so do not filter on
+`expiresAt`. Past that point the price has bottomed out at the floor rather than closing, which
+usually makes those the cheapest auctions on the board.
+
+## Read the current price and quote profit
+
+`getCurrentPrice` is the live Dutch price in USDC. Value the collateral at the oracle rate and
+apply your own margin.
+
+:::code-group
+
+```ts [TypeScript]
+
+const priceRaw = await client.readContract({
+  address: cfg.auctionHouse, abi: auctionAbi, functionName: "getCurrentPrice", args: [positionId],
+});
+const priceUsdc = Number(formatUnits(priceRaw, 6));
+
+// getCurrentPrice returns 0 for an inactive auction and reverts on some older ones.
+// buy() prices internally, so a 0 here means unbuyable — never treat it as free.
+if (priceUsdc = collateralValueUsd * (TARGET_MARGIN_BPS / 10_000);
 ```
 
 ```python [Python]
-price_usdc = pool_price = auction.functions.getCurrentPrice(nft_id).call() / 1e6
-btc_price_usd = oracle.functions.getExchangeRateLiquidate().call() / 1e27
+price_usdc = auction.functions.getCurrentPrice(position_id).call() / 1e6
 
-# getAuction returns 9 values positionally; index 3 is collateralSatsForSale
-collateral_sats_for_sale = auction.functions.getAuction(nft_id).call()[3]
-
-collateral_btc = collateral_sats_for_sale / SATS_PER_BTC
-collateral_value_usd = collateral_btc * btc_price_usd
-net_profit = collateral_value_usd - price_usdc - EST_BTC_FEE_USD
-profitable = net_profit >= collateral_value_usd * (TARGET_MARGIN_BPS / 10_000)
+# getCurrentPrice returns 0 for an inactive auction and reverts on some older ones.
+# buy() prices internally, so a 0 here means unbuyable - never treat it as free.
+if price_usdc = collateral_value_usd * (TARGET_MARGIN_BPS / 10_000)
 ```
 
 :::
@@ -2909,7 +2924,7 @@ await wallet.writeContract({
 // 2) buy at the current price; btc address as UTF-8 bytes
 await wallet.writeContract({
   address: cfg.auctionHouse, abi: auctionAbi, functionName: "buy",
-  args: [nftId, toHex(btcAddress)],
+  args: [positionId, toHex(btcAddress)],
 });
 ```
 
@@ -2918,7 +2933,7 @@ await wallet.writeContract({
 usdc.functions.approve(cfg["auctionHouse"], price_raw).build_transaction({...})
 
 # 2) buy; btc address as UTF-8 bytes
-auction.functions.buy(nft_id, btc_address.encode("utf-8")).build_transaction({...})
+auction.functions.buy(position_id, btc_address.encode("utf-8")).build_transaction({...})
 ```
 
 :::
@@ -2929,16 +2944,18 @@ pre-flight.
 
 ## Open an auction (keeper)
 
-`checkHealth(nftId)` opens a Dutch auction on an unhealthy position and is permissionless. It
-is a no-op or reverts if the position is healthy, so pre-check to save gas. The health test is
-the collateral ratio (scaled so 1e16 = 100%) against the position market's threshold.
+`checkHealth(positionId)` opens a Dutch auction on an unhealthy position and is permissionless. On a
+healthy position it emits `LogHealthChecked` and returns without opening anything, so an
+unchecked call burns gas silently. It reverts only if the position is inactive or already in
+liquidation. Pre-check before sending. The health test is the collateral ratio (scaled so
+1e16 = 100%) against the position market's threshold.
 
 ```ts [TypeScript]
 const cr = await client.readContract({
-  address: cfg.vaultManager, abi: vaultAbi, functionName: "getCollateralRatio", args: [nftId],
+  address: cfg.vaultManager, abi: vaultAbi, functionName: "getCollateralRatio", args: [positionId],
 });
 const marketId = await client.readContract({
-  address: cfg.vaultManager, abi: vaultAbi, functionName: "positionMarket", args: [nftId],
+  address: cfg.vaultManager, abi: vaultAbi, functionName: "positionMarket", args: [positionId],
 });
 // threshold: legacy market (marketId == MAX_UINT256) uses getLegacyParams().liqThreshold;
 // otherwise (10000*10000) / markets(marketId).liquidationThresholdBps
