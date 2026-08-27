@@ -2301,7 +2301,7 @@ description: Integrate a Bitcoin-backed USDC credit line with the Surge Borrow S
 Offer a Bitcoin-backed credit line in your app with the headless Surge Borrow SDK.
 
 
-Access is gated to approved partners - reach out to the Surge team for a read-only npm token and test credentials. The shapes below match the shipped v0.1.
+`@surgecredit/borrow-sdk` is public on npm, so installing it needs no access token or registry config. The shapes below match the shipped v0.1.
 
 The SDK is **headless and signer-agnostic**: it never holds keys, renders no UI, and runs in the browser, Node, and React Native. You bring a Bitcoin taproot signer, an EVM signer, and a storage adapter; the SDK builds each intent, calls your signer, and talks to the Surge relayer.
 
@@ -2522,7 +2522,7 @@ await session.extendCreditLine({ positionId }); // { evmTxHash?, btcTxid, alread
 session.watchExtension(positionId, (u) => );
 ```
 
-Throws `EXTENSION_ALREADY_PENDING` if one is already in flight. Drive the renewal prompt from `position.isActive` (it goes `false` once the term ends), not a stored flag. There's no term-expiry timestamp on `Position`; `position.exitBlock` is the Bitcoin block height at which the term unlocks if you want to show when it lapses.
+Throws `EXTENSION_ALREADY_PENDING` if one is already in flight. The contract can also refuse the extension (for example when the position's LTV is too high to extend); that revert surfaces after the EIP-712 signature, not before it, so treat extend as available to try rather than guaranteed. Drive the renewal prompt from `position.isActive` (it goes `false` once the term ends), not a stored flag. There's no term-expiry timestamp on `Position`; `position.exitBlock` is the Bitcoin block height at which the term unlocks if you want to show when it lapses.
 
 ## Live activities
 
@@ -2556,7 +2556,7 @@ q.collateralValueUsd      // "14.29"  total needed: (debt + 10) / maxLtv
 q.existingCollateralUsd   // "5.00"   already in the vault
 q.additionalCollateralUsd // "9.29"   the gap
 q.requiredSats            // 10472n    0n) {
-  await session.extendCreditLine({ positionId }); // renew the term, collateral intact
+  await session.extendCreditLine({ positionId }); // available to renew; may still be refused on-chain
 } else {
   // Closed with nothing left - open a new credit line with createDeposit().
 }
@@ -2568,7 +2568,7 @@ Gate on `isActive`, not on a term timestamp. `isActive` is the usability signal 
 
 ## Testing on signet
 
-Integrate against signet first. Signet BTC is free from public faucets, and testnet USDC lives on Base Sepolia (the Circle faucet at [faucet.circle.com](https://faucet.circle.com) covers it). A full lifecycle on signet - deposit through withdraw - is the acceptance bar before mainnet access. Note the Surge **app is mainnet-only**, so for signet you verify against the SDK itself rather than the app.
+Integrate against signet first. Signet BTC is free from public faucets, and testnet USDC lives on Base Sepolia (the Circle faucet at [faucet.circle.com](https://faucet.circle.com) covers it). Run a full lifecycle on signet - deposit through withdraw - before you switch `network` to `"mainnet"`. Note the Surge **app is mainnet-only**, so for signet you verify against the SDK itself rather than the app.
 
 
 v0.1

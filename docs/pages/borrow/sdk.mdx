@@ -9,7 +9,7 @@ description: Integrate a Bitcoin-backed USDC credit line with the Surge Borrow S
 Offer a Bitcoin-backed credit line in your app with the headless Surge Borrow SDK.
 </div>
 
-Access is gated to approved partners - reach out to the Surge team for a read-only npm token and test credentials. The shapes below match the shipped v0.1.
+`@surgecredit/borrow-sdk` is public on npm, so installing it needs no access token or registry config. The shapes below match the shipped v0.1.
 
 The SDK is **headless and signer-agnostic**: it never holds keys, renders no UI, and runs in the browser, Node, and React Native. You bring a Bitcoin taproot signer, an EVM signer, and a storage adapter; the SDK builds each intent, calls your signer, and talks to the Surge relayer.
 
@@ -231,7 +231,7 @@ await session.extendCreditLine({ positionId }); // { evmTxHash?, btcTxid, alread
 session.watchExtension(positionId, (u) => {/* … -> confirmed | finalized */});
 ```
 
-Throws `EXTENSION_ALREADY_PENDING` if one is already in flight. Drive the renewal prompt from `position.isActive` (it goes `false` once the term ends), not a stored flag. There's no term-expiry timestamp on `Position`; `position.exitBlock` is the Bitcoin block height at which the term unlocks if you want to show when it lapses.
+Throws `EXTENSION_ALREADY_PENDING` if one is already in flight. The contract can also refuse the extension (for example when the position's LTV is too high to extend); that revert surfaces after the EIP-712 signature, not before it, so treat extend as available to try rather than guaranteed. Drive the renewal prompt from `position.isActive` (it goes `false` once the term ends), not a stored flag. There's no term-expiry timestamp on `Position`; `position.exitBlock` is the Bitcoin block height at which the term unlocks if you want to show when it lapses.
 
 ## Live activities
 
@@ -316,8 +316,9 @@ Every flow throws a typed `BorrowError` with a stable `.code` (plus `.status` an
 | `VAULT_NOT_CONFIRMED` | Acting before the collateral deposit has confirmed |
 | `VAULT_ADDRESS_MISMATCH` | Local vault re-derivation disagreed - usually a wrong BTC derivation path |
 | `WITHDRAWAL_AMOUNT_MISMATCH` | The PSBT amount ≠ the authorized pending withdrawal |
+| `INVALID_FEE_RATE` | `feeRate` is zero, negative, non-finite, or above the 1000 sat/vB ceiling - check the units, it is sat/vB not sats |
 | `POSITION_IN_LIQUIDATION` | The collateral is being seized - no credit action applies |
-| `POSITION_EXPIRED` | The term ended (`isActive: false`) and collateral remains - `extendCreditLine` renews it |
+| `POSITION_EXPIRED` | The term ended (`isActive: false`) and collateral remains - `extendCreditLine` is available to renew it, though the contract can still refuse |
 | `POSITION_CLOSED` | The position is closed with no collateral left - nothing to renew, `createDeposit` opens a new line |
 | `WITHDRAWAL_ALREADY_PENDING` | A withdrawal is authorized on-chain and spends the same vault UTXOs |
 | `INSUFFICIENT_MARKET_LIQUIDITY` | The draw exceeds what the market can lend right now |
@@ -330,7 +331,7 @@ Pre-flight validation runs before the SDK calls your signer, so the wallet is ne
 
 **Gating.** Every mutating call first checks the position can actually take it, and throws rather than prompting. Liquidation is checked always and reported first - the collateral is already being taken, so it outranks every other state. Whether the position is still live, a pending withdrawal, and market liquidity are checked where they apply: a pending withdrawal blocks `extendCreditLine` (both spend the same vault UTXOs) but **not** `repay`, since repaying is how a holder de-risks. You don't have to pre-check to be safe - reading the state is how you avoid *offering* an action that will throw.
 
-**When a position ends.** `position.isActive` is the actionability signal: it goes false when the term ends, when the line is repaid and closed, or when a liquidation settles. Drawing against any of those is refused; repay, withdraw, and `extendCreditLine` stay open, because renewing is the way out. Whether you get `POSITION_EXPIRED` or `POSITION_CLOSED` depends on whether collateral remains to renew against.
+**When a position ends.** `position.isActive` is the actionability signal: it goes false when the term ends, when the line is repaid and closed, or when a liquidation settles. Drawing against any of those is refused; repay, withdraw, and `extendCreditLine` stay available, and `extendCreditLine` is the way to renew. Available is not the same as guaranteed: the contract still decides whether a given position can be extended. Whether you get `POSITION_EXPIRED` or `POSITION_CLOSED` depends on whether collateral remains to renew against.
 
 Catching the code is enough to be safe, but the throw is a backstop rather than a UI. To avoid *offering* an action that will throw, read the state first:
 
@@ -342,7 +343,7 @@ if (p.inLiquidation) {
 } else if (p.isActive) {
   // Live: draw / repay / withdraw as normal.
 } else if (p.collateralSats > 0n) {
-  await session.extendCreditLine({ positionId }); // renew the term, collateral intact
+  await session.extendCreditLine({ positionId }); // available to renew; may still be refused on-chain
 } else {
   // Closed with nothing left - open a new credit line with createDeposit().
 }
@@ -354,7 +355,7 @@ Gate on `isActive`, not on a term timestamp. `isActive` is the usability signal 
 
 ## Testing on signet
 
-Integrate against signet first. Signet BTC is free from public faucets, and testnet USDC lives on Base Sepolia (the Circle faucet at [faucet.circle.com](https://faucet.circle.com) covers it). A full lifecycle on signet - deposit through withdraw - is the acceptance bar before mainnet access. Note the Surge **app is mainnet-only**, so for signet you verify against the SDK itself rather than the app.
+Integrate against signet first. Signet BTC is free from public faucets, and testnet USDC lives on Base Sepolia (the Circle faucet at [faucet.circle.com](https://faucet.circle.com) covers it). Run a full lifecycle on signet - deposit through withdraw - before you switch `network` to `"mainnet"`. Note the Surge **app is mainnet-only**, so for signet you verify against the SDK itself rather than the app.
 
 <div style={{ opacity: 0.55, fontSize: "0.8em", marginTop: "3rem" }}>
 v0.1
